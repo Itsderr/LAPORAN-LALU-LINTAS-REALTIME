@@ -1,6 +1,29 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+<!-- Firebase App (the core Firebase SDK) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+  import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAVHQKQ3iAGWPepnd_DuoGQmpxG40i8uMs",
+    authDomain: "laporan-lalu-lintas.firebaseapp.com",
+    databaseURL: "https://laporan-lalu-lintas-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "laporan-lalu-lintas",
+    storageBucket: "laporan-lalu-lintas.firebasestorage.app",
+    messagingSenderId: "706382913725",
+    appId: "1:706382913725:web:1069a4f53bea6b66a357d4",
+    measurementId: "G-GSF8YY40NQ"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
+
+  window.firebaseDB = database; // agar bisa dipakai di luar script ini
+  window.firebasePush = push;
+  window.firebaseRef = ref;
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LaluLintasKu — Laporan</title>
@@ -299,7 +322,37 @@ daerahEl.addEventListener('change', ()=>{
   }
 });
 
-document.getElementById('submitBtn').addEventListener('click', ()=>{
+document.getElementById('submitBtn').addEventListener('click', async () => {
+  const prov = provEl.value, kota = kotaEl.value, daerah = daerahEl.value;
+  const status = document.getElementById('status').value;
+  const deskripsi = document.getElementById('deskripsi').value || '';
+  if (!prov || !kota || !daerah || !status) {
+    alert('Lengkapi semua pilihan'); return;
+  }
+
+  const laporan = {
+    provinsi: prov,
+    kota: kota,
+    daerah: daerah,
+    status: status,
+    deskripsi: deskripsi,
+    waktu: new Date().toLocaleString()
+  };
+
+  try {
+    const laporanRef = ref(window.db, "laporan");
+    await push(laporanRef, laporan);
+    alert("✅ Laporan berhasil dikirim ke Firebase!");
+    laporanData.unshift(laporan);
+    document.getElementById('status').value = '';
+    document.getElementById('deskripsi').value = '';
+    updateStatistikTable();
+    updateSummaryForSelected();
+  } catch (err) {
+    console.error(err);
+    alert("❌ Gagal kirim ke database.");
+  }
+});
   const prov = provEl.value, kota=kotaEl.value, daerah=daerahEl.value;
   const status=document.getElementById('status').value;
   const deskripsi=document.getElementById('deskripsi').value||'';
