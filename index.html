@@ -5,240 +5,121 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LaluLintasKu</title>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: url('https://source.unsplash.com/1600x900/?traffic,road') no-repeat center center fixed;
-      background-size: cover;
+    body { margin: 0; font-family: Arial, sans-serif; background: #fff; }
+    header { background: green; color: white; padding: 10px; text-align: center; font-size: 20px; font-weight: bold; }
+    header img { height: 20px; margin-right: 10px; vertical-align: middle; }
+    #menuBtn { position: absolute; left: 10px; top: 10px; cursor: pointer; font-size: 22px; color: white; }
+    #sidebar {
+      height: 100%; width: 0; position: fixed; top: 0; left: 0;
+      background-color: rgba(0,0,0,0.8); overflow-x: hidden;
+      transition: 0.4s; padding-top: 60px;
     }
-    header {
-      background-color: green;
-      color: white;
-      text-align: center;
-      padding: 15px;
-      font-size: 22px;
-      position: relative;
-    }
-    .menu-btn {
-      position: absolute;
-      left: 15px;
-      top: 15px;
-      font-size: 24px;
-      cursor: pointer;
-    }
-
-    /* Sidebar */
-    .sidebar {
-      height: 100%;
-      width: 0;
-      position: fixed;
-      top: 0;
-      left: 0;
-      background-color: rgba(0,0,0,0.6);
-      overflow-x: hidden;
+    #sidebar a {
+      padding: 12px 20px; text-decoration: none; font-size: 18px; color: white; display: block;
       transition: 0.3s;
-      padding-top: 60px;
     }
-    .sidebar a {
-      padding: 10px 20px;
-      text-decoration: none;
-      font-size: 20px;
-      color: white;
-      display: block;
-      transition: 0.2s;
-    }
-    .sidebar a:hover {
-      background-color: rgba(255,255,255,0.2);
-    }
-
-    .content {
-      padding: 20px;
-      text-align: center;
-      color: white;
-    }
-
-    .hidden { display: none; }
-
-    select, button {
-      padding: 8px;
-      margin: 5px;
-      border-radius: 5px;
-    }
-
-    .box {
-      background: rgba(0,0,0,0.5);
-      padding: 20px;
-      margin: 15px auto;
-      border-radius: 10px;
-      max-width: 500px;
+    #sidebar a:hover { background-color: rgba(255,255,255,0.2); }
+    #sidebar .closeBtn { position: absolute; top: 10px; right: 20px; font-size: 25px; }
+    .content { padding: 20px; text-align: center; }
+    .card {
+      background: gray; color: white; padding: 20px; border-radius: 10px;
+      width: 300px; margin: 20px auto; text-align: center;
     }
   </style>
 </head>
 <body>
-  <header>
-    <span class="menu-btn" onclick="openSidebar()">☰</span>
-    🚦 LaluLintasKu
-  </header>
 
-  <!-- Sidebar -->
-  <div id="mySidebar" class="sidebar">
-    <a href="javascript:void(0)" onclick="closeSidebar()">✖ Tutup</a>
-    <a href="#" onclick="showSection('laporan')">Laporan</a>
-    <a href="#" onclick="showSection('statistik')">Statistik</a>
-    <a href="#" onclick="showSection('aman')">Cara Mengemudi dengan Aman</a>
-    <a href="#" onclick="showSection('login')">Login</a>
+<header>
+  <span id="menuBtn">&#9776;</span>
+  🚦 LaluLintasKu
+</header>
+
+<div id="sidebar">
+  <a href="javascript:void(0)" class="closeBtn" onclick="closeSidebar()">&times; Tutup</a>
+  <a href="#laporan" onclick="showPage('laporan')">Laporan</a>
+  <a href="#statistik" onclick="showPage('statistik')">Statistik</a>
+  <a href="#aman" onclick="showPage('aman')">Cara Mengemudi dengan Aman</a>
+  <a href="#login" onclick="showPage('login')">Login</a>
+</div>
+
+<div id="laporan" class="content">
+  <div class="card">
+    <h3>Laporan Lalu Lintas</h3>
+    <p>Formulir laporan lalu lintas akan tampil di sini.</p>
   </div>
+</div>
 
-  <!-- Konten -->
-  <div class="content">
-    <div id="home" class="box">
-      <h2>Selamat Datang di LaluLintasKu 🚗</h2>
-      <p>Pilih menu di pojok kiri atas untuk mulai.</p>
-    </div>
-
-    <!-- Form laporan -->
-    <div id="laporan" class="box hidden">
-      <h3>Kirim Laporan Lalu Lintas</h3>
-      <div>
-        <label>Pilih Provinsi:</label><br>
-        <select id="provinsi" onchange="tampilKota()">
-          <option value="">-- Pilih Provinsi --</option>
-          <option value="jatim">Jawa Timur</option>
-        </select>
-      </div>
-
-      <div id="kotaBox" class="hidden">
-        <label>Pilih Kota:</label><br>
-        <select id="kota" onchange="tampilDaerah()">
-          <option value="">-- Pilih Kota --</option>
-          <option value="banyuwangi">Banyuwangi</option>
-          <option value="surabaya">Surabaya</option>
-          <option value="sidoarjo">Sidoarjo</option>
-        </select>
-      </div>
-
-      <div id="daerahBox" class="hidden">
-        <label>Pilih Daerah:</label><br>
-        <select id="daerah">
-          <option value="">-- Pilih Daerah --</option>
-        </select>
-      </div>
-
-      <div id="statusBox" class="hidden">
-        <label>Status Lalu Lintas:</label><br>
-        <select id="status">
-          <option value="padat">Padat</option>
-          <option value="lancar">Lancar</option>
-          <option value="macet">Macet</option>
-        </select><br>
-        <button onclick="kirimLaporan()">Kirim Laporan</button>
-      </div>
-    </div>
-
-    <!-- Statistik -->
-    <div id="statistik" class="box hidden">
-      <h3>Statistik Laporan</h3>
-      <p id="statData">Belum ada laporan 🚧</p>
-    </div>
-
-    <!-- Cara aman -->
-    <div id="aman" class="box hidden">
-      <h3>Cara Mengemudi dengan Aman 🛡️</h3>
-      <ul style="text-align:left">
-        <li>Gunakan helm atau sabuk pengaman.</li>
-        <li>Patuhi rambu-rambu lalu lintas.</li>
-        <li>Jaga jarak aman dengan kendaraan depan.</li>
-        <li>Jangan gunakan ponsel saat berkendara.</li>
-        <li>Hindari ngebut di jalan ramai.</li>
-      </ul>
-    </div>
-
-    <!-- Login (dummy) -->
-    <div id="login" class="box hidden">
-      <h3>Login</h3>
-      <p>Untuk demo, login otomatis berhasil ✅</p>
-    </div>
+<div id="statistik" class="content" style="display:none;">
+  <div class="card" id="statistikCard">
+    <h3>Statistik Laporan</h3>
+    <p>Total laporan: <span id="total">0</span></p>
+    <div id="detailLokasi"></div>
   </div>
+</div>
 
-  <script>
-    // Sidebar control
-    function openSidebar() {
-      document.getElementById("mySidebar").style.width = "250px";
-    }
-    function closeSidebar() {
-      document.getElementById("mySidebar").style.width = "0";
-    }
+<div id="aman" class="content" style="display:none;">
+  <div class="card">
+    <h3>Cara Mengemudi dengan Aman</h3>
+    <p>1. Gunakan sabuk pengaman<br>
+       2. Jangan menggunakan HP saat mengemudi<br>
+       3. Patuhi rambu lalu lintas</p>
+  </div>
+</div>
 
-    // Show section
-    function showSection(id) {
-      document.querySelectorAll(".box").forEach(el => el.classList.add("hidden"));
-      document.getElementById(id).classList.remove("hidden");
-      closeSidebar();
-    }
+<div id="login" class="content" style="display:none;">
+  <div class="card">
+    <h3>Login</h3>
+    <p>Untuk demo, login otomatis berhasil ✅</p>
+  </div>
+</div>
 
-    // Data daerah
-    const daerahData = {
-      banyuwangi: ["Genteng", "Rogojampi", "Cluring", "Kalibaru"],
-      surabaya: ["Genteng", "Wonokromo", "Rungkut", "Tandes", "Sukolilo"],
-      sidoarjo: ["Krian", "Waru", "Buduran", "Porong", "Candi"]
-    };
+<script>
+  // Sidebar
+  document.getElementById("menuBtn").onclick = function() {
+    document.getElementById("sidebar").style.width = "250px";
+  }
+  function closeSidebar() {
+    document.getElementById("sidebar").style.width = "0";
+  }
 
-    // Form logic
-    function tampilKota() {
-      if (document.getElementById("provinsi").value === "jatim") {
-        document.getElementById("kotaBox").classList.remove("hidden");
-      }
-    }
+  // Navigasi antar halaman
+  function showPage(page) {
+    document.querySelectorAll('.content').forEach(div => div.style.display = 'none');
+    document.getElementById(page).style.display = 'block';
+    closeSidebar();
+  }
 
-    function tampilDaerah() {
-      let kota = document.getElementById("kota").value;
-      let daerahBox = document.getElementById("daerah");
-      daerahBox.innerHTML = "<option value=''>-- Pilih Daerah --</option>";
-      if (daerahData[kota]) {
-        daerahData[kota].forEach(d => {
-          let opt = document.createElement("option");
-          opt.value = d;
-          opt.textContent = d;
-          daerahBox.appendChild(opt);
-        });
-        document.getElementById("daerahBox").classList.remove("hidden");
-        document.getElementById("statusBox").classList.remove("hidden");
-      }
-    }
+  // Default buka di laporan
+  showPage('laporan');
 
-    // Simpan laporan
-    let laporan = [];
-    function kirimLaporan() {
-      let prov = document.getElementById("provinsi").value;
-      let kota = document.getElementById("kota").value;
-      let daerah = document.getElementById("daerah").value;
-      let status = document.getElementById("status").value;
+  // Simulasi data dari Firebase
+  let dataLaporan = [
+    { kondisi: "padat", lokasi: "Jl. Sudirman" },
+    { kondisi: "padat", lokasi: "Jl. Diponegoro" },
+    { kondisi: "lancar", lokasi: "Jl. Merdeka" }
+  ];
 
-      if (!prov || !kota || !daerah) {
-        alert("Mohon lengkapi data laporan.");
-        return;
-      }
+  function updateStatistik() {
+    let total = dataLaporan.length;
+    document.getElementById("total").innerText = total;
 
-      laporan.push({ prov, kota, daerah, status });
-      alert("Laporan terkirim ✅");
-      updateStatistik();
+    let lokasiDetail = "";
+    let grouped = {};
+
+    dataLaporan.forEach(lap => {
+      if (!grouped[lap.kondisi]) grouped[lap.kondisi] = [];
+      grouped[lap.kondisi].push(lap.lokasi);
+    });
+
+    for (let kondisi in grouped) {
+      lokasiDetail += `<p>${kondisi}: ${grouped[kondisi].length} laporan (${grouped[kondisi].join(", ")})</p>`;
     }
 
-    function updateStatistik() {
-      if (laporan.length === 0) {
-        document.getElementById("statData").textContent = "Belum ada laporan 🚧";
-        return;
-      }
-      let count = {};
-      laporan.forEach(l => {
-        count[l.status] = (count[l.status] || 0) + 1;
-      });
-      let hasil = "Total laporan: " + laporan.length + "<br>";
-      for (let s in count) {
-        hasil += `${s}: ${count[s]} laporan<br>`;
-      }
-      document.getElementById("statData").innerHTML = hasil;
-    }
-  </script>
+    document.getElementById("detailLokasi").innerHTML = lokasiDetail;
+  }
+
+  updateStatistik();
+</script>
+
 </body>
 </html>
