@@ -13,14 +13,12 @@
   --panel-bg: rgba(0,0,0,0.6);
 }
 
-/* BODY */
 body{
   margin:0;
   font-family: Inter, system-ui, Arial, sans-serif;
   background: var(--page-bg);
 }
 
-/* HEADER */
 .header {
   background: var(--green);
   color: white;
@@ -33,7 +31,6 @@ body{
 }
 .header h1{ margin:0; font-size:20px; display:inline-block; vertical-align:middle; }
 
-/* SIDEBAR */
 .sidebar {
   position: fixed;
   top:0;
@@ -50,14 +47,12 @@ body{
 .sidebar a{ display:block; padding:12px 18px; color:#fff; text-decoration:none; font-size:15px; }
 .sidebar a:hover{ background: rgba(255,255,255,0.08); }
 
-/* MAIN CONTENT AREA */
 .main {
   padding:24px;
   max-width:1000px;
   margin: 24px auto;
 }
 
-/* FORM CARD */
 .card {
   background: rgba(255,255,255,0.95);
   border-radius: 18px;
@@ -67,7 +62,7 @@ body{
   max-width: 620px;
   text-align: center;
 }
-.card h2,h3{ margin-top:0; margin-bottom:12px; color:#111; }
+.card h2{ margin-top:0; margin-bottom:12px; color:#111; }
 label{ display:block; margin:10px 0 6px; color:#333; font-size:14px; }
 select, textarea, input[type="text"]{
   width:92%;
@@ -88,7 +83,6 @@ textarea{ min-height:110px; resize:vertical; }
 }
 .btn:hover{ background:var(--green-dark); }
 
-/* Statistik table */
 .stats-card{ max-width:900px; margin:18px auto; padding:18px; border-radius:12px; background:#fff; box-shadow:0 6px 18px rgba(0,0,0,0.06);}
 table{ width:100%; border-collapse:collapse; margin-top:12px;}
 th,td{ padding:8px 10px; border:1px solid #e6e6e6; text-align:center; font-size:14px;}
@@ -98,14 +92,12 @@ th{ background:#f7faf7; color:#222; }
 .status-padat{ color:#c67a00; font-weight:700; }
 .status-macet{ color:red; font-weight:700; }
 
-/* responsive */
 @media (max-width:640px){
   .card{ padding:18px; border-radius:14px; width:94%; }
   select,input,textarea{ width:100%; }
   .sidebar{ width:220px; }
 }
 
-/* small helper */
 .muted{ color:#666; font-size:13px; margin-top:8px; }
 .small{ font-size:13px; color:#444; }
 
@@ -122,9 +114,9 @@ th{ background:#f7faf7; color:#222; }
 <header class="header">
   <span class="menu-btn" id="menuBtn">☰</span>
   <h1>
-  <img src="trafficlight.png" alt="icon" style="height:44px; vertical-align:middle; margin-right:6px;">
-  LaluLintasKu
-</h1>
+    <img src="trafficlight.png" alt="icon" style="height:44px; vertical-align:middle; margin-right:6px;">
+    LaluLintasKu
+  </h1>
 </header>
 <img src="logo.png" alt="Logo" id="logoSmall">
 
@@ -136,7 +128,7 @@ th{ background:#f7faf7; color:#222; }
 </nav>
 
 <main class="main">
-  <!-- FORM -->
+  <!-- FORM Laporan -->
   <section id="laporanSection" class="card">
     <h2>Laporan Lalu Lintas</h2>
     <label for="provinsi">Pilih Provinsi:</label>
@@ -181,7 +173,7 @@ th{ background:#f7faf7; color:#222; }
     <div id="summary" style="margin-top:18px;"></div>
   </section>
 
-  <!-- STATISTIK -->
+  <!-- Statistik -->
   <section id="statistikSection" class="stats-card" style="display:none;">
     <h3>📊 Statistik Laporan (Dari semua laporan)</h3>
     <div id="statsSummary" class="small">Belum ada laporan.</div>
@@ -203,6 +195,7 @@ th{ background:#f7faf7; color:#222; }
     <div id="recentList" class="small" style="text-align:left;"></div>
   </section>
 
+  <!-- Cara Aman -->
   <section id="amanSection" class="card" style="display:none;">
     <h3>Cara Mengemudi dengan Aman</h3>
     <ul style="text-align:left;">
@@ -214,18 +207,18 @@ th{ background:#f7faf7; color:#222; }
     </ul>
   </section>
 
+  <!-- Login -->
   <section id="loginSection" class="card" style="display:none;">
     <h3>Login (Sementara)</h3>
     <p class="small">Untuk demo lomba cukup gunakan 1 akun (fitur login akan dikembangkan nanti).</p>
   </section>
 </main>
 
-<!-- Firebase SDK -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
-import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+// --- FIREBASE CONFIG ---
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.23.0/firebase-app.js";
+import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.23.0/firebase-database.js";
 
-// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyAVHQKQ3iAGWPepnd_DuoGQmpxG40i8uMs",
   authDomain: "laporan-lalu-lintas.firebaseapp.com",
@@ -240,7 +233,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Sidebar toggle
+// --- SIDEBAR ---
 const menuBtn = document.getElementById('menuBtn');
 const sidebar = document.getElementById('sidebar');
 menuBtn.addEventListener('click', ()=> sidebar.classList.toggle('active'));
@@ -252,9 +245,9 @@ function goto(page){
   document.getElementById(page+'Section').style.display='block';
   sidebar.classList.remove('active');
 }
-goto('laporan');
+goto('laporan'); // tampilkan default
 
-// WILAYAH
+// --- DROPDOWN ---
 const provEl = document.getElementById('provinsi');
 const kotaEl = document.getElementById('kota');
 const daerahEl = document.getElementById('daerah');
@@ -308,45 +301,89 @@ daerahEl.addEventListener('change', ()=>{
   }
 });
 
-// SUBMIT
+// --- KIRIM LAPORAN ---
 document.getElementById('submitBtn').addEventListener('click', ()=>{
   const prov = provEl.value, kota=kotaEl.value, daerah=daerahEl.value;
   const status=document.getElementById('status').value;
   const deskripsi=document.getElementById('deskripsi').value||'';
   if(!prov||!kota||!daerah||!status){ alert('Lengkapi semua pilihan'); return; }
   const t=new Date().toLocaleString();
-  push(ref(db,'laporan'), {provinsi:prov,kota:kota,daerah:daerah,status:status,deskripsi:deskripsi,waktu:t});
+  const laporanRef = ref(db, 'laporan');
+  push(laporanRef, {provinsi:prov,kota:kota,daerah:daerah,status:status,deskripsi:deskripsi,waktu:t});
   document.getElementById('status').value='';
   document.getElementById('deskripsi').value='';
   alert('✅ Laporan berhasil dikirim!');
-  updateSummaryForSelected();
 });
 
-// UTILS
-function escapeHtml(s){ return (s+'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+// --- AMBIL DATA DAN UPDATE STATISTIK ---
+const statsTable=document.getElementById('statsTable');
+const tbody=document.getElementById('statsTbody');
+const statsSummary=document.getElementById('statsSummary');
+const recentList=document.getElementById('recentList');
 
-// SUMMARY
-function updateSummaryForSelected(){
+const laporanRef = ref(db,'laporan');
+onValue(laporanRef, (snapshot)=>{
+  const data = snapshot.val();
+  const laporanData = data ? Object.values(data).reverse() : [];
+
+  // Statistik per daerah
+  const grouping = {};
+  laporanData.forEach(l=>{
+    const key = `${l.daerah}, ${l.kota}`;
+    if(!grouping[key]) grouping[key]={Lancar:0,Ramai:0,Padat:0,Macet:0};
+    if(grouping[key][l.status]!==undefined) grouping[key][l.status]++;
+  });
+
+  // Tabel
+  tbody.innerHTML='';
+  for(const key of Object.keys(grouping)){
+    const row=grouping[key];
+    const total=row.Lancar+row.Ramai+row.Padat+row.Macet;
+    const maxCount=Math.max(row.Lancar,row.Ramai,row.Padat,row.Macet);
+    let winners=['Lancar','Ramai','Padat','Macet'].filter(k=>row[k]===maxCount && maxCount>0);
+    const mayoritas=winners.length===1?winners[0]:'Seimbang';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${key}</td>
+                  <td class="status-lancar">${row.Lancar}</td>
+                  <td class="status-ramai">${row.Ramai}</td>
+                  <td class="status-padat">${row.Padat}</td>
+                  <td class="status-macet">${row.Macet}</td>
+                  <td>${total}</td>
+                  <td><b>${mayoritas}</b></td>`;
+    tbody.appendChild(tr);
+  }
+
+  statsSummary.innerHTML= `Total laporan: <b>${laporanData.length}</b> • Daerah terlapor: <b>${Object.keys(grouping).length}</b>`;
+  statsTable.style.display = laporanData.length>0 ? 'table':'none';
+
+  // Recent list
+  recentList.innerHTML='';
+  laporanData.slice(0,10).forEach(r=>{
+    const div=document.createElement('div');
+    div.style.padding='6px 0';
+    div.innerHTML=`<b>[${r.waktu}]</b> ${r.daerah}, ${r.kota} — <span class="small">${r.status}</span> ${r.deskripsi?'- '+escapeHtml(r.deskripsi):''}`;
+    recentList.appendChild(div);
+  });
+
+  // Update ringkasan form jika ada pilihan
+  updateSummaryForSelected(laporanData);
+});
+
+function updateSummaryForSelected(laporanDataAll){
   const prov=provEl.value,kota=kotaEl.value,daerah=daerahEl.value,sDiv=summaryDiv;
   sDiv.innerHTML='';
   if(!prov||!kota||!daerah) return;
   const counts={Lancar:0,Ramai:0,Padat:0,Macet:0};
-  const laporanRef = ref(db,'laporan');
-  onValue(laporanRef, snapshot=>{
-    const data = snapshot.val() || {};
-    Object.values(data).forEach(l=>{
-      if(l.provinsi===prov && l.kota===kota && l.daerah===daerah && counts[l.status]!==undefined){
-        counts[l.status]++;
-      }
-    });
-    const total=counts.Lancar+counts.Ramai+counts.Padat+counts.Macet;
-    let mayoritas='Belum ada laporan';
-    if(total>0){
-      const max=Math.max(counts.Lancar,counts.Ramai,counts.Padat,counts.Macet);
-      const winners=Object.keys(counts).filter(k=>counts[k]===max && max>0);
-      mayoritas=winners.length===1?winners[0]:'Seimbang';
-    }
-    sDiv.innerHTML=`
+  const laporanData = laporanDataAll || [];
+  laporanData.forEach(l=>{ if(l.provinsi===prov && l.kota===kota && l.daerah===daerah){ if(counts[l.status]!==undefined) counts[l.status]++; }});
+  const total=counts.Lancar+counts.Ramai+counts.Padat+counts.Macet;
+  let mayoritas='Belum ada laporan';
+  if(total>0){
+    const max=Math.max(counts.Lancar,counts.Ramai,counts.Padat,counts.Macet);
+    const winners=Object.keys(counts).filter(k=>counts[k]===max && max>0);
+    mayoritas=winners.length===1?winners[0]:'Seimbang';
+  }
+  sDiv.innerHTML=`
     <div style="margin-top:16px; text-align:center;">
       <div style="display:inline-block; padding:10px 16px; background:#f7f7f7; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
         <div style="font-size:14px;color:#555">Ringkasan untuk <b>${daerah}, ${kota}</b></div>
@@ -359,66 +396,10 @@ function updateSummaryForSelected(){
         </div>
       </div>
     </div>`;
-  });
 }
 
-// STATISTIK
-function updateStatistikFirebase(){
-  const statsTbody = document.getElementById('statsTbody');
-  const statsSummary = document.getElementById('statsSummary');
-  const statsTable = document.getElementById('statsTable');
-  const recentList = document.getElementById('recentList');
+function escapeHtml(s){ return (s+'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-  const laporanRef = ref(db,'laporan');
-  onValue(laporanRef, snapshot=>{
-    const data = snapshot.val() || {};
-    const grouping = {};
-
-    Object.values(data).forEach(l=>{
-      const key = `${l.daerah}, ${l.kota}`;
-      if(!grouping[key]) grouping[key]={Lancar:0,Ramai:0,Padat:0,Macet:0};
-      if(grouping[key][l.status]!==undefined) grouping[key][l.status]++;
-    });
-
-    statsTbody.innerHTML='';
-    if(Object.keys(grouping).length===0){
-      statsSummary.innerHTML='Belum ada laporan masuk.';
-      statsTable.style.display='none';
-      recentList.innerHTML='';
-      return;
-    }
-
-    for(const key of Object.keys(grouping)){
-      const row = grouping[key];
-      const total = row.Lancar+row.Ramai+row.Padat+row.Macet;
-      const maxCount = Math.max(row.Lancar,row.Ramai,row.Padat,row.Macet);
-      const winners = ['Lancar','Ramai','Padat','Macet'].filter(k=>row[k]===maxCount && maxCount>0);
-      const mayoritas = winners.length===1 ? winners[0]:'Seimbang';
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${key}</td>
-                      <td class="status-lancar">${row.Lancar}</td>
-                      <td class="status-ramai">${row.Ramai}</td>
-                      <td class="status-padat">${row.Padat}</td>
-                      <td class="status-macet">${row.Macet}</td>
-                      <td>${total}</td>
-                      <td><b>${mayoritas}</b></td>`;
-      statsTbody.appendChild(tr);
-    }
-
-    statsSummary.innerHTML=`Total laporan: <b>${Object.values(data).length}</b> • Daerah terlapor: <b>${Object.keys(grouping).length}</b>`;
-    statsTable.style.display='table';
-
-    // Laporan terbaru
-    recentList.innerHTML='';
-    Object.values(data).slice(-10).reverse().forEach(r=>{
-      const div = document.createElement('div');
-      div.style.padding='6px 0';
-      div.innerHTML=`<b>[${r.waktu}]</b> ${r.daerah}, ${r.kota} — <span class="small">${r.status}</span> ${r.deskripsi?'- '+escapeHtml(r.deskripsi):''}`;
-      recentList.appendChild(div);
-    });
-  });
-}
-updateStatistikFirebase();
 </script>
 </body>
 </html>
