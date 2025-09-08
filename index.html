@@ -1,251 +1,88 @@
-ww<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LaluLintasKu</title>
+  <title>Laporan Lalu Lintas</title>
   <style>
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
-      background: #f4f4f4;
-    }
-    .navbar {
-      background: #007a1c;
-      color: white;
-      padding: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-    .navbar h1 {
+      background: #f2f2f2;
       margin: 0;
+      padding: 0;
+    }
+
+    .form-container {
+      width: 600px;
+      max-width: 90%;
+      margin: 50px auto;
+      padding: 30px;
+      background: #fff;
+      border-radius: 20px; /* semi oval */
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       text-align: center;
     }
-    .menu-btn {
-      position: absolute;
-      left: 10px;
-      font-size: 24px;
-      cursor: pointer;
+
+    .form-container h2 {
+      margin-bottom: 20px;
+      color: #000;
     }
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: -250px;
-      width: 200px;
-      height: 100%;
-      background: rgba(0, 122, 28, 0.9);
-      color: white;
-      padding-top: 60px;
-      transition: left 0.3s ease;
-    }
-    .sidebar a {
-      display: block;
-      padding: 12px;
-      color: white;
-      text-decoration: none;
-    }
-    .sidebar a:hover {
-      background: rgba(255,255,255,0.2);
-    }
-    .sidebar.active {
-      left: 0;
-    }
-    .content {
-      padding: 20px;
-      text-align: center;
-    }
-    .card {
-      background: white;
-      padding: 20px;
-      margin: 20px auto;
+
+    .form-container select,
+    .form-container textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
       border-radius: 8px;
-      box-shadow: 0px 2px 6px rgba(0,0,0,0.2);
-      max-width: 500px;
+      font-size: 16px;
     }
-    button {
-      padding: 10px 15px;
-      border: none;
-      background: #007a1c;
+
+    .form-container button {
+      background: #007c2f;
       color: white;
-      border-radius: 5px;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
       cursor: pointer;
     }
-    button:hover {
-      background: #005c15;
+
+    .form-container button:hover {
+      background: #005d24;
     }
   </style>
 </head>
 <body>
-  <div class="navbar">
-    <span class="menu-btn">&#9776;</span>
-    <h1>🚦 LaluLintasKu</h1>
+
+  <div class="form-container">
+    <h2>Laporan Lalu Lintas</h2>
+    <label>Pilih Provinsi:</label>
+    <select>
+      <option>Jawa Timur</option>
+      <option>Jawa Barat</option>
+      <option>DKI Jakarta</option>
+    </select>
+
+    <label>Pilih Kota:</label>
+    <select>
+      <option>Surabaya</option>
+      <option>Malang</option>
+      <option>Sidoarjo</option>
+    </select>
+
+    <label>Pilih Daerah:</label>
+    <select>
+      <option>Genteng</option>
+      <option>Wonokromo</option>
+      <option>Tegalsari</option>
+    </select>
+
+    <label>Deskripsi Laporan:</label>
+    <textarea rows="4" placeholder="Tuliskan laporan Anda..."></textarea>
+
+    <button>Kirim Laporan</button>
   </div>
 
-  <div class="sidebar" id="sidebar">
-    <a href="#laporan" onclick="showPage('laporan')">📋 Laporan</a>
-    <a href="#statistik" onclick="showPage('statistik')">📊 Statistik</a>
-    <a href="#aman" onclick="showPage('aman')">🚗 Cara Mengemudi dengan Aman</a>
-    <a href="#login" onclick="showPage('login')">🔑 Login</a>
-  </div>
-
-  <div class="content">
-    <!-- Laporan -->
-    <div id="laporan" class="page card">
-      <h2>Laporan Lalu Lintas</h2>
-      <div id="laporanForm">
-        <div id="step1">
-          <p>Pilih Provinsi:</p>
-          <select id="provinsi" onchange="nextStep(2)">
-            <option value="">-- Pilih --</option>
-            <option value="Jawa Timur">Jawa Timur</option>
-            <option value="Jawa Barat">Jawa Barat</option>
-            <option value="DKI Jakarta">DKI Jakarta</option>
-          </select>
-        </div>
-        <div id="step2" style="display:none;">
-          <p>Pilih Kota:</p>
-          <select id="kota" onchange="nextStep(3)">
-            <option value="">-- Pilih --</option>
-          </select>
-        </div>
-        <div id="step3" style="display:none;">
-          <p>Pilih Daerah:</p>
-          <select id="daerah" onchange="nextStep(4)">
-            <option value="">-- Pilih --</option>
-          </select>
-        </div>
-        <div id="step4" style="display:none;">
-          <p>Deskripsi Laporan:</p>
-          <textarea id="deskripsi" rows="4" cols="40"></textarea><br><br>
-          <button onclick="submitLaporan()">Kirim Laporan</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Statistik -->
-    <div id="statistik" class="page card" style="display:none;">
-      <h2>Statistik Lalu Lintas</h2>
-      <div id="statistikData">
-        <p>Belum ada laporan masuk.</p>
-      </div>
-    </div>
-
-    <!-- Cara Mengemudi dengan Aman -->
-    <div id="aman" class="page card" style="display:none;">
-      <h2>Cara Mengemudi dengan Aman</h2>
-      <ul style="text-align:left;">
-        <li>Gunakan helm dan sabuk pengaman.</li>
-        <li>Patuhi rambu lalu lintas.</li>
-        <li>Jaga jarak aman dengan kendaraan lain.</li>
-        <li>Hindari penggunaan HP saat berkendara.</li>
-      </ul>
-    </div>
-
-    <!-- Login -->
-    <div id="login" class="page card" style="display:none;">
-      <h2>Login</h2>
-      <p>(Sementara login dummy, nanti bisa dihubungkan ke Firebase)</p>
-      <input type="text" placeholder="Username"><br><br>
-      <input type="password" placeholder="Password"><br><br>
-      <button>Login</button>
-    </div>
-  </div>
-
-  <script>
-    const sidebar = document.getElementById("sidebar");
-    document.querySelector(".menu-btn").onclick = () => {
-      sidebar.classList.toggle("active");
-    };
-
-    function showPage(page) {
-      document.querySelectorAll(".page").forEach(p => p.style.display = "none");
-      document.getElementById(page).style.display = "block";
-      sidebar.classList.remove("active");
-    }
-
-    let laporanData = [];
-
-    function nextStep(step) {
-      if (step === 2) {
-        document.getElementById("step2").style.display = "block";
-        const provinsi = document.getElementById("provinsi").value;
-        const kotaSelect = document.getElementById("kota");
-        kotaSelect.innerHTML = '<option value="">-- Pilih --</option>';
-        if (provinsi === "Jawa Timur") {
-          kotaSelect.innerHTML += '<option value="Surabaya">Surabaya</option>';
-          kotaSelect.innerHTML += '<option value="Sidoarjo">Sidoarjo</option>';
-          kotaSelect.innerHTML += '<option value="Banyuwangi">Banyuwangi</option>';
-        } else if (provinsi === "Jawa Barat") {
-          kotaSelect.innerHTML += '<option value="Bandung">Bandung</option>';
-          kotaSelect.innerHTML += '<option value="Bekasi">Bekasi</option>';
-        } else if (provinsi === "DKI Jakarta") {
-          kotaSelect.innerHTML += '<option value="Jakarta Pusat">Jakarta Pusat</option>';
-          kotaSelect.innerHTML += '<option value="Jakarta Timur">Jakarta Timur</option>';
-        }
-      } else if (step === 3) {
-        document.getElementById("step3").style.display = "block";
-        const kota = document.getElementById("kota").value;
-        const daerahSelect = document.getElementById("daerah");
-        daerahSelect.innerHTML = '<option value="">-- Pilih --</option>';
-        if (kota === "Surabaya") {
-          daerahSelect.innerHTML += '<option value="Genteng">Genteng</option>';
-          daerahSelect.innerHTML += '<option value="Wonokromo">Wonokromo</option>';
-        } else if (kota === "Sidoarjo") {
-          daerahSelect.innerHTML += '<option value="Krian">Krian</option>';
-          daerahSelect.innerHTML += '<option value="Waru">Waru</option>';
-        } else if (kota === "Banyuwangi") {
-          daerahSelect.innerHTML += '<option value="Rogojampi">Rogojampi</option>';
-          daerahSelect.innerHTML += '<option value="Genteng">Genteng</option>';
-        }
-      } else if (step === 4) {
-        document.getElementById("step4").style.display = "block";
-      }
-    }
-
-    function submitLaporan() {
-      const provinsi = document.getElementById("provinsi").value;
-      const kota = document.getElementById("kota").value;
-      const daerah = document.getElementById("daerah").value;
-      const deskripsi = document.getElementById("deskripsi").value;
-
-      if (!provinsi || !kota || !daerah || !deskripsi) {
-        alert("Lengkapi semua data dulu!");
-        return;
-      }
-
-      laporanData.push({ provinsi, kota, daerah, deskripsi });
-
-      alert("Laporan berhasil dikirim!");
-
-      updateStatistik();
-
-      location.reload();
-    }
-
-    function updateStatistik() {
-      const stats = document.getElementById("statistikData");
-      if (laporanData.length === 0) {
-        stats.innerHTML = "<p>Belum ada laporan masuk.</p>";
-        return;
-      }
-
-      const total = laporanData.length;
-
-      // Hitung lokasi terbanyak
-      const countKota = {};
-      laporanData.forEach(l => {
-        countKota[l.kota] = (countKota[l.kota] || 0) + 1;
-      });
-
-      const kotaTerbanyak = Object.keys(countKota).reduce((a, b) => countKota[a] > countKota[b] ? a : b);
-
-      stats.innerHTML = `
-        <p>Total laporan: <b>${total}</b></p>
-        <p>Kota terbanyak dilaporkan: <b>${kotaTerbanyak}</b></p>
-      `;
-    }
-  </script>
 </body>
 </html>
