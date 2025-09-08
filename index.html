@@ -4,40 +4,140 @@
   <meta charset="UTF-8">
   <title>Laporan Lalu Lintas</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    select, button { margin: 10px 0; padding: 5px; }
-    .hasil { margin-top: 20px; font-weight: bold; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f9f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+    }
+    header {
+      width: 100%;
+      background-color: #2e7d32;
+      color: white;
+      padding: 20px 0;
+      text-align: center;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    }
+    header img {
+      width: 50px;
+      vertical-align: middle;
+      margin-right: 10px;
+    }
+    h1 {
+      display: inline;
+      font-size: 24px;
+    }
+    .container {
+      margin-top: 30px;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+    select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    button {
+      background-color: #2e7d32;
+      color: white;
+      cursor: pointer;
+      border: none;
+    }
+    button:hover {
+      background-color: #256328;
+    }
+    .hasil {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #2e7d32;
+    }
+    table {
+      margin-top: 20px;
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #e0f2e9;
+    }
   </style>
 </head>
 <body>
-  <h2>Laporan Lalu Lintas Real-Time</h2>
-  
-  <label>Provinsi:</label><br>
-  <select id="provinsi" onchange="updateKota()">
-    <option value="">-- Pilih Provinsi --</option>
-    <option value="jatim">Jawa Timur</option>
-  </select><br>
+  <header>
+    <img src="https://cdn-icons-png.flaticon.com/512/854/854894.png" alt="Logo">
+    <h1>Laporan Lalu Lintas</h1>
+  </header>
 
-  <label>Kota/Kabupaten:</label><br>
-  <select id="kota" onchange="updateDaerah()">
-    <option value="">-- Pilih Kota/Kabupaten --</option>
-  </select><br>
+  <div class="container">
+    <!-- Step 1 -->
+    <div id="step1">
+      <label>Pilih Provinsi:</label><br>
+      <select id="provinsi" onchange="nextStep(2)">
+        <option value="">-- Pilih Provinsi --</option>
+        <option value="jatim">Jawa Timur</option>
+      </select>
+    </div>
 
-  <label>Daerah/Kecamatan:</label><br>
-  <select id="daerah">
-    <option value="">-- Pilih Daerah --</option>
-  </select><br>
+    <!-- Step 2 -->
+    <div id="step2" style="display:none;">
+      <label>Pilih Kota/Kabupaten:</label><br>
+      <select id="kota" onchange="nextStep(3)">
+        <option value="">-- Pilih Kota/Kabupaten --</option>
+      </select>
+    </div>
 
-  <label>Kondisi Lalu Lintas:</label><br>
-  <select id="status">
-    <option value="Lancar">Lancar</option>
-    <option value="Ramai">Ramai</option>
-    <option value="Macet">Macet</option>
-  </select><br>
+    <!-- Step 3 -->
+    <div id="step3" style="display:none;">
+      <label>Pilih Daerah/Kecamatan:</label><br>
+      <select id="daerah" onchange="nextStep(4)">
+        <option value="">-- Pilih Daerah --</option>
+      </select>
+    </div>
 
-  <button onclick="lapor()">Kirim Laporan</button>
+    <!-- Step 4 -->
+    <div id="step4" style="display:none;">
+      <label>Kondisi Lalu Lintas:</label><br>
+      <select id="status">
+        <option value="Lancar">Lancar</option>
+        <option value="Ramai">Ramai</option>
+        <option value="Macet">Macet</option>
+      </select><br>
+      <button onclick="lapor()">Kirim Laporan</button>
+    </div>
 
-  <div class="hasil" id="hasil"></div>
+    <div class="hasil" id="hasil"></div>
+
+    <!-- Statistik -->
+    <h3>📊 Statistik Laporan</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Daerah</th>
+          <th>Lancar</th>
+          <th>Ramai</th>
+          <th>Macet</th>
+        </tr>
+      </thead>
+      <tbody id="statistik"></tbody>
+    </table>
+  </div>
 
   <script>
     const dataWilayah = {
@@ -48,29 +148,35 @@
       }
     };
 
-    function updateKota() {
-      let prov = document.getElementById("provinsi").value;
-      let kota = document.getElementById("kota");
-      kota.innerHTML = "<option value=''>-- Pilih Kota/Kabupaten --</option>";
+    let laporanData = {}; // simpan semua laporan
 
-      if (prov && dataWilayah[prov]) {
-        Object.keys(dataWilayah[prov]).forEach(k => {
-          kota.innerHTML += `<option value="${k}">${k}</option>`;
-        });
-      }
-      document.getElementById("daerah").innerHTML = "<option value=''>-- Pilih Daerah --</option>";
-    }
-
-    function updateDaerah() {
-      let prov = document.getElementById("provinsi").value;
-      let kota = document.getElementById("kota").value;
-      let daerah = document.getElementById("daerah");
-      daerah.innerHTML = "<option value=''>-- Pilih Daerah --</option>";
-
-      if (prov && kota && dataWilayah[prov][kota]) {
-        dataWilayah[prov][kota].forEach(d => {
-          daerah.innerHTML += `<option value="${d}">${d}</option>`;
-        });
+    function nextStep(step) {
+      if (step === 2) {
+        let prov = document.getElementById("provinsi").value;
+        let kota = document.getElementById("kota");
+        kota.innerHTML = "<option value=''>-- Pilih Kota/Kabupaten --</option>";
+        if (prov && dataWilayah[prov]) {
+          Object.keys(dataWilayah[prov]).forEach(k => {
+            kota.innerHTML += `<option value="${k}">${k}</option>`;
+          });
+          document.getElementById("step2").style.display = "block";
+        }
+      } else if (step === 3) {
+        let prov = document.getElementById("provinsi").value;
+        let kota = document.getElementById("kota").value;
+        let daerah = document.getElementById("daerah");
+        daerah.innerHTML = "<option value=''>-- Pilih Daerah --</option>";
+        if (prov && kota && dataWilayah[prov][kota]) {
+          dataWilayah[prov][kota].forEach(d => {
+            daerah.innerHTML += `<option value="${d}">${d}</option>`;
+          });
+          document.getElementById("step3").style.display = "block";
+        }
+      } else if (step === 4) {
+        let daerah = document.getElementById("daerah").value;
+        if (daerah) {
+          document.getElementById("step4").style.display = "block";
+        }
       }
     }
 
@@ -85,8 +191,34 @@
         return;
       }
 
+      let key = `${daerah}, ${kota}, Jawa Timur`;
+
+      if (!laporanData[key]) {
+        laporanData[key] = { Lancar: 0, Ramai: 0, Macet: 0 };
+      }
+      laporanData[key][status]++;
+
       document.getElementById("hasil").innerText =
-        `Laporan terkirim: ${daerah}, ${kota}, Jawa Timur → Kondisi: ${status}`;
+        `✅ Laporan terkirim: ${daerah}, ${kota}, Jawa Timur → Kondisi: ${status}`;
+
+      updateStatistik();
+    }
+
+    function updateStatistik() {
+      let tbody = document.getElementById("statistik");
+      tbody.innerHTML = "";
+
+      for (let daerah in laporanData) {
+        let row = `
+          <tr>
+            <td>${daerah}</td>
+            <td>${laporanData[daerah].Lancar}</td>
+            <td>${laporanData[daerah].Ramai}</td>
+            <td>${laporanData[daerah].Macet}</td>
+          </tr>
+        `;
+        tbody.innerHTML += row;
+      }
     }
   </script>
 </body>
