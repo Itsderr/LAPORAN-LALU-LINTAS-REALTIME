@@ -12,13 +12,11 @@
   --page-bg:#ffffff;
   --panel-bg: rgba(0,0,0,0.6);
 }
-
 body{
   margin:0;
   font-family: Inter, system-ui, Arial, sans-serif;
   background: var(--page-bg);
 }
-
 .header {
   background: var(--green);
   color: white;
@@ -27,14 +25,12 @@ body{
   position: relative;
 }
 .header .menu-btn{
-  position: absolute; left: 12px; top: 8px; font-size: 22px; cursor:pointer;
+  position: absolute; left:12px; top:8px; font-size:22px; cursor:pointer;
 }
 .header h1{ margin:0; font-size:20px; display:inline-block; vertical-align:middle; }
-
 .sidebar {
   position: fixed;
-  top:0;
-  left:-240px;
+  top:0; left:-240px;
   width:240px;
   height:100%;
   background: var(--panel-bg);
@@ -46,13 +42,11 @@ body{
 .sidebar.active{ left:0; }
 .sidebar a{ display:block; padding:12px 18px; color:#fff; text-decoration:none; font-size:15px; }
 .sidebar a:hover{ background: rgba(255,255,255,0.08); }
-
 .main {
   padding:24px;
   max-width:1000px;
   margin: 24px auto;
 }
-
 .card {
   background: rgba(255,255,255,0.95);
   border-radius: 18px;
@@ -82,7 +76,6 @@ textarea{ min-height:110px; resize:vertical; }
   font-weight:600;
 }
 .btn:hover{ background:var(--green-dark); }
-
 .stats-card{ max-width:900px; margin:18px auto; padding:18px; border-radius:12px; background:#fff; box-shadow:0 6px 18px rgba(0,0,0,0.06);}
 table{ width:100%; border-collapse:collapse; margin-top:12px;}
 th,td{ padding:8px 10px; border:1px solid #e6e6e6; text-align:center; font-size:14px;}
@@ -91,22 +84,14 @@ th{ background:#f7faf7; color:#222; }
 .status-ramai{ color:orange; font-weight:700; }
 .status-padat{ color:#c67a00; font-weight:700; }
 .status-macet{ color:red; font-weight:700; }
-
 @media (max-width:640px){
   .card{ padding:18px; border-radius:14px; width:94%; }
   select,input,textarea{ width:100%; }
   .sidebar{ width:220px; }
 }
-
 .muted{ color:#666; font-size:13px; margin-top:8px; }
 .small{ font-size:13px; color:#444; }
-
-#logoSmall {
-  display: block;
-  margin: 20px auto;
-  max-width: 300px;
-  height: auto;
-}
+#logoSmall { display:block; margin:20px auto; max-width:300px; height:auto; }
 </style>
 </head>
 <body>
@@ -128,7 +113,6 @@ th{ background:#f7faf7; color:#222; }
 </nav>
 
 <main class="main">
-  <!-- FORM Laporan -->
   <section id="laporanSection" class="card">
     <h2>Laporan Lalu Lintas</h2>
     <label for="provinsi">Pilih Provinsi:</label>
@@ -173,7 +157,6 @@ th{ background:#f7faf7; color:#222; }
     <div id="summary" style="margin-top:18px;"></div>
   </section>
 
-  <!-- Statistik -->
   <section id="statistikSection" class="stats-card" style="display:none;">
     <h3>📊 Statistik Laporan (Dari semua laporan)</h3>
     <div id="statsSummary" class="small">Belum ada laporan.</div>
@@ -195,7 +178,6 @@ th{ background:#f7faf7; color:#222; }
     <div id="recentList" class="small" style="text-align:left;"></div>
   </section>
 
-  <!-- Cara Aman -->
   <section id="amanSection" class="card" style="display:none;">
     <h3>Cara Mengemudi dengan Aman</h3>
     <ul style="text-align:left;">
@@ -207,17 +189,16 @@ th{ background:#f7faf7; color:#222; }
     </ul>
   </section>
 
-  <!-- Login -->
   <section id="loginSection" class="card" style="display:none;">
     <h3>Login (Sementara)</h3>
     <p class="small">Untuk demo lomba cukup gunakan 1 akun (fitur login akan dikembangkan nanti).</p>
   </section>
 </main>
 
+<!-- Firebase -->
 <script type="module">
-// --- FIREBASE CONFIG ---
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.23.0/firebase-app.js";
-import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.23.0/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAVHQKQ3iAGWPepnd_DuoGQmpxG40i8uMs",
@@ -233,21 +214,18 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// --- SIDEBAR ---
+// Sidebar & navigation
 const menuBtn = document.getElementById('menuBtn');
 const sidebar = document.getElementById('sidebar');
 menuBtn.addEventListener('click', ()=> sidebar.classList.toggle('active'));
-
 function goto(page){
-  ['laporanSection','statistikSection','amanSection','loginSection'].forEach(x=>{
-    document.getElementById(x).style.display='none';
-  });
+  ['laporanSection','statistikSection','amanSection','loginSection'].forEach(x=>document.getElementById(x).style.display='none');
   document.getElementById(page+'Section').style.display='block';
   sidebar.classList.remove('active');
 }
-goto('laporan'); // tampilkan default
+goto('laporan');
 
-// --- DROPDOWN ---
+// Wilayah
 const provEl = document.getElementById('provinsi');
 const kotaEl = document.getElementById('kota');
 const daerahEl = document.getElementById('daerah');
@@ -301,40 +279,37 @@ daerahEl.addEventListener('change', ()=>{
   }
 });
 
-// --- KIRIM LAPORAN ---
+// Kirim laporan ke Firebase
 document.getElementById('submitBtn').addEventListener('click', ()=>{
   const prov = provEl.value, kota=kotaEl.value, daerah=daerahEl.value;
   const status=document.getElementById('status').value;
   const deskripsi=document.getElementById('deskripsi').value||'';
   if(!prov||!kota||!daerah||!status){ alert('Lengkapi semua pilihan'); return; }
   const t=new Date().toLocaleString();
-  const laporanRef = ref(db, 'laporan');
-  push(laporanRef, {provinsi:prov,kota:kota,daerah:daerah,status:status,deskripsi:deskripsi,waktu:t});
+  push(ref(db,'laporan'), {provinsi:prov,kota:kota,daerah:daerah,status:status,deskripsi:deskripsi,waktu:t});
   document.getElementById('status').value='';
   document.getElementById('deskripsi').value='';
   alert('✅ Laporan berhasil dikirim!');
 });
 
-// --- AMBIL DATA DAN UPDATE STATISTIK ---
-const statsTable=document.getElementById('statsTable');
-const tbody=document.getElementById('statsTbody');
-const statsSummary=document.getElementById('statsSummary');
-const recentList=document.getElementById('recentList');
+// Update Statistik dari Firebase
+function updateStatistikTable(snapshot){
+  const data = snapshot.val() || {};
+  const laporanData = Object.values(data).sort((a,b)=>new Date(b.waktu)-new Date(a.waktu));
+  const statsTable=document.getElementById('statsTable');
+  const tbody=document.getElementById('statsTbody');
+  const statsSummary=document.getElementById('statsSummary');
+  const recentList=document.getElementById('recentList');
 
-const laporanRef = ref(db,'laporan');
-onValue(laporanRef, (snapshot)=>{
-  const data = snapshot.val();
-  const laporanData = data ? Object.values(data).reverse() : [];
+  if(laporanData.length===0){ statsSummary.innerHTML='Belum ada laporan masuk.'; statsTable.style.display='none'; recentList.innerHTML=''; return; }
 
-  // Statistik per daerah
-  const grouping = {};
+  const grouping={};
   laporanData.forEach(l=>{
     const key = `${l.daerah}, ${l.kota}`;
     if(!grouping[key]) grouping[key]={Lancar:0,Ramai:0,Padat:0,Macet:0};
     if(grouping[key][l.status]!==undefined) grouping[key][l.status]++;
   });
 
-  // Tabel
   tbody.innerHTML='';
   for(const key of Object.keys(grouping)){
     const row=grouping[key];
@@ -352,11 +327,8 @@ onValue(laporanRef, (snapshot)=>{
                   <td><b>${mayoritas}</b></td>`;
     tbody.appendChild(tr);
   }
-
-  statsSummary.innerHTML= `Total laporan: <b>${laporanData.length}</b> • Daerah terlapor: <b>${Object.keys(grouping).length}</b>`;
-  statsTable.style.display = laporanData.length>0 ? 'table':'none';
-
-  // Recent list
+  statsSummary.innerHTML = `Total laporan: <b>${laporanData.length}</b> • Daerah terlapor: <b>${Object.keys(grouping).length}</b>`;
+  statsTable.style.display='table';
   recentList.innerHTML='';
   laporanData.slice(0,10).forEach(r=>{
     const div=document.createElement('div');
@@ -364,42 +336,48 @@ onValue(laporanRef, (snapshot)=>{
     div.innerHTML=`<b>[${r.waktu}]</b> ${r.daerah}, ${r.kota} — <span class="small">${r.status}</span> ${r.deskripsi?'- '+escapeHtml(r.deskripsi):''}`;
     recentList.appendChild(div);
   });
+}
 
-  // Update ringkasan form jika ada pilihan
-  updateSummaryForSelected(laporanData);
-});
-
-function updateSummaryForSelected(laporanDataAll){
-  const prov=provEl.value,kota=kotaEl.value,daerah=daerahEl.value,sDiv=summaryDiv;
+// Ringkasan per daerah
+function updateSummaryForSelected(){
+  const prov=provEl.value,kota=kotaEl.value,daerah=daerahEl.value;
+  const sDiv=document.getElementById('summary');
   sDiv.innerHTML='';
   if(!prov||!kota||!daerah) return;
-  const counts={Lancar:0,Ramai:0,Padat:0,Macet:0};
-  const laporanData = laporanDataAll || [];
-  laporanData.forEach(l=>{ if(l.provinsi===prov && l.kota===kota && l.daerah===daerah){ if(counts[l.status]!==undefined) counts[l.status]++; }});
-  const total=counts.Lancar+counts.Ramai+counts.Padat+counts.Macet;
-  let mayoritas='Belum ada laporan';
-  if(total>0){
-    const max=Math.max(counts.Lancar,counts.Ramai,counts.Padat,counts.Macet);
-    const winners=Object.keys(counts).filter(k=>counts[k]===max && max>0);
-    mayoritas=winners.length===1?winners[0]:'Seimbang';
-  }
-  sDiv.innerHTML=`
-    <div style="margin-top:16px; text-align:center;">
-      <div style="display:inline-block; padding:10px 16px; background:#f7f7f7; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
-        <div style="font-size:14px;color:#555">Ringkasan untuk <b>${daerah}, ${kota}</b></div>
-        <div style="margin-top:8px; text-align:left;">
-          <div>Lancar: <b>${counts.Lancar}</b></div>
-          <div>Ramai: <b>${counts.Ramai}</b></div>
-          <div>Padat: <b>${counts.Padat}</b></div>
-          <div>Macet: <b>${counts.Macet}</b></div>
-          <div style="margin-top:8px;color:#222">Mayoritas: <b>${mayoritas}</b></div>
+  const laporanRef = ref(db,'laporan');
+  onValue(laporanRef, (snapshot)=>{
+    const data = snapshot.val() || {};
+    const counts={Lancar:0,Ramai:0,Padat:0,Macet:0};
+    Object.values(data).forEach(l=>{ if(l.provinsi===prov && l.kota===kota && l.daerah===daerah){ if(counts[l.status]!==undefined) counts[l.status]++; }});
+    const total=counts.Lancar+counts.Ramai+counts.Padat+counts.Macet;
+    let mayoritas='Belum ada laporan';
+    if(total>0){
+      const max=Math.max(counts.Lancar,counts.Ramai,counts.Padat,counts.Macet);
+      const winners=Object.keys(counts).filter(k=>counts[k]===max && max>0);
+      mayoritas=winners.length===1?winners[0]:'Seimbang';
+    }
+    sDiv.innerHTML=`
+      <div style="margin-top:16px; text-align:center;">
+        <div style="display:inline-block; padding:10px 16px; background:#f7f7f7; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
+          <div style="font-size:14px;color:#555">Ringkasan untuk <b>${daerah}, ${kota}</b></div>
+          <div style="margin-top:8px; text-align:left;">
+            <div>Lancar: <b>${counts.Lancar}</b></div>
+            <div>Ramai: <b>${counts.Ramai}</b></div>
+            <div>Padat: <b>${counts.Padat}</b></div>
+            <div>Macet: <b>${counts.Macet}</b></div>
+            <div style="margin-top:8px;color:#222">Mayoritas: <b>${mayoritas}</b></div>
+          </div>
         </div>
-      </div>
-    </div>`;
+      </div>`;
+  });
 }
 
 function escapeHtml(s){ return (s+'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+// Listen Firebase changes
+const laporanRef = ref(db,'laporan');
+onValue(laporanRef, updateStatistikTable);
 </script>
+
 </body>
 </html>
