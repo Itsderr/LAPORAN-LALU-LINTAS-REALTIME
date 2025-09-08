@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GotongJalan - Laporan Lalu Lintas</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f9f9f9; }
+    header { background: #4CAF50; color: white; padding: 15px; text-align: center; }
+    nav { text-align: center; background: #333; padding: 10px; }
+    nav button { 
+      margin: 5px; padding: 10px 15px; border: none; border-radius: 5px; 
+      cursor: pointer; background: #555; color: white; font-weight: bold;
+    }
+    nav button.active { background: #4CAF50; }
+    main { padding: 20px; }
+    .hidden { display: none; }
+    .card { background: white; padding: 15px; margin: 15px auto; 
+            max-width: 700px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    table, th, td { border: 1px solid #ccc; }
+    th, td { padding: 8px; text-align: center; }
+    .status-lancar { color: green; font-weight: bold; }
+    .status-ramai { color: orange; font-weight: bold; }
+    .status-macet { color: red; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🚦 GotongJalan</h1>
+    <p>Laporan Lalu Lintas Real-Time Berbasis Masyarakat</p>
+  </header>
+
+  <nav>
+    <button onclick="showPage('lapor')" id="btn-lapor" class="active">Laporan</button>
+    <button onclick="showPage('statistik')" id="btn-statistik">Statistik</button>
+    <button onclick="showPage('tips')" id="btn-tips">Tips Aman</button>
+    <button onclick="showPage('tentang')" id="btn-tentang">Tentang</button>
+  </nav>
+
+  <main>
+    <!-- Halaman Laporan -->
+    <section id="lapor" class="card">
+      <h2>Kirim Laporan Jalan</h2>
+      <form id="reportForm">
+        <label>Nama Jalan:</label><br>
+        <input type="text" id="jalan" required placeholder="Contoh: Jl. Genteng Besar"><br><br>
+
+        <label>Kondisi Jalan:</label><br>
+        <select id="status" required>
+          <option value="lancar">Lancar</option>
+          <option value="ramai">Ramai</option>
+          <option value="macet">Macet</option>
+        </select><br><br>
+
+        <button type="submit">Kirim</button>
+      </form>
+    </section>
+
+    <!-- Halaman Statistik -->
+    <section id="statistik" class="card hidden">
+      <h2>Statistik Lalu Lintas</h2>
+      <table id="reportTable">
+        <tr>
+          <th>Nama Jalan</th>
+          <th>Status</th>
+          <th>Jumlah Laporan</th>
+        </tr>
+      </table>
+    </section>
+
+    <!-- Halaman Tips Aman -->
+    <section id="tips" class="card hidden">
+      <h2>Tips Berkendara Aman 🚗</h2>
+      <ul>
+        <li>Gunakan helm dan sabuk pengaman.</li>
+        <li>Jangan gunakan HP saat berkendara.</li>
+        <li>Patuhi rambu lalu lintas dan lampu merah.</li>
+        <li>Jaga jarak aman antar kendaraan.</li>
+        <li>Istirahat jika lelah atau mengantuk.</li>
+      </ul>
+    </section>
+
+    <!-- Halaman Tentang -->
+    <section id="tentang" class="card hidden">
+      <h2>Tentang Aplikasi</h2>
+      <p><b>GotongJalan</b> adalah web sederhana untuk melaporkan dan memantau kondisi lalu lintas 
+      secara real-time berbasis laporan masyarakat.</p>
+      <p>Web ini dibuat sebagai inovasi untuk membantu pengendara memilih jalur yang lebih lancar,
+      sekaligus meningkatkan kesadaran berkendara aman.</p>
+    </section>
+  </main>
+
+  <script>
+    let reports = {};
+
+    // Navigasi antar halaman
+    function showPage(page) {
+      document.querySelectorAll("main section").forEach(sec => sec.classList.add("hidden"));
+      document.getElementById(page).classList.remove("hidden");
+      document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active"));
+      document.getElementById("btn-" + page).classList.add("active");
+    }
+
+    // Kirim laporan
+    document.getElementById("reportForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      let jalan = document.getElementById("jalan").value;
+      let status = document.getElementById("status").value;
+
+      if (!reports[jalan]) {
+        reports[jalan] = { lancar: 0, ramai: 0, macet: 0 };
+      }
+      reports[jalan][status]++;
+
+      updateTable();
+      alert("Laporan berhasil dikirim!");
+      document.getElementById("reportForm").reset();
+    });
+
+    // Update tabel statistik
+    function updateTable() {
+      let table = document.getElementById("reportTable");
+      table.innerHTML = `
+        <tr>
+          <th>Nama Jalan</th>
+          <th>Status</th>
+          <th>Jumlah Laporan</th>
+        </tr>
+      `;
+
+      for (let jalan in reports) {
+        let data = reports[jalan];
+        let total = data.lancar + data.ramai + data.macet;
+        let statusFinal = "lancar";
+        if (data.macet >= data.ramai && data.macet >= data.lancar) statusFinal = "macet";
+        else if (data.ramai >= data.lancar) statusFinal = "ramai";
+
+        table.innerHTML += `
+          <tr>
+            <td>${jalan}</td>
+            <td class="status-${statusFinal}">${statusFinal.toUpperCase()}</td>
+            <td>${total}</td>
+          </tr>
+        `;
+      }
+    }
+  </script>
+
+</body>
+</html>
