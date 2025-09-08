@@ -2,223 +2,242 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Laporan Lalu Lintas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LaluLintasKu</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      padding: 0;
-      background-color: #f4f9f4;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: url('https://source.unsplash.com/1600x900/?traffic,road') no-repeat center center fixed;
+      background-size: cover;
     }
     header {
-      width: 100%;
-      background-color: #2e7d32;
+      background-color: green;
       color: white;
-      padding: 20px 0;
       text-align: center;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      padding: 15px;
+      font-size: 22px;
+      position: relative;
     }
-    header img {
-      width: 50px;
-      vertical-align: middle;
-      margin-right: 10px;
-    }
-    h1 {
-      display: inline;
+    .menu-btn {
+      position: absolute;
+      left: 15px;
+      top: 15px;
       font-size: 24px;
-    }
-    .container {
-      margin-top: 30px;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-    }
-    select, button {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-    button {
-      background-color: #2e7d32;
-      color: white;
       cursor: pointer;
-      border: none;
     }
-    button:hover {
-      background-color: #256328;
+
+    /* Sidebar */
+    .sidebar {
+      height: 100%;
+      width: 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: rgba(0,0,0,0.6);
+      overflow-x: hidden;
+      transition: 0.3s;
+      padding-top: 60px;
     }
-    .hasil {
-      margin-top: 20px;
-      font-weight: bold;
-      color: #2e7d32;
+    .sidebar a {
+      padding: 10px 20px;
+      text-decoration: none;
+      font-size: 20px;
+      color: white;
+      display: block;
+      transition: 0.2s;
     }
-    table {
-      margin-top: 20px;
-      width: 100%;
-      border-collapse: collapse;
+    .sidebar a:hover {
+      background-color: rgba(255,255,255,0.2);
     }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
+
+    .content {
+      padding: 20px;
       text-align: center;
+      color: white;
     }
-    th {
-      background-color: #e0f2e9;
+
+    .hidden { display: none; }
+
+    select, button {
+      padding: 8px;
+      margin: 5px;
+      border-radius: 5px;
+    }
+
+    .box {
+      background: rgba(0,0,0,0.5);
+      padding: 20px;
+      margin: 15px auto;
+      border-radius: 10px;
+      max-width: 500px;
     }
   </style>
 </head>
 <body>
   <header>
-    <img src="https://cdn-icons-png.flaticon.com/512/854/854894.png" alt="Logo">
-    <h1>Laporan Lalu Lintas</h1>
+    <span class="menu-btn" onclick="openSidebar()">☰</span>
+    🚦 LaluLintasKu
   </header>
 
-  <div class="container">
-    <!-- Step 1 -->
-    <div id="step1">
-      <label>Pilih Provinsi:</label><br>
-      <select id="provinsi" onchange="nextStep(2)">
-        <option value="">-- Pilih Provinsi --</option>
-        <option value="jatim">Jawa Timur</option>
-      </select>
+  <!-- Sidebar -->
+  <div id="mySidebar" class="sidebar">
+    <a href="javascript:void(0)" onclick="closeSidebar()">✖ Tutup</a>
+    <a href="#" onclick="showSection('laporan')">Laporan</a>
+    <a href="#" onclick="showSection('statistik')">Statistik</a>
+    <a href="#" onclick="showSection('aman')">Cara Mengemudi dengan Aman</a>
+    <a href="#" onclick="showSection('login')">Login</a>
+  </div>
+
+  <!-- Konten -->
+  <div class="content">
+    <div id="home" class="box">
+      <h2>Selamat Datang di LaluLintasKu 🚗</h2>
+      <p>Pilih menu di pojok kiri atas untuk mulai.</p>
     </div>
 
-    <!-- Step 2 -->
-    <div id="step2" style="display:none;">
-      <label>Pilih Kota/Kabupaten:</label><br>
-      <select id="kota" onchange="nextStep(3)">
-        <option value="">-- Pilih Kota/Kabupaten --</option>
-      </select>
-    </div>
+    <!-- Form laporan -->
+    <div id="laporan" class="box hidden">
+      <h3>Kirim Laporan Lalu Lintas</h3>
+      <div>
+        <label>Pilih Provinsi:</label><br>
+        <select id="provinsi" onchange="tampilKota()">
+          <option value="">-- Pilih Provinsi --</option>
+          <option value="jatim">Jawa Timur</option>
+        </select>
+      </div>
 
-    <!-- Step 3 -->
-    <div id="step3" style="display:none;">
-      <label>Pilih Daerah/Kecamatan:</label><br>
-      <select id="daerah" onchange="nextStep(4)">
-        <option value="">-- Pilih Daerah --</option>
-      </select>
-    </div>
+      <div id="kotaBox" class="hidden">
+        <label>Pilih Kota:</label><br>
+        <select id="kota" onchange="tampilDaerah()">
+          <option value="">-- Pilih Kota --</option>
+          <option value="banyuwangi">Banyuwangi</option>
+          <option value="surabaya">Surabaya</option>
+          <option value="sidoarjo">Sidoarjo</option>
+        </select>
+      </div>
 
-    <!-- Step 4 -->
-    <div id="step4" style="display:none;">
-      <label>Kondisi Lalu Lintas:</label><br>
-      <select id="status">
-        <option value="Lancar">Lancar</option>
-        <option value="Ramai">Ramai</option>
-        <option value="Macet">Macet</option>
-      </select><br>
-      <button onclick="lapor()">Kirim Laporan</button>
-    </div>
+      <div id="daerahBox" class="hidden">
+        <label>Pilih Daerah:</label><br>
+        <select id="daerah">
+          <option value="">-- Pilih Daerah --</option>
+        </select>
+      </div>
 
-    <div class="hasil" id="hasil"></div>
+      <div id="statusBox" class="hidden">
+        <label>Status Lalu Lintas:</label><br>
+        <select id="status">
+          <option value="padat">Padat</option>
+          <option value="lancar">Lancar</option>
+          <option value="macet">Macet</option>
+        </select><br>
+        <button onclick="kirimLaporan()">Kirim Laporan</button>
+      </div>
+    </div>
 
     <!-- Statistik -->
-    <h3>📊 Statistik Laporan</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Daerah</th>
-          <th>Lancar</th>
-          <th>Ramai</th>
-          <th>Macet</th>
-        </tr>
-      </thead>
-      <tbody id="statistik"></tbody>
-    </table>
+    <div id="statistik" class="box hidden">
+      <h3>Statistik Laporan</h3>
+      <p id="statData">Belum ada laporan 🚧</p>
+    </div>
+
+    <!-- Cara aman -->
+    <div id="aman" class="box hidden">
+      <h3>Cara Mengemudi dengan Aman 🛡️</h3>
+      <ul style="text-align:left">
+        <li>Gunakan helm atau sabuk pengaman.</li>
+        <li>Patuhi rambu-rambu lalu lintas.</li>
+        <li>Jaga jarak aman dengan kendaraan depan.</li>
+        <li>Jangan gunakan ponsel saat berkendara.</li>
+        <li>Hindari ngebut di jalan ramai.</li>
+      </ul>
+    </div>
+
+    <!-- Login (dummy) -->
+    <div id="login" class="box hidden">
+      <h3>Login</h3>
+      <p>Untuk demo, login otomatis berhasil ✅</p>
+    </div>
   </div>
 
   <script>
-    const dataWilayah = {
-      "jatim": {
-        "Banyuwangi": ["Genteng", "Rogojampi", "Glagah", "Kabupaten Kota"],
-        "Surabaya": ["Genteng", "Wonokromo", "Rungkut", "Tandes", "Kenjeran"],
-        "Sidoarjo": ["Krian", "Waru", "Buduran", "Porong", "Taman"]
-      }
+    // Sidebar control
+    function openSidebar() {
+      document.getElementById("mySidebar").style.width = "250px";
+    }
+    function closeSidebar() {
+      document.getElementById("mySidebar").style.width = "0";
+    }
+
+    // Show section
+    function showSection(id) {
+      document.querySelectorAll(".box").forEach(el => el.classList.add("hidden"));
+      document.getElementById(id).classList.remove("hidden");
+      closeSidebar();
+    }
+
+    // Data daerah
+    const daerahData = {
+      banyuwangi: ["Genteng", "Rogojampi", "Cluring", "Kalibaru"],
+      surabaya: ["Genteng", "Wonokromo", "Rungkut", "Tandes", "Sukolilo"],
+      sidoarjo: ["Krian", "Waru", "Buduran", "Porong", "Candi"]
     };
 
-    let laporanData = {}; // simpan semua laporan
-
-    function nextStep(step) {
-      if (step === 2) {
-        let prov = document.getElementById("provinsi").value;
-        let kota = document.getElementById("kota");
-        kota.innerHTML = "<option value=''>-- Pilih Kota/Kabupaten --</option>";
-        if (prov && dataWilayah[prov]) {
-          Object.keys(dataWilayah[prov]).forEach(k => {
-            kota.innerHTML += `<option value="${k}">${k}</option>`;
-          });
-          document.getElementById("step2").style.display = "block";
-        }
-      } else if (step === 3) {
-        let prov = document.getElementById("provinsi").value;
-        let kota = document.getElementById("kota").value;
-        let daerah = document.getElementById("daerah");
-        daerah.innerHTML = "<option value=''>-- Pilih Daerah --</option>";
-        if (prov && kota && dataWilayah[prov][kota]) {
-          dataWilayah[prov][kota].forEach(d => {
-            daerah.innerHTML += `<option value="${d}">${d}</option>`;
-          });
-          document.getElementById("step3").style.display = "block";
-        }
-      } else if (step === 4) {
-        let daerah = document.getElementById("daerah").value;
-        if (daerah) {
-          document.getElementById("step4").style.display = "block";
-        }
+    // Form logic
+    function tampilKota() {
+      if (document.getElementById("provinsi").value === "jatim") {
+        document.getElementById("kotaBox").classList.remove("hidden");
       }
     }
 
-    function lapor() {
+    function tampilDaerah() {
+      let kota = document.getElementById("kota").value;
+      let daerahBox = document.getElementById("daerah");
+      daerahBox.innerHTML = "<option value=''>-- Pilih Daerah --</option>";
+      if (daerahData[kota]) {
+        daerahData[kota].forEach(d => {
+          let opt = document.createElement("option");
+          opt.value = d;
+          opt.textContent = d;
+          daerahBox.appendChild(opt);
+        });
+        document.getElementById("daerahBox").classList.remove("hidden");
+        document.getElementById("statusBox").classList.remove("hidden");
+      }
+    }
+
+    // Simpan laporan
+    let laporan = [];
+    function kirimLaporan() {
       let prov = document.getElementById("provinsi").value;
       let kota = document.getElementById("kota").value;
       let daerah = document.getElementById("daerah").value;
       let status = document.getElementById("status").value;
 
       if (!prov || !kota || !daerah) {
-        document.getElementById("hasil").innerText = "❌ Lengkapi pilihan terlebih dahulu!";
+        alert("Mohon lengkapi data laporan.");
         return;
       }
 
-      let key = `${daerah}, ${kota}, Jawa Timur`;
-
-      if (!laporanData[key]) {
-        laporanData[key] = { Lancar: 0, Ramai: 0, Macet: 0 };
-      }
-      laporanData[key][status]++;
-
-      document.getElementById("hasil").innerText =
-        `✅ Laporan terkirim: ${daerah}, ${kota}, Jawa Timur → Kondisi: ${status}`;
-
+      laporan.push({ prov, kota, daerah, status });
+      alert("Laporan terkirim ✅");
       updateStatistik();
     }
 
     function updateStatistik() {
-      let tbody = document.getElementById("statistik");
-      tbody.innerHTML = "";
-
-      for (let daerah in laporanData) {
-        let row = `
-          <tr>
-            <td>${daerah}</td>
-            <td>${laporanData[daerah].Lancar}</td>
-            <td>${laporanData[daerah].Ramai}</td>
-            <td>${laporanData[daerah].Macet}</td>
-          </tr>
-        `;
-        tbody.innerHTML += row;
+      if (laporan.length === 0) {
+        document.getElementById("statData").textContent = "Belum ada laporan 🚧";
+        return;
       }
+      let count = {};
+      laporan.forEach(l => {
+        count[l.status] = (count[l.status] || 0) + 1;
+      });
+      let hasil = "Total laporan: " + laporan.length + "<br>";
+      for (let s in count) {
+        hasil += `${s}: ${count[s]} laporan<br>`;
+      }
+      document.getElementById("statData").innerHTML = hasil;
     }
   </script>
 </body>
