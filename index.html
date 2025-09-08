@@ -12,9 +12,14 @@
       --page-bg:#f3f3f3;
       --panel-bg: rgba(0,0,0,0.6);
     }
+
+    /* BODY + BACKGROUND IMAGE (letakkan di sini, bukan di script) */
     body{
-      margin:0; font-family: Inter, system-ui, Arial, sans-serif;
-      background: var(--page-bg);
+      margin:0;
+      font-family: Inter, system-ui, Arial, sans-serif;
+      /* warna fallback + image */
+      background: var(--page-bg) url('image.png') no-repeat center center fixed;
+      background-size: cover;
     }
 
     /* HEADER */
@@ -49,7 +54,7 @@
 
     /* FORM CARD (semi-oval) */
     .card {
-      background: var(--card-bg);
+      background: rgba(255,255,255,0.95); /* sedikit transparan supaya background foto terlihat */
       border-radius: 18px;
       padding: 28px;
       box-shadow: 0 8px 22px rgba(0,0,0,0.08);
@@ -67,6 +72,7 @@
       border:1px solid #d0d0d0;
       font-size:15px;
       box-sizing: border-box;
+      background: #fff;
     }
     textarea{ min-height:110px; resize:vertical; }
     .btn{
@@ -224,7 +230,6 @@
 
     // --- navigation helpers ---
     function goto(page){
-      // convenience wrapper (name mapping)
       if(page === 'laporan') showSection('laporanSection');
       if(page === 'statistik') showSection('statistikSection');
       if(page === 'aman') showSection('amanSection');
@@ -232,12 +237,10 @@
       sidebar.classList.remove('active');
     }
     function showSection(id){
-      // hide all
       ['laporanSection','statistikSection','amanSection','loginSection'].forEach(x=>{
         document.getElementById(x).style.display = 'none';
       });
       document.getElementById(id).style.display = 'block';
-      // close sidebar
       sidebar.classList.remove('active');
     }
 
@@ -255,7 +258,6 @@
     const submitWrap = document.getElementById('submitWrap');
     const summaryDiv = document.getElementById('summary');
 
-    // predefined cities/districts (you can expand)
     const wilayah = {
       "Jawa Timur": {
         "Surabaya": ["Genteng","Wonokromo","Rungkut","Tandes","Kenjeran"],
@@ -274,7 +276,6 @@
 
     provEl.addEventListener('change', ()=>{
       const prov = provEl.value;
-      // reset next steps
       kotaEl.innerHTML = '<option value="">-- Pilih Kota --</option>';
       daerahEl.innerHTML = '<option value="">-- Pilih Daerah --</option>';
       kotaWrap.style.display = 'none';
@@ -283,9 +284,7 @@
       descWrap.style.display = 'none';
       submitWrap.style.display = 'none';
       summaryDiv.innerHTML = '';
-
       if(prov && wilayah[prov]){
-        // populate kota
         Object.keys(wilayah[prov]).forEach(k => {
           const o = document.createElement('option'); o.value = k; o.textContent = k;
           kotaEl.appendChild(o);
@@ -303,7 +302,6 @@
       descWrap.style.display = 'none';
       submitWrap.style.display = 'none';
       summaryDiv.innerHTML = '';
-
       if(prov && kota && wilayah[prov] && wilayah[prov][kota]){
         wilayah[prov][kota].forEach(d => {
           const o = document.createElement('option'); o.value = d; o.textContent = d;
@@ -319,16 +317,14 @@
       descWrap.style.display = 'none';
       submitWrap.style.display = 'none';
       summaryDiv.innerHTML = '';
-
       if(daerah){
         statusWrap.style.display = 'block';
         descWrap.style.display = 'block';
         submitWrap.style.display = 'block';
-        updateSummaryForSelected(); // show summary (counts) for this daerah
+        updateSummaryForSelected();
       }
     });
 
-    // Submit
     const submitBtn = document.getElementById('submitBtn');
     submitBtn.addEventListener('click', ()=>{
       const prov = provEl.value;
@@ -344,12 +340,8 @@
 
       const t = new Date().toLocaleString();
       laporanData.unshift({ provinsi:prov, kota:kota, daerah:daerah, status:status, deskripsi:deskripsi, waktu:t });
-      // reset form partly (keep prov/kota? we'll reset to prov)
       document.getElementById('status').value = '';
       document.getElementById('deskripsi').value = '';
-      // optionally reset to province only:
-      // provEl.value = '';
-      // kotaWrap.style.display = 'none'; daerahWrap.style.display='none'; statusWrap.style.display='none'; descWrap.style.display='none'; submitWrap.style.display='none';
       alert('✅ Laporan berhasil dikirim. Terima kasih sudah berpartisipasi!');
       updateStatistikTable();
       updateSummaryForSelected();
@@ -369,26 +361,22 @@
         return;
       }
 
-      // build grouping per "Daerah, Kota"
-      const grouping = {}; // key -> {Lancar:..,Ramai:..,Padat:..,Macet:.., total:..}
+      const grouping = {};
       laporanData.forEach(l => {
         const key = `${l.daerah}, ${l.kota}`;
         if(!grouping[key]) grouping[key] = {Lancar:0,Ramai:0,Padat:0,Macet:0};
         if(grouping[key][l.status] !== undefined) grouping[key][l.status]++;
       });
 
-      // fill tbody
       tbody.innerHTML = '';
       let totalAll = laporanData.length;
       for(const key of Object.keys(grouping)){
         const row = grouping[key];
         const total = row.Lancar + row.Ramai + row.Padat + row.Macet;
-        // mayoritas
         let mayoritas = 'Seimbang';
         const maxCount = Math.max(row.Lancar,row.Ramai,row.Padat,row.Macet);
         const winners = ['Lancar','Ramai','Padat','Macet'].filter(k=>row[k]===maxCount && maxCount>0);
         if(winners.length===1) mayoritas = winners[0];
-        // append row
         const tr = document.createElement('tr');
         tr.innerHTML = `<td>${key}</td>
                         <td class="status-lancar">${row.Lancar}</td>
@@ -403,7 +391,6 @@
       statsSummary.innerHTML = `Total laporan: <b>${totalAll}</b> • Daerah terlapor: <b>${Object.keys(grouping).length}</b>`;
       statsTable.style.display = 'table';
 
-      // recent list (last 10)
       recentList.innerHTML = '';
       laporanData.slice(0,10).forEach(r=>{
         const div = document.createElement('div');
@@ -422,7 +409,6 @@
       sDiv.innerHTML = '';
       if(!prov || !kota || !daerah) return;
 
-      // compute counts for this region (exact match)
       const counts = {Lancar:0,Ramai:0,Padat:0,Macet:0};
       laporanData.forEach(l=>{
         if(l.provinsi===prov && l.kota===kota && l.daerah===daerah){
@@ -452,14 +438,6 @@
         </div>
       `;
     }
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background-image: url('image.png'); 
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-}
 
     // helper escape
     function escapeHtml(s){ return (s+'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -472,5 +450,3 @@ body {
   </script>
 </body>
 </html>
-
-
