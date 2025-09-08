@@ -51,7 +51,11 @@ body{
 .sidebar a:hover{ background: rgba(255,255,255,0.08); }
 
 /* MAIN CONTENT AREA */
-.main { padding:24px; max-width:1000px; margin:24px auto; }
+.main {
+  padding:24px;
+  max-width:1000px;
+  margin: 24px auto;
+}
 
 /* FORM CARD */
 .card {
@@ -63,7 +67,7 @@ body{
   max-width: 620px;
   text-align: center;
 }
-.card h2{ margin-top:0; margin-bottom:12px; color:#111; }
+.card h2,h3{ margin-top:0; margin-bottom:12px; color:#111; }
 label{ display:block; margin:10px 0 6px; color:#333; font-size:14px; }
 select, textarea, input[type="text"]{
   width:92%;
@@ -105,7 +109,12 @@ th{ background:#f7faf7; color:#222; }
 .muted{ color:#666; font-size:13px; margin-top:8px; }
 .small{ font-size:13px; color:#444; }
 
-#logoSmall { display: block; margin: 20px auto; max-width: 300px; height: auto; }
+#logoSmall {
+  display: block;
+  margin: 20px auto;
+  max-width: 300px;
+  height: auto;
+}
 </style>
 </head>
 <body>
@@ -113,9 +122,9 @@ th{ background:#f7faf7; color:#222; }
 <header class="header">
   <span class="menu-btn" id="menuBtn">☰</span>
   <h1>
-    <img src="trafficlight.png" alt="icon" style="height:44px; vertical-align:middle; margin-right:6px;">
-    LaluLintasKu
-  </h1>
+  <img src="trafficlight.png" alt="icon" style="height:44px; vertical-align:middle; margin-right:6px;">
+  LaluLintasKu
+</h1>
 </header>
 <img src="logo.png" alt="Logo" id="logoSmall">
 
@@ -172,6 +181,7 @@ th{ background:#f7faf7; color:#222; }
     <div id="summary" style="margin-top:18px;"></div>
   </section>
 
+  <!-- STATISTIK -->
   <section id="statistikSection" class="stats-card" style="display:none;">
     <h3>📊 Statistik Laporan (Dari semua laporan)</h3>
     <div id="statsSummary" class="small">Belum ada laporan.</div>
@@ -210,134 +220,205 @@ th{ background:#f7faf7; color:#222; }
   </section>
 </main>
 
+<!-- Firebase SDK -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-  import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
 
-  // Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyAVHQKQ3iAGWPepnd_DuoGQmpxG40i8uMs",
-    authDomain: "laporan-lalu-lintas.firebaseapp.com",
-    databaseURL: "https://laporan-lalu-lintas-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "laporan-lalu-lintas",
-    storageBucket: "laporan-lalu-lintas.appspot.com",
-    messagingSenderId: "706382913725",
-    appId: "1:706382913725:web:1069a4f53bea6b66a357d4",
-    measurementId: "G-GSF8YY40NQ"
-  };
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyAVHQKQ3iAGWPepnd_DuoGQmpxG40i8uMs",
+  authDomain: "laporan-lalu-lintas.firebaseapp.com",
+  databaseURL: "https://laporan-lalu-lintas-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "laporan-lalu-lintas",
+  storageBucket: "laporan-lalu-lintas.appspot.com",
+  messagingSenderId: "706382913725",
+  appId: "1:706382913725:web:1069a4f53bea6b66a357d4",
+  measurementId: "G-GSF8YY40NQ"
+};
 
-  const menuBtn = document.getElementById('menuBtn');
-  const sidebar = document.getElementById('sidebar');
-  menuBtn.addEventListener('click', ()=> sidebar.classList.toggle('active'));
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-  function goto(page){
-    ['laporanSection','statistikSection','amanSection','loginSection'].forEach(x=>{
-      document.getElementById(x).style.display='none';
+// Sidebar toggle
+const menuBtn = document.getElementById('menuBtn');
+const sidebar = document.getElementById('sidebar');
+menuBtn.addEventListener('click', ()=> sidebar.classList.toggle('active'));
+
+function goto(page){
+  ['laporanSection','statistikSection','amanSection','loginSection'].forEach(x=>{
+    document.getElementById(x).style.display='none';
+  });
+  document.getElementById(page+'Section').style.display='block';
+  sidebar.classList.remove('active');
+}
+goto('laporan');
+
+// WILAYAH
+const provEl = document.getElementById('provinsi');
+const kotaEl = document.getElementById('kota');
+const daerahEl = document.getElementById('daerah');
+const kotaWrap = document.getElementById('kotaWrap');
+const daerahWrap = document.getElementById('daerahWrap');
+const statusWrap = document.getElementById('statusWrap');
+const descWrap = document.getElementById('descWrap');
+const submitWrap = document.getElementById('submitWrap');
+const summaryDiv = document.getElementById('summary');
+
+const wilayah = {
+  "Jawa Timur": { "Surabaya": ["Genteng","Wonokromo","Rungkut","Tandes","Kenjeran"], "Sidoarjo": ["Krian","Waru","Buduran","Porong","Candi"], "Banyuwangi": ["Genteng","Rogojampi","Glagah","Kabupaten Kota"] },
+  "Jawa Barat": { "Bandung": ["Coblong","Sukajadi","Cicendo"], "Bekasi": ["Bekasi Timur","Bekasi Selatan"] },
+  "DKI Jakarta": { "Jakarta Pusat": ["Gambir","Menteng"], "Jakarta Timur": ["Duren Sawit","Cakung"] }
+};
+
+provEl.addEventListener('change', ()=>{
+  const prov = provEl.value;
+  kotaEl.innerHTML = '<option value="">-- Pilih Kota --</option>';
+  daerahEl.innerHTML = '<option value="">-- Pilih Daerah --</option>';
+  kotaWrap.style.display = daerahWrap.style.display = statusWrap.style.display = descWrap.style.display = submitWrap.style.display = 'none';
+  summaryDiv.innerHTML='';
+  if(prov && wilayah[prov]){
+    Object.keys(wilayah[prov]).forEach(k=>{
+      const o=document.createElement('option'); o.value=k; o.textContent=k; kotaEl.appendChild(o);
     });
-    document.getElementById(page+'Section').style.display='block';
-    sidebar.classList.remove('active');
+    kotaWrap.style.display='block';
   }
-  goto('laporan');
+});
 
-  const provEl = document.getElementById('provinsi');
-  const kotaEl = document.getElementById('kota');
-  const daerahEl = document.getElementById('daerah');
-  const kotaWrap = document.getElementById('kotaWrap');
-  const daerahWrap = document.getElementById('daerahWrap');
-  const statusWrap = document.getElementById('statusWrap');
-  const descWrap = document.getElementById('descWrap');
-  const submitWrap = document.getElementById('submitWrap');
-  const summaryDiv = document.getElementById('summary');
+kotaEl.addEventListener('change', ()=>{
+  const prov=provEl.value, kota=kotaEl.value;
+  daerahEl.innerHTML='<option value="">-- Pilih Daerah --</option>';
+  daerahWrap.style.display=statusWrap.style.display=descWrap.style.display=submitWrap.style.display='none';
+  summaryDiv.innerHTML='';
+  if(prov && kota && wilayah[prov] && wilayah[prov][kota]){
+    wilayah[prov][kota].forEach(d=>{
+      const o=document.createElement('option'); o.value=d; o.textContent=d; daerahEl.appendChild(o);
+    });
+    daerahWrap.style.display='block';
+  }
+});
 
-  const wilayah = {
-    "Jawa Timur": { "Surabaya": ["Genteng","Wonokromo","Rungkut","Tandes","Kenjeran"], "Sidoarjo": ["Krian","Waru","Buduran","Porong","Candi"], "Banyuwangi": ["Genteng","Rogojampi","Glagah","Kabupaten Kota"] },
-    "Jawa Barat": { "Bandung": ["Coblong","Sukajadi","Cicendo"], "Bekasi": ["Bekasi Timur","Bekasi Selatan"] },
-    "DKI Jakarta": { "Jakarta Pusat": ["Gambir","Menteng"], "Jakarta Timur": ["Duren Sawit","Cakung"] }
-  };
+daerahEl.addEventListener('change', ()=>{
+  const daerah = daerahEl.value;
+  statusWrap.style.display=descWrap.style.display=submitWrap.style.display='none';
+  summaryDiv.innerHTML='';
+  if(daerah){
+    statusWrap.style.display=descWrap.style.display=submitWrap.style.display='block';
+    updateSummaryForSelected();
+  }
+});
 
-  provEl.addEventListener('change', ()=>{
-    const prov = provEl.value;
-    kotaEl.innerHTML = '<option value="">-- Pilih Kota --</option>';
-    daerahEl.innerHTML = '<option value="">-- Pilih Daerah --</option>';
-    kotaWrap.style.display = daerahWrap.style.display = statusWrap.style.display = descWrap.style.display = submitWrap.style.display = 'none';
-    summaryDiv.innerHTML='';
-    if(prov && wilayah[prov]){
-      Object.keys(wilayah[prov]).forEach(k=>{
-        const o=document.createElement('option'); o.value=k; o.textContent=k; kotaEl.appendChild(o);
-      });
-      kotaWrap.style.display='block';
-    }
-  });
+// SUBMIT
+document.getElementById('submitBtn').addEventListener('click', ()=>{
+  const prov = provEl.value, kota=kotaEl.value, daerah=daerahEl.value;
+  const status=document.getElementById('status').value;
+  const deskripsi=document.getElementById('deskripsi').value||'';
+  if(!prov||!kota||!daerah||!status){ alert('Lengkapi semua pilihan'); return; }
+  const t=new Date().toLocaleString();
+  push(ref(db,'laporan'), {provinsi:prov,kota:kota,daerah:daerah,status:status,deskripsi:deskripsi,waktu:t});
+  document.getElementById('status').value='';
+  document.getElementById('deskripsi').value='';
+  alert('✅ Laporan berhasil dikirim!');
+  updateSummaryForSelected();
+});
 
-  kotaEl.addEventListener('change', ()=>{
-    const prov=provEl.value, kota=kotaEl.value;
-    daerahEl.innerHTML='<option value="">-- Pilih Daerah --</option>';
-    daerahWrap.style.display=statusWrap.style.display=descWrap.style.display=submitWrap.style.display='none';
-    summaryDiv.innerHTML='';
-    if(prov && kota && wilayah[prov] && wilayah[prov][kota]){
-      wilayah[prov][kota].forEach(d=>{
-        const o=document.createElement('option'); o.value=d; o.textContent=d; daerahEl.appendChild(o);
-      });
-      daerahWrap.style.display='block';
-    }
-  });
+// UTILS
+function escapeHtml(s){ return (s+'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-  daerahEl.addEventListener('change', ()=>{
-    const daerah = daerahEl.value;
-    statusWrap.style.display=descWrap.style.display=submitWrap.style.display='none';
-    summaryDiv.innerHTML='';
-    if(daerah){
-      statusWrap.style.display=descWrap.style.display=submitWrap.style.display='block';
-    }
-  });
-
-  document.getElementById('submitBtn').addEventListener('click', ()=>{
-    const prov = provEl.value, kota=kotaEl.value, daerah=daerahEl.value;
-    const status=document.getElementById('status').value;
-    const deskripsi=document.getElementById('deskripsi').value||'';
-    if(!prov||!kota||!daerah||!status){ alert('Lengkapi semua pilihan'); return; }
-
-    const t=new Date().toLocaleString();
-    push(ref(db,'laporan'), {provinsi:prov, kota:kota, daerah:daerah, status:status, deskripsi:deskripsi, waktu:t})
-      .then(()=> { alert('✅ Laporan berhasil dikirim!'); updateSummaryForSelected(); })
-      .catch(err=>alert('❌ Gagal kirim laporan: '+err));
-    
-    document.getElementById('status').value='';
-    document.getElementById('deskripsi').value='';
-  });
-
-  function updateSummaryForSelected(){
-    const prov=provEl.value, kota=kotaEl.value, daerah=daerahEl.value;
-    if(!prov||!kota||!daerah) return;
-    onValue(ref(db,'laporan'), snapshot=>{
-      const data=snapshot.val()||{};
-      const counts={Lancar:0,Ramai:0,Padat:0,Macet:0};
-      Object.values(data).forEach(l=>{ if(l.provinsi===prov && l.kota===kota && l.daerah===daerah) counts[l.status]++; });
-      const total=counts.Lancar+counts.Ramai+counts.Padat+counts.Macet;
-      let mayoritas='Belum ada laporan';
-      if(total>0){
-        const max=Math.max(...Object.values(counts));
-        const winners=Object.keys(counts).filter(k=>counts[k]===max && max>0);
-        mayoritas=winners.length===1?winners[0]:'Seimbang';
+// SUMMARY
+function updateSummaryForSelected(){
+  const prov=provEl.value,kota=kotaEl.value,daerah=daerahEl.value,sDiv=summaryDiv;
+  sDiv.innerHTML='';
+  if(!prov||!kota||!daerah) return;
+  const counts={Lancar:0,Ramai:0,Padat:0,Macet:0};
+  const laporanRef = ref(db,'laporan');
+  onValue(laporanRef, snapshot=>{
+    const data = snapshot.val() || {};
+    Object.values(data).forEach(l=>{
+      if(l.provinsi===prov && l.kota===kota && l.daerah===daerah && counts[l.status]!==undefined){
+        counts[l.status]++;
       }
-      summaryDiv.innerHTML=`
-        <div style="margin-top:16px; text-align:center;">
-          <div style="display:inline-block; padding:10px 16px; background:#f7f7f7; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
-            <div style="font-size:14px;color:#555">Ringkasan untuk <b>${daerah}, ${kota}</b></div>
-            <div style="margin-top:8px; text-align:left;">
-              <div>Lancar: <b>${counts.Lancar}</b></div>
-              <div>Ramai: <b>${counts.Ramai}</b></div>
-              <div>Padat: <b>${counts.Padat}</b></div>
-              <div>Macet: <b>${counts.Macet}</b></div>
-              <div style="margin-top:8px;color:#222">Mayoritas: <b>${mayoritas}</b></div>
-            </div>
-          </div>
-        </div>`;
     });
-  }
+    const total=counts.Lancar+counts.Ramai+counts.Padat+counts.Macet;
+    let mayoritas='Belum ada laporan';
+    if(total>0){
+      const max=Math.max(counts.Lancar,counts.Ramai,counts.Padat,counts.Macet);
+      const winners=Object.keys(counts).filter(k=>counts[k]===max && max>0);
+      mayoritas=winners.length===1?winners[0]:'Seimbang';
+    }
+    sDiv.innerHTML=`
+    <div style="margin-top:16px; text-align:center;">
+      <div style="display:inline-block; padding:10px 16px; background:#f7f7f7; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
+        <div style="font-size:14px;color:#555">Ringkasan untuk <b>${daerah}, ${kota}</b></div>
+        <div style="margin-top:8px; text-align:left;">
+          <div>Lancar: <b>${counts.Lancar}</b></div>
+          <div>Ramai: <b>${counts.Ramai}</b></div>
+          <div>Padat: <b>${counts.Padat}</b></div>
+          <div>Macet: <b>${counts.Macet}</b></div>
+          <div style="margin-top:8px;color:#222">Mayoritas: <b>${mayoritas}</b></div>
+        </div>
+      </div>
+    </div>`;
+  });
+}
 
+// STATISTIK
+function updateStatistikFirebase(){
+  const statsTbody = document.getElementById('statsTbody');
+  const statsSummary = document.getElementById('statsSummary');
+  const statsTable = document.getElementById('statsTable');
+  const recentList = document.getElementById('recentList');
+
+  const laporanRef = ref(db,'laporan');
+  onValue(laporanRef, snapshot=>{
+    const data = snapshot.val() || {};
+    const grouping = {};
+
+    Object.values(data).forEach(l=>{
+      const key = `${l.daerah}, ${l.kota}`;
+      if(!grouping[key]) grouping[key]={Lancar:0,Ramai:0,Padat:0,Macet:0};
+      if(grouping[key][l.status]!==undefined) grouping[key][l.status]++;
+    });
+
+    statsTbody.innerHTML='';
+    if(Object.keys(grouping).length===0){
+      statsSummary.innerHTML='Belum ada laporan masuk.';
+      statsTable.style.display='none';
+      recentList.innerHTML='';
+      return;
+    }
+
+    for(const key of Object.keys(grouping)){
+      const row = grouping[key];
+      const total = row.Lancar+row.Ramai+row.Padat+row.Macet;
+      const maxCount = Math.max(row.Lancar,row.Ramai,row.Padat,row.Macet);
+      const winners = ['Lancar','Ramai','Padat','Macet'].filter(k=>row[k]===maxCount && maxCount>0);
+      const mayoritas = winners.length===1 ? winners[0]:'Seimbang';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${key}</td>
+                      <td class="status-lancar">${row.Lancar}</td>
+                      <td class="status-ramai">${row.Ramai}</td>
+                      <td class="status-padat">${row.Padat}</td>
+                      <td class="status-macet">${row.Macet}</td>
+                      <td>${total}</td>
+                      <td><b>${mayoritas}</b></td>`;
+      statsTbody.appendChild(tr);
+    }
+
+    statsSummary.innerHTML=`Total laporan: <b>${Object.values(data).length}</b> • Daerah terlapor: <b>${Object.keys(grouping).length}</b>`;
+    statsTable.style.display='table';
+
+    // Laporan terbaru
+    recentList.innerHTML='';
+    Object.values(data).slice(-10).reverse().forEach(r=>{
+      const div = document.createElement('div');
+      div.style.padding='6px 0';
+      div.innerHTML=`<b>[${r.waktu}]</b> ${r.daerah}, ${r.kota} — <span class="small">${r.status}</span> ${r.deskripsi?'- '+escapeHtml(r.deskripsi):''}`;
+      recentList.appendChild(div);
+    });
+  });
+}
+updateStatistikFirebase();
 </script>
 </body>
 </html>
