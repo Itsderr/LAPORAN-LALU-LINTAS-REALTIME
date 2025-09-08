@@ -9,17 +9,15 @@
       --green:#007a1c;
       --green-dark:#005c15;
       --card-bg:#ffffff;
-      --page-bg:#f3f3f3;
+      --page-bg:#ffffff; /* putih polos */
       --panel-bg: rgba(0,0,0,0.6);
     }
 
-    /* BODY + BACKGROUND IMAGE (letakkan di sini, bukan di script) */
+    /* BODY */
     body{
       margin:0;
       font-family: Inter, system-ui, Arial, sans-serif;
-      /* warna fallback + image */
-      background: var(--page-bg) url('image.png') no-repeat center center fixed;
-      background-size: cover;
+      background: var(--page-bg);
     }
 
     /* HEADER */
@@ -54,7 +52,7 @@
 
     /* FORM CARD (semi-oval) */
     .card {
-      background: rgba(255,255,255,0.95); /* sedikit transparan supaya background foto terlihat */
+      background: rgba(255,255,255,0.95);
       border-radius: 18px;
       padding: 28px;
       box-shadow: 0 8px 22px rgba(0,0,0,0.08);
@@ -124,7 +122,6 @@
     <section id="laporanSection" class="card">
       <h2>Laporan Lalu Lintas</h2>
 
-      <!-- Step 1 -->
       <label for="provinsi">Pilih Provinsi:</label>
       <select id="provinsi">
         <option value="">-- Pilih Provinsi --</option>
@@ -133,7 +130,6 @@
         <option value="DKI Jakarta">DKI Jakarta</option>
       </select>
 
-      <!-- Step 2 -->
       <div id="kotaWrap" style="display:none;">
         <label for="kota">Pilih Kota/Kabupaten:</label>
         <select id="kota">
@@ -141,7 +137,6 @@
         </select>
       </div>
 
-      <!-- Step 3 -->
       <div id="daerahWrap" style="display:none;">
         <label for="daerah">Pilih Daerah/Kecamatan:</label>
         <select id="daerah">
@@ -149,7 +144,6 @@
         </select>
       </div>
 
-      <!-- Step 4: status -->
       <div id="statusWrap" style="display:none;">
         <label for="status">Status Kondisi:</label>
         <select id="status">
@@ -161,7 +155,6 @@
         </select>
       </div>
 
-      <!-- Deskripsi opsional -->
       <div id="descWrap" style="display:none;">
         <label for="deskripsi">Deskripsi (opsional):</label>
         <textarea id="deskripsi" placeholder="Contoh: Lampu merah tidak berfungsi / antrean 500m (boleh dikosongkan)"></textarea>
@@ -172,11 +165,9 @@
         <div class="muted">Laporan akan masuk ke ringkasan dan statistik.</div>
       </div>
 
-      <!-- Ringkasan untuk daerah terpilih -->
       <div id="summary" style="margin-top:18px;"></div>
     </section>
 
-    <!-- Statistik -->
     <section id="statistikSection" class="stats-card" style="display:none;">
       <h3>📊 Statistik Laporan (Dari semua laporan)</h3>
       <div id="statsSummary" class="small">Belum ada laporan.</div>
@@ -200,7 +191,6 @@
       <div id="recentList" class="small" style="text-align:left;"></div>
     </section>
 
-    <!-- Cara aman -->
     <section id="amanSection" class="card" style="display:none;">
       <h3>Cara Mengemudi dengan Aman</h3>
       <ul style="text-align:left;">
@@ -212,7 +202,6 @@
       </ul>
     </section>
 
-    <!-- Login dummy -->
     <section id="loginSection" class="card" style="display:none;">
       <h3>Login (Sementara)</h3>
       <p class="small">Untuk demo lomba cukup gunakan 1 akun (fitur login akan dikembangkan nanti).</p>
@@ -220,15 +209,11 @@
   </main>
 
   <script>
-    // --- state (local) ---
-    const laporanData = []; // {provinsi,kota,daerah,status,deskripsi,timestamp}
-
-    // --- sidebar toggle ---
+    const laporanData = [];
     const menuBtn = document.getElementById('menuBtn');
     const sidebar = document.getElementById('sidebar');
     menuBtn.addEventListener('click', ()=> sidebar.classList.toggle('active'));
 
-    // --- navigation helpers ---
     function goto(page){
       if(page === 'laporan') showSection('laporanSection');
       if(page === 'statistik') showSection('statistikSection');
@@ -243,11 +228,8 @@
       document.getElementById(id).style.display = 'block';
       sidebar.classList.remove('active');
     }
-
-    // open laporan by default
     showSection('laporanSection');
 
-    // --- cascading selects (1 by 1) ---
     const provEl = document.getElementById('provinsi');
     const kotaEl = document.getElementById('kota');
     const daerahEl = document.getElementById('daerah');
@@ -259,19 +241,9 @@
     const summaryDiv = document.getElementById('summary');
 
     const wilayah = {
-      "Jawa Timur": {
-        "Surabaya": ["Genteng","Wonokromo","Rungkut","Tandes","Kenjeran"],
-        "Sidoarjo": ["Krian","Waru","Buduran","Porong","Candi"],
-        "Banyuwangi": ["Genteng","Rogojampi","Glagah","Kabupaten Kota"]
-      },
-      "Jawa Barat": {
-        "Bandung": ["Coblong","Sukajadi","Cicendo"],
-        "Bekasi": ["Bekasi Timur","Bekasi Selatan"]
-      },
-      "DKI Jakarta": {
-        "Jakarta Pusat": ["Gambir","Menteng"],
-        "Jakarta Timur": ["Duren Sawit","Cakung"]
-      }
+      "Jawa Timur": { "Surabaya": ["Genteng","Wonokromo","Rungkut","Tandes","Kenjeran"], "Sidoarjo": ["Krian","Waru","Buduran","Porong","Candi"], "Banyuwangi": ["Genteng","Rogojampi","Glagah","Kabupaten Kota"] },
+      "Jawa Barat": { "Bandung": ["Coblong","Sukajadi","Cicendo"], "Bekasi": ["Bekasi Timur","Bekasi Selatan"] },
+      "DKI Jakarta": { "Jakarta Pusat": ["Gambir","Menteng"], "Jakarta Timur": ["Duren Sawit","Cakung"] }
     };
 
     provEl.addEventListener('change', ()=>{
@@ -347,7 +319,6 @@
       updateSummaryForSelected();
     });
 
-    // --- Statistik builder ---
     function updateStatistikTable(){
       const statsTable = document.getElementById('statsTable');
       const tbody = document.getElementById('statsTbody');
@@ -400,7 +371,6 @@
       });
     }
 
-    // update summary for currently selected daerah
     function updateSummaryForSelected(){
       const prov = provEl.value;
       const kota = kotaEl.value;
@@ -425,28 +395,4 @@
 
       sDiv.innerHTML = `
         <div style="margin-top:16px; text-align:center;">
-          <div style="display:inline-block; padding:10px 16px; background:#f7f7f7; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
-            <div style="font-size:14px;color:#555">Ringkasan untuk <b>${daerah}, ${kota}</b></div>
-            <div style="margin-top:8px; text-align:left;">
-              <div>Lancar: <b>${counts.Lancar}</b></div>
-              <div>Ramai: <b>${counts.Ramai}</b></div>
-              <div>Padat: <b>${counts.Padat}</b></div>
-              <div>Macet: <b>${counts.Macet}</b></div>
-              <div style="margin-top:8px;color:#222">Mayoritas: <b>${mayoritas}</b></div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    // helper escape
-    function escapeHtml(s){ return (s+'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-    // on load: make sure statistik is fresh
-    updateStatistikTable();
-
-    // expose goto for inline links
-    window.goto = goto;
-  </script>
-</body>
-</html>
+          <div style="display:inline-block; padding:10px 16px; background:#f7f7f
