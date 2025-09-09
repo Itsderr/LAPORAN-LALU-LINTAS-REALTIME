@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LaluLintasKu — Laporan</title>
+<title>LaluLintasKu — Laporan & Statistik</title>
 <style>
 :root{
   --green:#007a1c;
@@ -32,13 +32,15 @@ body{
   display:block; padding:12px 20px; color:#fff; text-decoration:none; font-size:15px;
   transition: background .2s;
 }
-.sidebar a:hover{ background: rgba(255,255,255,0.08); }
+.sidebar a:hover, .sidebar a.active{ background: rgba(255,255,255,0.15); }
 .main{ padding:24px; max-width:1000px; margin:24px auto; }
 .card{
   background:#fff; border-radius:16px; padding:24px; box-shadow:0 6px 18px rgba(0,0,0,0.08); margin:12px auto; text-align:center;
 }
-.card h2{ margin-top:0; margin-bottom:12px; color:#111; }
-select, textarea, input[type="text"]{ width:92%; max-width:560px; padding:10px; border-radius:10px; border:1px solid #d0d0d0; font-size:15px; margin-bottom:10px; }
+.card h2, .card h3{ margin-top:0; margin-bottom:12px; color:#111; }
+select, textarea, input[type="text"], input[type="file"]{
+  width:92%; max-width:560px; padding:10px; border-radius:10px; border:1px solid #d0d0d0; font-size:15px; margin-bottom:10px;
+}
 textarea{ min-height:110px; resize:vertical; }
 .btn{ margin-top:16px; background:var(--green); color:white; border:none; padding:10px 18px; border-radius:8px; cursor:pointer; font-weight:600; }
 .btn:hover{ background:var(--green-dark); }
@@ -54,15 +56,14 @@ th{ background:#f7faf7; color:#222; }
 .small{ font-size:13px; color:#444; }
 @media(max-width:640px){ .card{ width:94%; padding:18px; } select,input,textarea{ width:100%; } .sidebar{ width:220px; } }
 #logoSmall{ display:block; margin:20px auto; max-width:300px; height:auto; }
+#chartContainer{ width:100%; max-width:600px; margin:20px auto; }
 </style>
 </head>
 <body>
 
 <header class="header">
   <span class="menu-btn" id="menuBtn">☰</span>
-  <h1>
-  🚦 LaluLintasKu
-</h1>
+  <h1>🚦 LaluLintasKu</h1>
 </header>
 <img src="logo.png" alt="Logo" id="logoSmall">
 
@@ -78,23 +79,26 @@ th{ background:#f7faf7; color:#222; }
     <h2>Laporan Lalu Lintas</h2>
     <label for="provinsi">Pilih Provinsi:</label>
     <select id="provinsi"><option value="">-- Pilih Provinsi --</option><option value="Jawa Timur">Jawa Timur</option><option value="Jawa Barat">Jawa Barat</option><option value="DKI Jakarta">DKI Jakarta</option></select>
+    
     <div id="kotaWrap" style="display:none;"><label for="kota">Pilih Kota/Kabupaten:</label><select id="kota"><option value="">-- Pilih Kota --</option></select></div>
     <div id="daerahWrap" style="display:none;"><label for="daerah">Pilih Daerah/Kecamatan:</label><select id="daerah"><option value="">-- Pilih Daerah --</option></select></div>
+    
     <div id="statusWrap" style="display:none;"><label for="status">Status Kondisi:</label><select id="status"><option value="">-- Pilih Kondisi --</option><option value="Lancar">Lancar</option><option value="Ramai">Ramai</option><option value="Padat">Padat</option><option value="Macet">Macet</option></select></div>
-    <div id="descWrap" style="display:none;"><label for="deskripsi">Deskripsi (opsional):</label><textarea id="deskripsi" placeholder="Contoh: Lampu merah tidak berfungsi / antrean 500m (boleh dikosongkan)"></textarea></div>
+    
+    <div id="descWrap" style="display:none;"><label for="deskripsi">Deskripsi (opsional):</label><textarea id="deskripsi" placeholder="Contoh: Lampu merah tidak berfungsi / antrean 500m"></textarea></div>
+    
+    <div id="fotoWrap" style="display:none;"><label for="foto">Tambahkan Foto (opsional):</label><input type="file" id="foto" accept="image/*"></div>
+    
+    <div id="lokasiWrap" style="display:none;"><button class="btn" id="getLocationBtn">📍 Dapatkan Lokasi</button><div id="lokasiInfo" class="small"></div></div>
+    
     <div id="submitWrap" style="display:none;"><button class="btn" id="submitBtn">Kirim Laporan</button><div class="muted">Laporan akan masuk ke ringkasan dan statistik.</div></div>
     <div id="summary" style="margin-top:18px;"></div>
   </section>
 
   <section id="statistikSection" class="stats-card" style="display:none;">
     <h3>📊 Statistik Laporan (≤ 1 jam)</h3>
+    <canvas id="chart" style="max-width:600px;"></canvas>
     <div id="statsSummary" class="small">Belum ada laporan.</div>
-    <table id="statsTable" style="display:none;">
-      <thead><tr><th>Daerah (Kota)</th><th>Lancar</th><th>Ramai</th><th>Padat</th><th>Macet</th><th>Total</th><th>Mayoritas</th></tr></thead>
-      <tbody id="statsTbody"></tbody>
-    </table>
-    <h4>Laporan Terbaru</h4>
-    <div id="recentList" class="small" style="text-align:left;"></div>
   </section>
 
   <section id="amanSection" class="card" style="display:none;">
@@ -114,10 +118,12 @@ th{ background:#f7faf7; color:#222; }
   </section>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module">
 // Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAVHQKQ3iAGWPepnd_DuoGQmpxG40i8uMs",
@@ -130,6 +136,7 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const storage = getStorage(app);
 
 // Sidebar toggle + animasi
 const menuBtn = document.getElementById('menuBtn');
@@ -138,8 +145,6 @@ menuBtn.addEventListener('click', ()=>{
   sidebar.classList.toggle('active');
   menuBtn.classList.toggle('rotate');
 });
-
-// Sidebar nav
 sidebar.querySelectorAll('a[data-target]').forEach(a=>{
   a.addEventListener('click', e=>{
     e.preventDefault();
@@ -147,6 +152,10 @@ sidebar.querySelectorAll('a[data-target]').forEach(a=>{
     document.querySelectorAll('main section').forEach(s=>s.style.display='none');
     document.getElementById(target).style.display='block';
     sidebar.classList.remove('active'); menuBtn.classList.remove('rotate');
+    
+    // highlight aktif
+    sidebar.querySelectorAll('a').forEach(link=>link.classList.remove('active'));
+    a.classList.add('active');
   });
 });
 
@@ -159,7 +168,10 @@ const daerahWrap = document.getElementById('daerahWrap');
 const statusWrap = document.getElementById('statusWrap');
 const descWrap = document.getElementById('descWrap');
 const submitWrap = document.getElementById('submitWrap');
+const fotoWrap = document.getElementById('fotoWrap');
+const lokasiWrap = document.getElementById('lokasiWrap');
 const summaryDiv = document.getElementById('summary');
+const lokasiInfo = document.getElementById('lokasiInfo');
 
 const wilayah = {
   "Jawa Timur": { "Surabaya":["Genteng","Wonokromo"], "Sidoarjo":["Krian","Waru"], "Banyuwangi":["Kecamatan Glagah","Kecamatan Rogojampi"] },
@@ -171,7 +183,7 @@ provEl.addEventListener('change', ()=>{
   const prov = provEl.value;
   kotaEl.innerHTML='<option value="">-- Pilih Kota --</option>';
   daerahEl.innerHTML='<option value="">-- Pilih Daerah --</option>';
-  kotaWrap.style.display=daerahWrap.style.display=statusWrap.style.display=descWrap.style.display=submitWrap.style.display='none';
+  kotaWrap.style.display=daerahWrap.style.display=statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none';
   summaryDiv.innerHTML='';
   if(prov && wilayah[prov]){
     Object.keys(wilayah[prov]).forEach(k=>{
@@ -184,7 +196,7 @@ provEl.addEventListener('change', ()=>{
 kotaEl.addEventListener('change', ()=>{
   const prov=provEl.value, kota=kotaEl.value;
   daerahEl.innerHTML='<option value="">-- Pilih Daerah --</option>';
-  daerahWrap.style.display=statusWrap.style.display=descWrap.style.display=submitWrap.style.display='none';
+  daerahWrap.style.display=statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none';
   summaryDiv.innerHTML='';
   if(prov && kota && wilayah[prov][kota]){
     wilayah[prov][kota].forEach(d=>{
@@ -196,69 +208,66 @@ kotaEl.addEventListener('change', ()=>{
 
 daerahEl.addEventListener('change', ()=>{
   const d=daerahEl.value;
-  if(d){ statusWrap.style.display=descWrap.style.display=submitWrap.style.display='block'; updateSummary(); }
-  else{ statusWrap.style.display=descWrap.style.display=submitWrap.style.display='none'; summaryDiv.innerHTML=''; }
+  if(d){ statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='block'; updateSummary(); }
+  else{ statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none'; summaryDiv.innerHTML=''; }
+});
+
+// Lokasi GPS
+let currentLocation = null;
+document.getElementById('getLocationBtn').addEventListener('click', ()=>{
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos=>{
+      currentLocation = {lat: pos.coords.latitude, lng: pos.coords.longitude};
+      lokasiInfo.textContent = `Latitude: ${currentLocation.lat.toFixed(5)}, Longitude: ${currentLocation.lng.toFixed(5)}`;
+    }, ()=>{ lokasiInfo.textContent='Gagal mendapatkan lokasi'; });
+  }else{ lokasiInfo.textContent='Browser tidak mendukung GPS'; }
 });
 
 // Submit laporan
 const statusEl = document.getElementById('status');
 const descEl = document.getElementById('deskripsi');
 const submitBtn = document.getElementById('submitBtn');
-submitBtn.addEventListener('click', ()=>{
+const fotoEl = document.getElementById('foto');
+
+submitBtn.addEventListener('click', async ()=>{
   if(!provEl.value || !kotaEl.value || !daerahEl.value || !statusEl.value){ alert('Lengkapi semua pilihan'); return; }
+
+  let fotoURL = '';
+  if(fotoEl.files[0]){
+    const file = fotoEl.files[0];
+    const storageRef = sRef(storage, `laporan_foto/${Date.now()}_${file.name}`);
+    await uploadBytes(storageRef, file);
+    fotoURL = await getDownloadURL(storageRef);
+  }
+
   const laporan={
     provinsi:provEl.value,
     kota:kotaEl.value,
     daerah:daerahEl.value,
     status:statusEl.value,
     deskripsi:descEl.value||'',
-    waktu: Date.now() // timestamp
+    foto: fotoURL,
+    lokasi: currentLocation || {},
+    waktu: Date.now()
   };
   push(ref(db,'laporan'), laporan);
-  statusEl.value=''; descEl.value='';
+  statusEl.value=''; descEl.value=''; fotoEl.value=''; currentLocation=null; lokasiInfo.textContent='';
   alert('✅ Laporan berhasil dikirim!');
 });
 
-// Statistik (≤ 1 jam)
-const statsSummary=document.getElementById('statsSummary');
-const statsTable=document.getElementById('statsTable');
-const statsTbody=document.getElementById('statsTbody');
-const recentList=document.getElementById('recentList');
+// Statistik Chart.js
+const ctx = document.getElementById('chart').getContext('2d');
+let chart = new Chart(ctx, {type:'bar', data:{labels:['Lancar','Ramai','Padat','Macet'], datasets:[{label:'Jumlah Laporan',data:[0,0,0,0],backgroundColor:['#2b8a3e','#f08c00','#c67a00','#d92727']}]}, options:{responsive:true,plugins:{legend:{display:false}}}});
 
 onValue(ref(db,'laporan'), snapshot=>{
   const data = snapshot.val() || {};
   const now = Date.now();
   const laporanArr = Object.values(data).filter(l=> now - l.waktu < 3600000 ).sort((a,b)=>b.waktu - a.waktu);
-
-  const grouping={};
-  laporanArr.forEach(l=>{
-    const key=`${l.daerah}, ${l.kota}`;
-    if(!grouping[key]) grouping[key]={Lancar:0,Ramai:0,Padat:0,Macet:0};
-    if(grouping[key][l.status]!==undefined) grouping[key][l.status]++;
-  });
-
-  statsTbody.innerHTML='';
-  Object.keys(grouping).forEach(key=>{
-    const r=grouping[key];
-    const total=r.Lancar+r.Ramai+r.Padat+r.Macet;
-    const maxCount=Math.max(r.Lancar,r.Ramai,r.Padat,r.Macet);
-    const winners=['Lancar','Ramai','Padat','Macet'].filter(k=>r[k]===maxCount && maxCount>0);
-    const mayoritas=winners.length===1?winners[0]:'Seimbang';
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${key}</td><td class="status-lancar">${r.Lancar}</td><td class="status-ramai">${r.Ramai}</td><td class="status-padat">${r.Padat}</td><td class="status-macet">${r.Macet}</td><td>${total}</td><td><b>${mayoritas}</b></td>`;
-    statsTbody.appendChild(tr);
-  });
-
-  statsSummary.innerHTML=`Total laporan: <b>${laporanArr.length}</b> • Daerah terlapor: <b>${Object.keys(grouping).length}</b>`;
-  statsTable.style.display=laporanArr.length>0?'table':'none';
-  recentList.innerHTML='';
-  laporanArr.slice(0,10).forEach(r=>{
-    const d=document.createElement('div');
-    d.style.padding='6px 0';
-    const waktuStr=new Date(r.waktu).toLocaleTimeString();
-    d.innerHTML=`<b>[${waktuStr}]</b> ${r.daerah}, ${r.kota} — <span class="small">${r.status}</span>${r.deskripsi?'- '+r.deskripsi:''}`;
-    recentList.appendChild(d);
-  });
+  const counts={Lancar:0,Ramai:0,Padat:0,Macet:0};
+  laporanArr.forEach(l=>{ if(counts[l.status]!==undefined) counts[l.status]++; });
+  chart.data.datasets[0].data = [counts.Lancar, counts.Ramai, counts.Padat, counts.Macet];
+  chart.update();
+  document.getElementById('statsSummary').textContent=`Total laporan: ${laporanArr.length}`;
 });
 
 // Ringkasan per daerah
