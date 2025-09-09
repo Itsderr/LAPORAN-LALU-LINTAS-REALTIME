@@ -53,44 +53,27 @@ th{ background:#f7faf7; color:#222; }
 @media(max-width:640px){ .card{ width:94%; padding:18px; } select,input,textarea{ width:100%; } .sidebar{ width:220px; } }
 #logoSmall{ display:block; margin:20px auto; max-width:300px; height:auto; }
 
-/* Menghapus CSS Flexbox sebelumnya dan menyesuaikan tata letak */
+/* CSS untuk merapikan dropdown pada halaman statistik */
 .filter-item {
-  margin-bottom: 12px; /* Memberikan jarak antar baris */
+  margin-bottom: 12px;
   text-align: left;
 }
 .filter-item label {
-  display: block; /* Agar label berada di baris terpisah dari select */
+  display: block;
   margin-bottom: 4px;
   font-weight: 600;
 }
 .filter-item select {
   width: 100%;
 }
-/* Akhir CSS yang disesuaikan */
 
-#chartContainer{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  max-width: 900px;
-  margin: 20px auto;
+/* CSS untuk status kamera */
+.status-lancar {
+  color: #2b8a3e;
 }
-#chartBox{
-  width: 100%;
-  max-width: 600px;
+.status-macet {
+  color: #d92727;
 }
-#chartInfo{
-  flex: 1;
-  width: 100%;
-  font-size: 14px;
-  background: #f7f7f7;
-  padding: 16px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  text-align: center;
-}
-#fotoPreview{ margin-top:10px; max-width:200px; border-radius:10px; }
 </style>
 </head>
 <body>
@@ -105,6 +88,7 @@ th{ background:#f7faf7; color:#222; }
   <a href="#" data-target="statistikSection" class="active">📊 Statistik</a>
   <a href="#" data-target="laporanSection">📋 Laporan</a>
   <a href="#" data-target="amanSection">🚗 Cara Mengemudi Aman</a>
+  <a href="#" data-target="kameraSection">📸 Statistik sistem kamera</a>
   <a href="#" data-target="loginSection">🔑 Login</a>
 </nav>
 
@@ -113,37 +97,35 @@ th{ background:#f7faf7; color:#222; }
 <section id="statistikSection" class="stats-card">
   <h3>📊 Statistik Laporan (≤ 1 jam)</h3>
   <div style="margin-bottom:12px;">
-   <div class="filter-item">
-    <label for="filterProv">Provinsi:</label>
-    <select id="filterProv">
-      <option value="">-- Pilih Provinsi --</option>
-      <option value="Jawa Timur">Jawa Timur</option>
-      <option value="Jawa Barat">Jawa Barat</option>
-      <option value="DKI Jakarta">DKI Jakarta</option>
-    </select>
+    <div class="filter-item">
+      <label for="filterProv">Provinsi:</label>
+      <select id="filterProv">
+        <option value="">-- Pilih Provinsi --</option>
+        <option value="Jawa Timur">Jawa Timur</option>
+        <option value="Jawa Barat">Jawa Barat</option>
+        <option value="DKI Jakarta">DKI Jakarta</option>
+      </select>
+    </div>
+    
+    <div class="filter-item">
+      <label for="filterKota">Kota:</label>
+      <select id="filterKota">
+        <option value="">-- Pilih Kota --</option>
+      </select>
+    </div>
+    
+    <div class="filter-item">
+      <label for="filterDaerah">Daerah:</label>
+      <select id="filterDaerah">
+        <option value="">-- Pilih Daerah --</option>
+      </select>
+    </div>
   </div>
-  
-  <div class="filter-item">
-    <label for="filterKota">Kota:</label>
-    <select id="filterKota">
-      <option value="">-- Pilih Kota --</option>
-    </select>
+
+  <div id="chartContainer">
+    <div id="chartBox"><canvas id="chart"></canvas></div>
+    <div id="chartInfo">Belum ada laporan.</div>
   </div>
-  
-  <div class="filter-item">
-    <label for="filterDaerah">Daerah:</label>
-    <select id="filterDaerah">
-      <option value="">-- Pilih Daerah --</option>
-    </select>
-  </div>
-</div>
-
-<div id="chartContainer">
-  <div id="chartBox"><canvas id="chart"></canvas></div>
-  <div id="chartInfo">Belum ada laporan.</div>
-</div>
-
-
 </section>
 
 <section id="laporanSection" class="card" style="display:none;">
@@ -168,6 +150,15 @@ th{ background:#f7faf7; color:#222; }
     <li>Roda 4: Pakai sabuk pengaman, jangan pakai HP saat mengemudi.</li>
     <li>Truck: Periksa muatan, patuhi batas kecepatan, gunakan lampu tambahan.</li>
   </ul>
+</section>
+
+<section id="kameraSection" class="card" style="display:none;">
+  <h3>📸 Statistik sistem kamera</h3>
+  <div id="statusKamera">
+    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">Status:</p>
+    <span id="trafficStatus" class="status-lancar">...</span>
+    <p class="muted">Jumlah Kendaraan: <span id="vehicleCount">...</span></p>
+  </div>
 </section>
 
 <section id="loginSection" class="card" style="display:none;">
@@ -422,6 +413,31 @@ function updateSummary(){
     </div>`;
   });
 }
+
+// Skrip baru untuk statistik sistem kamera
+const trafficStatusEl = document.getElementById('trafficStatus');
+const vehicleCountEl = document.getElementById('vehicleCount');
+
+const kameraRef = ref(db, 'traffic/status');
+
+onValue(kameraRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+        trafficStatusEl.textContent = data.status.toUpperCase();
+        vehicleCountEl.textContent = data.vehicle_count;
+        trafficStatusEl.classList.remove('status-lancar', 'status-macet');
+        if (data.status === 'macet') {
+            trafficStatusEl.classList.add('status-macet');
+        } else {
+            trafficStatusEl.classList.add('status-lancar');
+        }
+    } else {
+        trafficStatusEl.textContent = "DATA TIDAK TERSEDIA";
+        vehicleCountEl.textContent = "-";
+        trafficStatusEl.classList.remove('status-macet');
+        trafficStatusEl.classList.add('status-lancar');
+    }
+});
 </script>
 </body>
 </html>
