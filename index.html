@@ -1,129 +1,174 @@
-<!-- ======================
- 📊 Statistik Laporan Manual (Punya Kamu Awal)
-====================== -->
-<h2>📊 Statistik Laporan Manual</h2>
-<canvas id="chartLaporan" width="400" height="200"></canvas>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LaluLintasKu — Statistik & Laporan</title>
+<style>
+:root{
+  --green:#007a1c;
+  --green-dark:#005c15;
+  --page-bg:#fff;
+  --panel-bg: rgba(0,0,0,0.7);
+}
+body{ margin:0; font-family: Inter, system-ui, Arial, sans-serif; background: var(--page-bg); }
+.header{ background: var(--green); color:#fff; padding:12px 16px; position:relative; text-align:center; }
+.header .menu-btn{ position:absolute; left:12px; top:8px; font-size:22px; cursor:pointer; transition: transform .25s; }
+.header .menu-btn.rotate{ transform: rotate(90deg); }
+.header h1{ margin:0; font-size:20px; display:inline-block; vertical-align:middle; }
+.sidebar{ position:fixed; top:0; left:-250px; width:250px; height:100%; background:var(--panel-bg); padding-top:60px; transition:left .25s ease; z-index:2000; }
+.sidebar.active{ left:0; }
+.sidebar a{ display:block; padding:12px 20px; color:#fff; text-decoration:none; font-size:15px; transition: background .2s; }
+.sidebar a:hover, .sidebar a.active{ background: rgba(255,255,255,0.15); }
+.main{ padding:24px; max-width:1000px; margin:24px auto; }
+.card{ background:#fff; border-radius:16px; padding:24px; box-shadow:0 6px 18px rgba(0,0,0,0.08); margin:12px auto; text-align:center; }
+.stats-card{ max-width:900px; margin:18px auto; padding:18px; border-radius:12px; background:#fff; box-shadow:0 6px 18px rgba(0,0,0,0.06);}
+#logoSmall{ display:block; margin:20px auto; max-width:300px; height:auto; }
+#chartContainer, #chartContainerKamera{ display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; gap:20px; max-width:900px; margin:20px auto; }
+#chartBox, #chartBoxKamera{ flex:1; min-width:300px; }
+#chartInfo, #chartInfoKamera{ flex:1; min-width:200px; font-size:14px; background:#f7f7f7; padding:16px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); }
+</style>
+</head>
+<body>
 
-<!-- ======================
- 📊 Statistik Sistem (Realtime)
-====================== -->
-<h2>📊 Statistik Sistem (Realtime)</h2>
-<canvas id="chartSistem" width="400" height="200"></canvas>
+<header class="header">
+  <span class="menu-btn" id="menuBtn">☰</span>
+  <h1>🚦 LaluLintasKu</h1>
+</header>
+<img src="logo.png" alt="Logo" id="logoSmall">
 
-<!-- ======================
- 📈 Histori Deteksi Sistem
-====================== -->
-<h2>📈 Histori Deteksi Sistem</h2>
-<canvas id="chartHistory" width="600" height="300"></canvas>
+<nav class="sidebar" id="sidebar">
+  <a href="#" data-target="statistikSection" class="active">📊 Statistik Laporan</a>
+  <a href="#" data-target="kameraSection">🎥 Statistik Kamera</a>
+  <a href="#" data-target="laporanSection">📋 Laporan</a>
+  <a href="#" data-target="amanSection">🚗 Cara Mengemudi Aman</a>
+  <a href="#" data-target="loginSection">🔑 Login</a>
+</nav>
 
+<main class="main">
+
+<!-- Statistik Laporan -->
+<section id="statistikSection" class="stats-card">
+  <h3>📊 Statistik Laporan (≤ 1 jam)</h3>
+  <div>
+    <label for="filterProv">Provinsi:</label>
+    <select id="filterProv"><option value="">-- Pilih Provinsi --</option><option value="Jawa Timur">Jawa Timur</option><option value="Jawa Barat">Jawa Barat</option><option value="DKI Jakarta">DKI Jakarta</option></select>
+    <label for="filterKota">Kota:</label>
+    <select id="filterKota"><option value="">-- Pilih Kota --</option></select>
+    <label for="filterDaerah">Daerah:</label>
+    <select id="filterDaerah"><option value="">-- Pilih Daerah --</option></select>
+  </div>
+  <div id="chartContainer">
+    <div id="chartBox"><canvas id="chart"></canvas></div>
+    <div id="chartInfo">Belum ada laporan.</div>
+  </div>
+</section>
+
+<!-- Statistik Kamera -->
+<section id="kameraSection" class="stats-card" style="display:none;">
+  <h3>🎥 Statistik Kamera (Realtime)</h3>
+  <div id="chartContainerKamera">
+    <div id="chartBoxKamera"><canvas id="chartKamera"></canvas></div>
+    <div id="chartInfoKamera">Belum ada data kamera.</div>
+  </div>
+</section>
+
+<!-- Laporan -->
+<section id="laporanSection" class="card" style="display:none;">
+  <h2>Laporan Lalu Lintas</h2>
+  <p>Form laporan disini ...</p>
+</section>
+
+<!-- Aman -->
+<section id="amanSection" class="card" style="display:none;">
+  <h3>Cara Mengemudi Aman</h3>
+  <ul style="text-align:left;">
+    <li>Gunakan helm dan sabuk pengaman.</li>
+    <li>Patuhi rambu lalu lintas.</li>
+    <li>Jangan gunakan HP saat berkendara.</li>
+  </ul>
+</section>
+
+<!-- Login -->
+<section id="loginSection" class="card" style="display:none;">
+  <h3>Login (Demo)</h3>
+</section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
-  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
-  // ======================
-  // 🔹 Firebase Config (punyamu yg lama, jangan dihapus)
-  // ======================
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "laporan-lalu-lintas.firebaseapp.com",
-    databaseURL: "https://laporan-lalu-lintas-default-rtdb.asia-southeast1.firebasedatabase.app/",
-    projectId: "laporan-lalu-lintas",
-    storageBucket: "laporan-lalu-lintas.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyAVHQKQ3iAGWPepnd_DuoGQmpxG40i8uMs",
+  authDomain: "laporan-lalu-lintas.firebaseapp.com",
+  databaseURL: "https://laporan-lalu-lintas-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "laporan-lalu-lintas",
+  storageBucket: "laporan-lalu-lintas.appspot.com",
+  messagingSenderId: "706382913725",
+  appId: "1:706382913725:web:1069a4f53bea6b66a357d4"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-  // ======================
-  // 🔹 Chart Laporan Manual (Punya Kamu)
-  // ======================
-  const chartLaporan = new Chart(document.getElementById("chartLaporan"), {
-    type: "bar",
-    data: {
-      labels: ["Lancar", "Macet"],
-      datasets: [{
-        label: "Jumlah Laporan",
-        data: [0, 0],
-        backgroundColor: ["#4caf50", "#f44336"]
-      }]
-    }
+// Sidebar toggle
+const menuBtn=document.getElementById('menuBtn'), sidebar=document.getElementById('sidebar');
+menuBtn.addEventListener('click', ()=>{ sidebar.classList.toggle('active'); menuBtn.classList.toggle('rotate'); });
+sidebar.querySelectorAll('a[data-target]').forEach(a=>{
+  a.addEventListener('click', e=>{
+    e.preventDefault();
+    document.querySelectorAll('main section').forEach(s=>s.style.display='none');
+    document.getElementById(a.dataset.target).style.display='block';
+    sidebar.classList.remove('active'); menuBtn.classList.remove('rotate');
+    sidebar.querySelectorAll('a').forEach(x=>x.classList.remove('active'));
+    a.classList.add('active');
   });
+});
 
-  onValue(ref(db, "laporan"), (snapshot) => {
-    const data = snapshot.val();
-    let lancar = 0, macet = 0;
-
-    if (data) {
-      Object.values(data).forEach(item => {
-        if (item.status === "lancar") lancar++;
-        if (item.status === "macet") macet++;
-      });
-    }
-
-    chartLaporan.data.datasets[0].data = [lancar, macet];
-    chartLaporan.update();
+// --- Chart Statistik Laporan ---
+const ctx = document.getElementById('chart').getContext('2d');
+let chart = new Chart(ctx, {
+  type:'bar',
+  data:{ labels:['Macet','Gangguan','Kecelakaan'], datasets:[{data:[0,0,0],backgroundColor:['#d92727','#f0a500','#ff0000']}]},
+  options:{responsive:true,plugins:{legend:{display:false}}}
+});
+function updateChartLaporan(){
+  onValue(ref(db,'laporan'), snap=>{
+    const data=snap.val()||{}; const now=Date.now();
+    const counts={Macet:0,'Gangguan':0,'Kecelakaan':0};
+    Object.values(data).forEach(l=>{ if(now-l.waktu<3600000 && counts[l.status]!==undefined) counts[l.status]++; });
+    chart.data.datasets[0].data=[counts.Macet,counts.Gangguan,counts.Kecelakaan];
+    chart.update();
+    document.getElementById('chartInfo').innerHTML=`
+      <b>Macet:</b> ${counts.Macet}<br>
+      <b>Gangguan:</b> ${counts.Gangguan}<br>
+      <b>Kecelakaan:</b> ${counts.Kecelakaan}
+    `;
   });
+}
+updateChartLaporan();
 
-  // ======================
-  // 🔹 Chart Sistem (Realtime)
-  // ======================
-  const chartSistem = new Chart(document.getElementById("chartSistem"), {
-    type: "bar",
-    data: {
-      labels: ["Lancar", "Macet"],
-      datasets: [{
-        label: "Status Realtime Sistem",
-        data: [0, 0],
-        backgroundColor: ["#2196f3", "#ff9800"]
-      }]
-    }
-  });
-
-  onValue(ref(db, "traffic/status"), (snapshot) => {
-    const data = snapshot.val();
-    let lancar = 0, macet = 0;
-
-    if (data) {
-      if (data.status === "lancar") lancar = 1;
-      if (data.status === "macet") macet = 1;
-    }
-
-    chartSistem.data.datasets[0].data = [lancar, macet];
-    chartSistem.update();
-  });
-
-  // ======================
-  // 🔹 Chart Histori Sistem (Line Chart)
-  // ======================
-  const chartHistory = new Chart(document.getElementById("chartHistory"), {
-    type: "line",
-    data: {
-      labels: [],
-      datasets: [{
-        label: "Jumlah Kendaraan",
-        data: [],
-        borderColor: "#ff5722",
-        fill: false
-      }]
-    }
-  });
-
-  onValue(ref(db, "traffic/history"), (snapshot) => {
-    const data = snapshot.val();
-    let timestamps = [];
-    let counts = [];
-
-    if (data) {
-      Object.values(data).forEach(item => {
-        timestamps.push(item.timestamp);
-        counts.push(item.vehicle_count);
-      });
-    }
-
-    chartHistory.data.labels = timestamps;
-    chartHistory.data.datasets[0].data = counts;
-    chartHistory.update();
-  });
+// --- Chart Statistik Kamera ---
+const ctxK = document.getElementById('chartKamera').getContext('2d');
+let chartK = new Chart(ctxK, {
+  type:'bar',
+  data:{ labels:['Lancar','Ramai','Padat','Macet'], datasets:[{data:[0,0,0,0], backgroundColor:['#2b8a3e','#f08c00','#c67a00','#d92727']}]},
+  options:{responsive:true,plugins:{legend:{display:false}}}
+});
+onValue(ref(db,'kamera'), snap=>{
+  const data=snap.val()||{}; const counts={Lancar:0,Ramai:0,Padat:0,Macet:0};
+  Object.values(data).forEach(d=>{ if(counts[d.status]!==undefined) counts[d.status]++; });
+  chartK.data.datasets[0].data=[counts.Lancar,counts.Ramai,counts.Padat,counts.Macet];
+  chartK.update();
+  document.getElementById('chartInfoKamera').innerHTML=`
+    <b>Lancar:</b> ${counts.Lancar}<br>
+    <b>Ramai:</b> ${counts.Ramai}<br>
+    <b>Padat:</b> ${counts.Padat}<br>
+    <b>Macet:</b> ${counts.Macet}
+  `;
+});
 </script>
+</body>
+</html>
