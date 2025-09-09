@@ -9,15 +9,14 @@
   --green:#007a1c;
   --green-dark:#005c15;
   --card-bg:#ffffff;
-  --page-bg:#f4f4f4;
+  --page-bg:#ffffff;
   --panel-bg: rgba(0,0,0,0.7);
-  --status-lancar:#28a745;
-  --status-ramai:#fd7e14;
-  --status-padat:#ffc107;
-  --status-macet:#dc3545;
+  --status-lancar:#007a1c;
+  --status-ramai:#f2994a;
+  --status-padat:#c67a00;
+  --status-macet:#eb5757;
 }
 
-/* BODY */
 body{
   margin:0;
   font-family: Inter, system-ui, Arial, sans-serif;
@@ -34,46 +33,32 @@ body{
 }
 .header .menu-btn{
   position: absolute; left: 12px; top: 8px; font-size: 22px; cursor:pointer;
-  transition: transform .3s;
 }
 .header h1{ margin:0; font-size:20px; display:inline-block; vertical-align:middle; }
-.header h1 img{ height:44px; vertical-align:middle; margin-right:6px; }
+.header img{ height:44px; vertical-align:middle; margin-right:6px; }
 
 /* SIDEBAR */
 .sidebar {
   position: fixed;
   top:0;
-  left:-260px; 
+  left:-260px;
   width:260px;
   height:100%;
   background: var(--panel-bg);
   color:#fff;
   padding-top:60px;
-  transition:left .35s ease;
+  transition:left .3s ease;
   z-index:2000;
-  overflow-y:auto;
 }
 .sidebar.active{ left:0; }
-.sidebar a{
-  display:block; 
-  padding:14px 20px; 
-  color:#fff; 
-  text-decoration:none; 
-  font-size:15px;
-  transition: background .25s;
-}
+.sidebar a{ display:block; padding:12px 18px; color:#fff; text-decoration:none; font-size:15px; transition: background .2s; }
 .sidebar a:hover{ background: rgba(255,255,255,0.08); }
+.sidebar .close-btn{ position:absolute; top:12px; right:12px; font-size:22px; cursor:pointer; }
 
-/* MAIN CONTENT AREA */
-.main {
-  padding:24px;
-  max-width:1000px;
-  margin: 24px auto;
-}
+.main { padding:24px; max-width:1000px; margin:24px auto; }
 
-/* CARD */
 .card {
-  background: var(--card-bg);
+  background: rgba(255,255,255,0.95);
   border-radius: 18px;
   padding: 28px;
   box-shadow: 0 8px 22px rgba(0,0,0,0.08);
@@ -81,55 +66,39 @@ body{
   max-width: 620px;
   text-align: center;
 }
-.card h2,h3,h4{ margin-top:0; margin-bottom:12px; color:#111; }
+.card h2,h3{ margin-top:0; margin-bottom:12px; color:#111; }
 label{ display:block; margin:10px 0 6px; color:#333; font-size:14px; }
 select, textarea, input[type="text"]{
-  width:92%;
-  max-width:560px;
-  padding:10px 12px;
-  border-radius:10px;
-  border:1px solid #d0d0d0;
-  font-size:15px;
-  box-sizing: border-box;
-  background: #fff;
+  width:92%; max-width:560px; padding:10px 12px;
+  border-radius:10px; border:1px solid #d0d0d0; font-size:15px;
+  box-sizing: border-box; background: #fff;
 }
 textarea{ min-height:110px; resize:vertical; }
 .btn{
-  margin-top:16px;
-  background:var(--green);
-  color:white; border:none; padding:10px 18px; border-radius:8px; cursor:pointer;
-  font-weight:600;
+  margin-top:16px; background:var(--green); color:white; border:none;
+  padding:10px 18px; border-radius:8px; cursor:pointer; font-weight:600;
 }
 .btn:hover{ background:var(--green-dark); }
 
-/* Statistik table */
 .stats-card{ max-width:900px; margin:18px auto; padding:18px; border-radius:12px; background:#fff; box-shadow:0 6px 18px rgba(0,0,0,0.06);}
-table{ width:100%; border-collapse:collapse; margin-top:12px; font-size:14px;}
-th,td{ padding:10px 12px; border:1px solid #e6e6e6; text-align:center;}
+table{ width:100%; border-collapse:collapse; margin-top:12px;}
+th,td{ padding:8px 10px; border:1px solid #e6e6e6; text-align:center; font-size:14px;}
 th{ background:#f7faf7; color:#222; }
-.status-lancar{ color: var(--status-lancar); font-weight:700; }
-.status-ramai{ color: var(--status-ramai); font-weight:700; }
-.status-padat{ color: var(--status-padat); font-weight:700; }
-.status-macet{ color: var(--status-macet); font-weight:700; }
 
-/* responsive */
+.status-lancar{ color:var(--status-lancar); font-weight:700; }
+.status-ramai{ color:var(--status-ramai); font-weight:700; }
+.status-padat{ color:var(--status-padat); font-weight:700; }
+.status-macet{ color:var(--status-macet); font-weight:700; }
+
 @media (max-width:640px){
   .card{ padding:18px; border-radius:14px; width:94%; }
   select,input,textarea{ width:100%; }
   .sidebar{ width:220px; }
 }
 
-/* logo */
-#logoSmall {
-  display: block;
-  margin: 20px auto;
-  max-width: 300px;
-  height: auto;
-}
-
-/* recent laporan */
-.recent-item{ text-align:left; padding:6px 0; border-bottom:1px solid #eee; }
-.recent-item span{ font-size:13px; }
+.muted{ color:#666; font-size:13px; margin-top:8px; }
+.small{ font-size:13px; color:#444; }
+#logoSmall { display:block; margin:20px auto; max-width:300px; height:auto; }
 </style>
 </head>
 <body>
@@ -141,6 +110,7 @@ th{ background:#f7faf7; color:#222; }
 <img src="logo.png" alt="Logo" id="logoSmall">
 
 <nav class="sidebar" id="sidebar">
+  <span class="close-btn" id="closeSidebar">✖</span>
   <a href="#" onclick="goto('laporan')">📋 Laporan</a>
   <a href="#" onclick="goto('statistik')">📊 Statistik</a>
   <a href="#" onclick="goto('aman')">🚗 Cara Mengemudi Aman</a>
@@ -148,105 +118,121 @@ th{ background:#f7faf7; color:#222; }
 </nav>
 
 <main class="main">
-<section id="laporanSection" class="card">
-  <h2>Laporan Lalu Lintas</h2>
-  <label for="provinsi">Pilih Provinsi:</label>
-  <select id="provinsi">
-    <option value="">-- Pilih Provinsi --</option>
-    <option value="Jawa Timur">Jawa Timur</option>
-    <option value="Jawa Barat">Jawa Barat</option>
-    <option value="DKI Jakarta">DKI Jakarta</option>
-  </select>
-
-  <div id="kotaWrap" style="display:none;">
-    <label for="kota">Pilih Kota/Kabupaten:</label>
-    <select id="kota"><option value="">-- Pilih Kota --</option></select>
-  </div>
-
-  <div id="daerahWrap" style="display:none;">
-    <label for="daerah">Pilih Daerah/Kecamatan:</label>
-    <select id="daerah"><option value="">-- Pilih Daerah --</option></select>
-  </div>
-
-  <div id="statusWrap" style="display:none;">
-    <label for="status">Status Kondisi:</label>
-    <select id="status">
-      <option value="">-- Pilih Kondisi --</option>
-      <option value="Lancar">Lancar</option>
-      <option value="Ramai">Ramai</option>
-      <option value="Padat">Padat</option>
-      <option value="Macet">Macet</option>
+  <section id="laporanSection" class="card">
+    <h2>Laporan Lalu Lintas</h2>
+    <label for="provinsi">Pilih Provinsi:</label>
+    <select id="provinsi">
+      <option value="">-- Pilih Provinsi --</option>
+      <option value="Jawa Timur">Jawa Timur</option>
+      <option value="Jawa Barat">Jawa Barat</option>
+      <option value="DKI Jakarta">DKI Jakarta</option>
     </select>
-  </div>
 
-  <div id="descWrap" style="display:none;">
-    <label for="deskripsi">Deskripsi (opsional):</label>
-    <textarea id="deskripsi" placeholder="Contoh: Lampu merah tidak berfungsi / antrean 500m (boleh dikosongkan)"></textarea>
-  </div>
+    <div id="kotaWrap" style="display:none;">
+      <label for="kota">Pilih Kota/Kabupaten:</label>
+      <select id="kota"><option value="">-- Pilih Kota --</option></select>
+    </div>
 
-  <div id="submitWrap" style="display:none;">
-    <button class="btn" id="submitBtn">Kirim Laporan</button>
-    <div class="muted">Laporan akan masuk ke ringkasan dan statistik.</div>
-  </div>
+    <div id="daerahWrap" style="display:none;">
+      <label for="daerah">Pilih Daerah/Kecamatan:</label>
+      <select id="daerah"><option value="">-- Pilih Daerah --</option></select>
+    </div>
 
-  <div id="summary" style="margin-top:18px;"></div>
-</section>
+    <div id="statusWrap" style="display:none;">
+      <label for="status">Status Kondisi:</label>
+      <select id="status">
+        <option value="">-- Pilih Kondisi --</option>
+        <option value="Lancar">Lancar</option>
+        <option value="Ramai">Ramai</option>
+        <option value="Padat">Padat</option>
+        <option value="Macet">Macet</option>
+      </select>
+    </div>
 
-<section id="statistikSection" class="stats-card" style="display:none;">
-  <h3>📊 Statistik Laporan (Dari semua laporan)</h3>
-  <div id="statsSummary" class="small">Belum ada laporan.</div>
-  <table id="statsTable" style="margin-top:12px; display:none;">
-    <thead>
-      <tr>
-        <th>Daerah (Kota)</th>
-        <th>Lancar</th>
-        <th>Ramai</th>
-        <th>Padat</th>
-        <th>Macet</th>
-        <th>Total</th>
-        <th>Mayoritas</th>
-      </tr>
-    </thead>
-    <tbody id="statsTbody"></tbody>
-  </table>
-  <h4 style="margin-top:14px;">Laporan Terbaru</h4>
-  <div id="recentList" class="small"></div>
-</section>
+    <div id="descWrap" style="display:none;">
+      <label for="deskripsi">Deskripsi (opsional):</label>
+      <textarea id="deskripsi" placeholder="Contoh: Lampu merah tidak berfungsi / antrean 500m"></textarea>
+    </div>
 
-<section id="amanSection" class="card" style="display:none;">
-  <h3>Cara Mengemudi dengan Aman</h3>
-  <ul style="text-align:left;">
-    <li>Gunakan helm atau sabuk pengaman.</li>
-    <li>Patuhi rambu lalu lintas dan lampu isyarat.</li>
-    <li>Jaga jarak aman antar kendaraan.</li>
-    <li>Hindari penggunaan HP saat berkendara.</li>
-    <li>Jika lelah, berhenti dan istirahat.</li>
-  </ul>
-</section>
+    <div id="submitWrap" style="display:none;">
+      <button class="btn" id="submitBtn">Kirim Laporan</button>
+      <div class="muted">Laporan akan masuk ke ringkasan dan statistik.</div>
+    </div>
 
-<section id="loginSection" class="card" style="display:none;">
-  <h3>Login (Sementara)</h3>
-  <p class="small">Untuk demo lomba cukup gunakan 1 akun (fitur login akan dikembangkan nanti).</p>
-</section>
+    <div id="summary" style="margin-top:18px;"></div>
+  </section>
+
+  <section id="statistikSection" class="stats-card" style="display:none;">
+    <h3>📊 Statistik Laporan (Dari semua laporan)</h3>
+    <div id="statsSummary" class="small">Belum ada laporan.</div>
+    <table id="statsTable" style="margin-top:12px; display:none;">
+      <thead>
+        <tr>
+          <th>Daerah (Kota)</th>
+          <th>Lancar</th>
+          <th>Ramai</th>
+          <th>Padat</th>
+          <th>Macet</th>
+          <th>Total</th>
+          <th>Mayoritas</th>
+        </tr>
+      </thead>
+      <tbody id="statsTbody"></tbody>
+    </table>
+    <h4 style="margin-top:14px;">Laporan Terbaru</h4>
+    <div id="recentList" class="small" style="text-align:left;"></div>
+  </section>
+
+  <section id="amanSection" class="card" style="display:none;">
+    <h3>Cara Mengemudi dengan Aman</h3>
+    <ul style="text-align:left;">
+      <li>Gunakan helm atau sabuk pengaman.</li>
+      <li>Patuhi rambu lalu lintas dan lampu isyarat.</li>
+      <li>Jaga jarak aman antar kendaraan.</li>
+      <li>Hindari penggunaan HP saat berkendara.</li>
+      <li>Jika lelah, berhenti dan istirahat.</li>
+    </ul>
+  </section>
+
+  <section id="loginSection" class="card" style="display:none;">
+    <h3>Login (Sementara)</h3>
+    <p class="small">Untuk demo lomba cukup gunakan 1 akun (fitur login akan dikembangkan nanti).</p>
+  </section>
 </main>
 
 <!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
+import { getDatabase, ref, push, get, onValue, remove } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAVHQKQ3iAGWPepnd_DuoGQmpxG40i8uMs",
   authDomain: "laporan-lalu-lintas.firebaseapp.com",
   databaseURL: "https://laporan-lalu-lintas-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "laporan-lalu-lintas",
-  storageBucket: "laporan-lalu-lintas.appspot.com",
+  storageBucket: "laporan-lalu-lintas.firebasestorage.app",
   messagingSenderId: "706382913725",
   appId: "1:706382913725:web:1069a4f53bea6b66a357d4",
   measurementId: "G-GSF8YY40NQ"
 };
+
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+
+const menuBtn = document.getElementById('menuBtn');
+const sidebar = document.getElementById('sidebar');
+const closeSidebar = document.getElementById('closeSidebar');
+menuBtn.addEventListener('click', ()=> sidebar.classList.add('active'));
+closeSidebar.addEventListener('click', ()=> sidebar.classList.remove('active'));
+
+function goto(page){
+  ['laporanSection','statistikSection','amanSection','loginSection'].forEach(x=>{
+    document.getElementById(x).style.display='none';
+  });
+  document.getElementById(page+'Section').style.display='block';
+  sidebar.classList.remove('active');
+}
+goto('laporan');
 
 const provEl = document.getElementById('provinsi');
 const kotaEl = document.getElementById('kota');
@@ -259,11 +245,7 @@ const submitWrap = document.getElementById('submitWrap');
 const summaryDiv = document.getElementById('summary');
 
 const wilayah = {
-  "Jawa Timur": { 
-    "Surabaya": ["Genteng","Wonokromo","Rungkut","Tandes","Kenjeran"], 
-    "Sidoarjo": ["Krian","Waru","Buduran","Porong","Candi"], 
-    "Banyuwangi": ["Genteng","Rogojampi","Glagah","Kabupaten Kota"]
-  },
+  "Jawa Timur": { "Surabaya": ["Genteng","Wonokromo","Rungkut","Tandes","Kenjeran"], "Sidoarjo": ["Krian","Waru","Buduran","Porong","Candi"], "Banyuwangi":["Genteng","Rogojampi","Glagah","Kabupaten Kota"] },
   "Jawa Barat": { "Bandung": ["Coblong","Sukajadi","Cicendo"], "Bekasi": ["Bekasi Timur","Bekasi Selatan"] },
   "DKI Jakarta": { "Jakarta Pusat": ["Gambir","Menteng"], "Jakarta Timur": ["Duren Sawit","Cakung"] }
 };
@@ -305,119 +287,87 @@ daerahEl.addEventListener('change', ()=>{
   }
 });
 
-// Sidebar toggle
-const menuBtn = document.getElementById('menuBtn');
-const sidebar = document.getElementById('sidebar');
-menuBtn.addEventListener('click', ()=> sidebar.classList.toggle('active'));
-
-function goto(page){
-  ['laporanSection','statistikSection','amanSection','loginSection'].forEach(x=>{
-    document.getElementById(x).style.display='none';
-  });
-  document.getElementById(page+'Section').style.display='block';
-  sidebar.classList.remove('active');
-}
-
-function escapeHtml(s){ return (s+'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-// Submit laporan ke Firebase
+// SUBMIT
 document.getElementById('submitBtn').addEventListener('click', ()=>{
   const prov = provEl.value, kota=kotaEl.value, daerah=daerahEl.value;
   const status=document.getElementById('status').value;
   const deskripsi=document.getElementById('deskripsi').value||'';
   if(!prov||!kota||!daerah||!status){ alert('Lengkapi semua pilihan'); return; }
-  push(ref(db,'laporan'),{
-    provinsi:prov,
-    kota:kota,
-    daerah:daerah,
-    status:status,
-    deskripsi:deskripsi,
-    waktu:Date.now()
-  });
+  const t=Date.now();
+  push(ref(db,'laporan'),{provinsi:prov,kota:kota,daerah:daerah,status:status,deskripsi:deskripsi,waktu:t});
   document.getElementById('status').value='';
   document.getElementById('deskripsi').value='';
   alert('✅ Laporan berhasil dikirim!');
+  updateSummaryForSelected();
 });
 
-// Ambil laporan realtime dari Firebase
-const laporanData = [];
-const statsTbody = document.getElementById('statsTbody');
-const statsSummary = document.getElementById('statsSummary');
-const recentList = document.getElementById('recentList');
+// STATISTIK
+function updateStatistikTable(){
+  const statsTable=document.getElementById('statsTable');
+  const tbody=document.getElementById('statsTbody');
+  const statsSummary=document.getElementById('statsSummary');
+  const recentList=document.getElementById('recentList');
 
-function updateData(){
-  laporanData.length=0;
-  onValue(ref(db,'laporan'), snapshot=>{
-    const val = snapshot.val();
-    if(val){
-      const now=Date.now();
-      statsTbody.innerHTML=''; recentList.innerHTML='';
-      const grouping={};
-      Object.keys(val).forEach(k=>{
-        const r=val[k];
-        // Hanya laporan <1 jam
-        if(now - r.waktu > 3600000){
-          remove(ref(db,'laporan/'+k)); 
-          return;
-        }
-        laporanData.push(r);
-        const key=`${r.daerah}, ${r.kota}`;
-        if(!grouping[key]) grouping[key]={Lancar:0,Ramai:0,Padat:0,Macet:0};
-        if(grouping[key][r.status]!==undefined) grouping[key][r.status]++;
-      });
+  get(ref(db,'laporan')).then(snapshot=>{
+    const data = snapshot.val()||{};
+    const now=Date.now();
+    const laporanData = Object.values(data).filter(l=>now-l.waktu<=3600000); // 1 jam
+    if(laporanData.length===0){ statsSummary.innerHTML='Belum ada laporan masuk.'; statsTable.style.display='none'; recentList.innerHTML=''; return; }
 
-      // Update tabel
-      for(const key in grouping){
-        const row=grouping[key];
-        const total=row.Lancar+row.Ramai+row.Padat+row.Macet;
-        const maxCount=Math.max(row.Lancar,row.Ramai,row.Padat,row.Macet);
-        let winners=['Lancar','Ramai','Padat','Macet'].filter(k=>row[k]===maxCount && maxCount>0);
-        const mayoritas=winners.length===1?winners[0]:'Seimbang';
-        const tr=document.createElement('tr');
-        tr.innerHTML=`<td>${key}</td>
-                      <td class="status-lancar">${row.Lancar}</td>
-                      <td class="status-ramai">${row.Ramai}</td>
-                      <td class="status-padat">${row.Padat}</td>
-                      <td class="status-macet">${row.Macet}</td>
-                      <td>${total}</td>
-                      <td><b>${mayoritas}</b></td>`;
-        statsTbody.appendChild(tr);
-      }
-      statsSummary.innerHTML=`Total laporan: <b>${laporanData.length}</b> • Daerah terlapor: <b>${Object.keys(grouping).length}</b>`;
+    const grouping={};
+    laporanData.forEach(l=>{
+      const key=`${l.daerah}, ${l.kota}`;
+      if(!grouping[key]) grouping[key]={Lancar:0,Ramai:0,Padat:0,Macet:0};
+      if(grouping[key][l.status]!==undefined) grouping[key][l.status]++;
+    });
 
-      // Recent
-      laporanData.slice().reverse().slice(0,10).forEach(r=>{
-        const div=document.createElement('div');
-        div.className='recent-item';
-        div.innerHTML=`<b>[${new Date(r.waktu).toLocaleTimeString()}]</b> ${r.daerah}, ${r.kota} — <span class="small">${r.status}</span> ${r.deskripsi?'- '+escapeHtml(r.deskripsi):''}`;
-        recentList.appendChild(div);
-      });
-    } else {
-      statsSummary.innerHTML='Belum ada laporan masuk.'; statsTbody.innerHTML=''; recentList.innerHTML='';
+    tbody.innerHTML='';
+    for(const key of Object.keys(grouping)){
+      const row=grouping[key];
+      const total=row.Lancar+row.Ramai+row.Padat+row.Macet;
+      const maxCount=Math.max(row.Lancar,row.Ramai,row.Padat,row.Macet);
+      let winners=['Lancar','Ramai','Padat','Macet'].filter(k=>row[k]===maxCount && maxCount>0);
+      const mayoritas=winners.length===1?winners[0]:'Seimbang';
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${key}</td>
+                    <td class="status-lancar">${row.Lancar}</td>
+                    <td class="status-ramai">${row.Ramai}</td>
+                    <td class="status-padat">${row.Padat}</td>
+                    <td class="status-macet">${row.Macet}</td>
+                    <td>${total}</td>
+                    <td><b>${mayoritas}</b></td>`;
+      tbody.appendChild(tr);
     }
+
+    statsSummary.innerHTML=`Total laporan: <b>${laporanData.length}</b> • Daerah terlapor: <b>${Object.keys(grouping).length}</b>`;
+    statsTable.style.display='table';
+    recentList.innerHTML='';
+    laporanData.slice(0,10).forEach(r=>{
+      const div=document.createElement('div'); div.style.padding='6px 0';
+      div.innerHTML=`<b>[${new Date(r.waktu).toLocaleTimeString()}]</b> ${r.daerah}, ${r.kota} — <span class="small">${r.status}</span> ${r.deskripsi?'- '+escapeHtml(r.deskripsi):''}`;
+      recentList.appendChild(div);
+    });
   });
 }
 
-// Update ringkasan untuk selected area
 function updateSummaryForSelected(){
-  const prov=provEl.value,kota=kotaEl.value,daerah=daerahEl.value;
-  summaryDiv.innerHTML='';
-  if(!prov||!kota||!daerah) return;
-  const counts={Lancar:0,Ramai:0,Padat:0,Macet:0};
-  const now=Date.now();
-  laporanData.forEach(l=>{ 
-    if(l.provinsi===prov && l.kota===kota && l.daerah===daerah && now - l.waktu <= 3600000){
-      if(counts[l.status]!==undefined) counts[l.status]++;
+  const prov=provEl.value,kota=kotaEl.value,daerah=daerahEl.value,sDiv=document.getElementById('summary');
+  if(!prov||!kota||!daerah){ sDiv.innerHTML=''; return; }
+
+  get(ref(db,'laporan')).then(snapshot=>{
+    const data = snapshot.val()||{};
+    const now=Date.now();
+    const laporanData = Object.values(data).filter(l=>now-l.waktu<=3600000); // 1 jam
+    const counts={Lancar:0,Ramai:0,Padat:0,Macet:0};
+    laporanData.forEach(l=>{ if(l.provinsi===prov && l.kota===kota && l.daerah===daerah){ if(counts[l.status]!==undefined) counts[l.status]++; }});
+    const total=counts.Lancar+counts.Ramai+counts.Padat+counts.Macet;
+    let mayoritas='Belum ada laporan';
+    if(total>0){
+      const max=Math.max(counts.Lancar,counts.Ramai,counts.Padat,counts.Macet);
+      const winners=Object.keys(counts).filter(k=>counts[k]===max && max>0);
+      mayoritas=winners.length===1?winners[0]:'Seimbang';
     }
-  });
-  const total=counts.Lancar+counts.Ramai+counts.Padat+counts.Macet;
-  let mayoritas='Belum ada laporan';
-  if(total>0){
-    const max=Math.max(counts.Lancar,counts.Ramai,counts.Padat,counts.Macet);
-    const winners=Object.keys(counts).filter(k=>counts[k]===max && max>0);
-    mayoritas=winners.length===1?winners[0]:'Seimbang';
-  }
-  summaryDiv.innerHTML=`
+    sDiv.innerHTML=`
     <div style="margin-top:16px; text-align:center;">
       <div style="display:inline-block; padding:10px 16px; background:#f7f7f7; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
         <div style="font-size:14px;color:#555">Ringkasan untuk <b>${daerah}, ${kota}</b></div>
@@ -430,9 +380,13 @@ function updateSummaryForSelected(){
         </div>
       </div>
     </div>`;
+  });
 }
 
-updateData();
+function escapeHtml(s){ return (s+'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+setInterval(updateStatistikTable,30000); // refresh tiap 30 detik
+updateStatistikTable();
 </script>
 </body>
 </html>
