@@ -53,25 +53,20 @@ th{ background:#f7faf7; color:#222; }
 @media(max-width:640px){ .card{ width:94%; padding:18px; } select,input,textarea{ width:100%; } .sidebar{ width:220px; } }
 #logoSmall{ display:block; margin:20px auto; max-width:300px; height:auto; }
 
-/* CSS BARU UNTUK MERAPIKAN DROPDOWN DI BAGIAN STATISTIK */
-.filter-group{
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-.filter-group label,
-.filter-group select{
-  flex: 1 1 200px;
+/* Menghapus CSS Flexbox sebelumnya dan menyesuaikan tata letak */
+.filter-item {
+  margin-bottom: 12px; /* Memberikan jarak antar baris */
   text-align: left;
-  margin: 0;
 }
-.filter-group select{
-  max-width: none;
-  width: auto;
+.filter-item label {
+  display: block; /* Agar label berada di baris terpisah dari select */
+  margin-bottom: 4px;
+  font-weight: 600;
 }
-/* AKHIR DARI CSS BARU */
+.filter-item select {
+  width: 100%;
+}
+/* Akhir CSS yang disesuaikan */
 
 #chartContainer{
   display: flex;
@@ -118,24 +113,29 @@ th{ background:#f7faf7; color:#222; }
 <section id="statistikSection" class="stats-card">
   <h3>📊 Statistik Laporan (≤ 1 jam)</h3>
   <div style="margin-bottom:12px;">
-   <div class="filter-group">
-  <label for="filterProv">Provinsi:</label>
-  <select id="filterProv">
-    <option value="">-- Pilih Provinsi --</option>
-    <option value="Jawa Timur">Jawa Timur</option>
-    <option value="Jawa Barat">Jawa Barat</option>
-    <option value="DKI Jakarta">DKI Jakarta</option>
-  </select>
-
-  <label for="filterKota">Kota:</label>
-  <select id="filterKota">
-    <option value="">-- Pilih Kota --</option>
-  </select>
-
-  <label for="filterDaerah">Daerah:</label>
-  <select id="filterDaerah">
-    <option value="">-- Pilih Daerah --</option>
-  </select>
+   <div class="filter-item">
+    <label for="filterProv">Provinsi:</label>
+    <select id="filterProv">
+      <option value="">-- Pilih Provinsi --</option>
+      <option value="Jawa Timur">Jawa Timur</option>
+      <option value="Jawa Barat">Jawa Barat</option>
+      <option value="DKI Jakarta">DKI Jakarta</option>
+    </select>
+  </div>
+  
+  <div class="filter-item">
+    <label for="filterKota">Kota:</label>
+    <select id="filterKota">
+      <option value="">-- Pilih Kota --</option>
+    </select>
+  </div>
+  
+  <div class="filter-item">
+    <label for="filterDaerah">Daerah:</label>
+    <select id="filterDaerah">
+      <option value="">-- Pilih Daerah --</option>
+    </select>
+  </div>
 </div>
 
 <div id="chartContainer">
