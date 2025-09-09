@@ -215,7 +215,7 @@ document.getElementById('getLocationBtn').addEventListener('click', ()=>{
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(pos=>{
       currentLocation = {lat: pos.coords.latitude, lng: pos.coords.longitude};
-      lokasiInfo.textContent = Latitude: ${currentLocation.lat.toFixed(5)}, Longitude: ${currentLocation.lng.toFixed(5)};
+      lokasiInfo.textContent = `Latitude: ${currentLocation.lat.toFixed(5)}, Longitude: ${currentLocation.lng.toFixed(5)}`;
     }, ()=>{ lokasiInfo.textContent='Gagal mendapatkan lokasi'; });
   }else{ lokasiInfo.textContent='Browser tidak mendukung GPS'; }
 });
@@ -246,7 +246,7 @@ submitBtn.addEventListener('click', async ()=>{
   if(fotoEl.files[0]){
     try{
       const file = fotoEl.files[0];
-      const storageRef = sRef(storage, laporan_foto/${Date.now()}_${file.name});
+      const storageRef = sRef(storage, `laporan_foto/${Date.now()}_${file.name}`);
       await uploadBytes(storageRef, file);
       fotoURL = await getDownloadURL(storageRef);
     }catch(e){
@@ -321,7 +321,7 @@ function updateChart(){
       const max=Math.max(...Object.values(counts));
       const winners=Object.keys(counts).filter(k=>counts[k]===max && max>0);
       mayoritas=winners.length===1?winners[0]:'Seimbang';
-      alasan=Jumlah laporan terbanyak di kategori "${mayoritas}";
+      alasan=`Jumlah laporan terbanyak di kategori "${mayoritas}"`;
     }
     document.getElementById('chartInfo').innerHTML=`
       <b>Total laporan:</b> ${total}<br>
@@ -351,7 +351,7 @@ function updateSummary(){
       const max=Math.max(...Object.values(counts));
       const winners=Object.keys(counts).filter(k=>counts[k]===max && max>0);
       mayoritas=winners.length===1?winners[0]:'Seimbang';
-      alasan=Jumlah laporan terbanyak di kategori "${mayoritas}";
+      alasan=`Jumlah laporan terbanyak di kategori "${mayoritas}"`;
     }
     summaryDiv.innerHTML=`<div style="margin-top:16px; text-align:center;">
       <div style="display:inline-block; padding:10px 16px; background:#f7f7f7; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
