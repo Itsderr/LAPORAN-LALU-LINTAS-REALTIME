@@ -19,7 +19,9 @@ body{
 }
 .header .menu-btn{
   position:absolute; left:12px; top:8px; font-size:22px; cursor:pointer;
+  transition: transform .25s;
 }
+.header .menu-btn.rotate{ transform: rotate(90deg); }
 .header h1{ margin:0; font-size:20px; display:inline-block; vertical-align:middle; }
 .sidebar{
   position:fixed; top:0; left:-250px; width:250px; height:100%; background:var(--panel-bg); padding-top:60px;
@@ -28,11 +30,9 @@ body{
 .sidebar.active{ left:0; }
 .sidebar a{
   display:block; padding:12px 20px; color:#fff; text-decoration:none; font-size:15px;
+  transition: background .2s;
 }
 .sidebar a:hover{ background: rgba(255,255,255,0.08); }
-.close-btn{
-  position:absolute; top:12px; right:12px; font-size:22px; cursor:pointer; color:white;
-}
 .main{ padding:24px; max-width:1000px; margin:24px auto; }
 .card{
   background:#fff; border-radius:16px; padding:24px; box-shadow:0 6px 18px rgba(0,0,0,0.08); margin:12px auto; text-align:center;
@@ -46,24 +46,12 @@ textarea{ min-height:110px; resize:vertical; }
 table{ width:100%; border-collapse:collapse; margin-top:12px;}
 th,td{ padding:8px 10px; border:1px solid #e6e6e6; text-align:center; font-size:14px;}
 th{ background:#f7faf7; color:#222; }
-.status-lancar{ color:green; font-weight:700; }
-.status-ramai{ color:orange; font-weight:700; }
+.status-lancar{ color:#2b8a3e; font-weight:700; }
+.status-ramai{ color:#f08c00; font-weight:700; }
 .status-padat{ color:#c67a00; font-weight:700; }
-.status-macet{ color:red; font-weight:700; }
+.status-macet{ color:#d92727; font-weight:700; }
 .muted{ color:#666; font-size:13px; margin-top:8px; }
 .small{ font-size:13px; color:#444; }
-
-/* animasi section */
-main section{
-  opacity:0;
-  transform: translateY(10px);
-  transition: opacity .3s ease, transform .3s ease;
-}
-main section.show{
-  opacity:1;
-  transform: translateY(0);
-}
-
 @media(max-width:640px){ .card{ width:94%; padding:18px; } select,input,textarea{ width:100%; } .sidebar{ width:220px; } }
 #logoSmall{ display:block; margin:20px auto; max-width:300px; height:auto; }
 </style>
@@ -77,7 +65,6 @@ main section.show{
 <img src="logo.png" alt="Logo" id="logoSmall">
 
 <nav class="sidebar" id="sidebar">
-  <span class="close-btn" id="closeSidebar">✖</span>
   <a href="#" data-target="laporanSection">📋 Laporan</a>
   <a href="#" data-target="statistikSection">📊 Statistik</a>
   <a href="#" data-target="amanSection">🚗 Cara Mengemudi Aman</a>
@@ -92,13 +79,13 @@ main section.show{
     <div id="kotaWrap" style="display:none;"><label for="kota">Pilih Kota/Kabupaten:</label><select id="kota"><option value="">-- Pilih Kota --</option></select></div>
     <div id="daerahWrap" style="display:none;"><label for="daerah">Pilih Daerah/Kecamatan:</label><select id="daerah"><option value="">-- Pilih Daerah --</option></select></div>
     <div id="statusWrap" style="display:none;"><label for="status">Status Kondisi:</label><select id="status"><option value="">-- Pilih Kondisi --</option><option value="Lancar">Lancar</option><option value="Ramai">Ramai</option><option value="Padat">Padat</option><option value="Macet">Macet</option></select></div>
-    <div id="descWrap" style="display:none;"><label for="deskripsi">Deskripsi (opsional):</label><textarea id="deskripsi" placeholder="Contoh: Lampu merah tidak berfungsi / antrean 500m"></textarea></div>
+    <div id="descWrap" style="display:none;"><label for="deskripsi">Deskripsi (opsional):</label><textarea id="deskripsi" placeholder="Contoh: Lampu merah tidak berfungsi / antrean 500m (boleh dikosongkan)"></textarea></div>
     <div id="submitWrap" style="display:none;"><button class="btn" id="submitBtn">Kirim Laporan</button><div class="muted">Laporan akan masuk ke ringkasan dan statistik.</div></div>
     <div id="summary" style="margin-top:18px;"></div>
   </section>
 
   <section id="statistikSection" class="stats-card" style="display:none;">
-    <h3>📊 Statistik Laporan</h3>
+    <h3>📊 Statistik Laporan (≤ 1 jam)</h3>
     <div id="statsSummary" class="small">Belum ada laporan.</div>
     <table id="statsTable" style="display:none;">
       <thead><tr><th>Daerah (Kota)</th><th>Lancar</th><th>Ramai</th><th>Padat</th><th>Macet</th><th>Total</th><th>Mayoritas</th></tr></thead>
@@ -139,31 +126,25 @@ const firebaseConfig = {
   messagingSenderId: "706382913725",
   appId: "1:706382913725:web:1069a4f53bea6b66a357d4"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Sidebar toggle
+// Sidebar toggle + animasi
 const menuBtn = document.getElementById('menuBtn');
 const sidebar = document.getElementById('sidebar');
-menuBtn.addEventListener('click', ()=> sidebar.classList.toggle('active'));
+menuBtn.addEventListener('click', ()=>{
+  sidebar.classList.toggle('active');
+  menuBtn.classList.toggle('rotate');
+});
 
-// Close sidebar button
-document.getElementById('closeSidebar').addEventListener('click', ()=> sidebar.classList.remove('active'));
-
-// Sidebar navigation with fade-in
+// Sidebar nav
 sidebar.querySelectorAll('a[data-target]').forEach(a=>{
   a.addEventListener('click', e=>{
     e.preventDefault();
-    const target = a.getAttribute('data-target');
-    document.querySelectorAll('main section').forEach(s=>{
-      s.style.display='none';
-      s.classList.remove('show');
-    });
-    const el = document.getElementById(target);
-    el.style.display='block';
-    setTimeout(()=> el.classList.add('show'), 10);
-    sidebar.classList.remove('active');
+    const target = a.dataset.target;
+    document.querySelectorAll('main section').forEach(s=>s.style.display='none');
+    document.getElementById(target).style.display='block';
+    sidebar.classList.remove('active'); menuBtn.classList.remove('rotate');
   });
 });
 
@@ -179,7 +160,7 @@ const submitWrap = document.getElementById('submitWrap');
 const summaryDiv = document.getElementById('summary');
 
 const wilayah = {
-  "Jawa Timur": { "Surabaya":["Genteng","Wonokromo"], "Sidoarjo":["Krian","Waru"] },
+  "Jawa Timur": { "Surabaya":["Genteng","Wonokromo"], "Sidoarjo":["Krian","Waru"], "Banyuwangi":["Kecamatan Glagah","Kecamatan Rogojampi"] },
   "Jawa Barat": { "Bandung":["Coblong","Sukajadi"], "Bekasi":["Bekasi Timur","Bekasi Selatan"] },
   "DKI Jakarta": { "Jakarta Pusat":["Gambir","Menteng"], "Jakarta Timur":["Duren Sawit","Cakung"] }
 };
@@ -217,22 +198,26 @@ daerahEl.addEventListener('change', ()=>{
   else{ statusWrap.style.display=descWrap.style.display=submitWrap.style.display='none'; summaryDiv.innerHTML=''; }
 });
 
-// Submit laporan ke Firebase
+// Submit laporan
 const statusEl = document.getElementById('status');
 const descEl = document.getElementById('deskripsi');
 const submitBtn = document.getElementById('submitBtn');
-
 submitBtn.addEventListener('click', ()=>{
-  if(!provEl.value || !kotaEl.value || !daerahEl.value || !statusEl.value){
-    alert('Lengkapi semua pilihan'); return;
-  }
-  const laporan={provinsi:provEl.value, kota:kotaEl.value, daerah:daerahEl.value, status:statusEl.value, deskripsi:descEl.value||'', waktu:new Date().toLocaleString()};
+  if(!provEl.value || !kotaEl.value || !daerahEl.value || !statusEl.value){ alert('Lengkapi semua pilihan'); return; }
+  const laporan={
+    provinsi:provEl.value,
+    kota:kotaEl.value,
+    daerah:daerahEl.value,
+    status:statusEl.value,
+    deskripsi:descEl.value||'',
+    waktu: Date.now() // timestamp
+  };
   push(ref(db,'laporan'), laporan);
   statusEl.value=''; descEl.value='';
   alert('✅ Laporan berhasil dikirim!');
 });
 
-// Statistik
+// Statistik (≤ 1 jam)
 const statsSummary=document.getElementById('statsSummary');
 const statsTable=document.getElementById('statsTable');
 const statsTbody=document.getElementById('statsTbody');
@@ -240,13 +225,16 @@ const recentList=document.getElementById('recentList');
 
 onValue(ref(db,'laporan'), snapshot=>{
   const data = snapshot.val() || {};
-  const laporanArr = Object.values(data).sort((a,b)=>new Date(b.waktu)-new Date(a.waktu));
+  const now = Date.now();
+  const laporanArr = Object.values(data).filter(l=> now - l.waktu < 3600000 ).sort((a,b)=>b.waktu - a.waktu);
+
   const grouping={};
   laporanArr.forEach(l=>{
     const key=`${l.daerah}, ${l.kota}`;
     if(!grouping[key]) grouping[key]={Lancar:0,Ramai:0,Padat:0,Macet:0};
     if(grouping[key][l.status]!==undefined) grouping[key][l.status]++;
   });
+
   statsTbody.innerHTML='';
   Object.keys(grouping).forEach(key=>{
     const r=grouping[key];
@@ -258,24 +246,27 @@ onValue(ref(db,'laporan'), snapshot=>{
     tr.innerHTML=`<td>${key}</td><td class="status-lancar">${r.Lancar}</td><td class="status-ramai">${r.Ramai}</td><td class="status-padat">${r.Padat}</td><td class="status-macet">${r.Macet}</td><td>${total}</td><td><b>${mayoritas}</b></td>`;
     statsTbody.appendChild(tr);
   });
+
   statsSummary.innerHTML=`Total laporan: <b>${laporanArr.length}</b> • Daerah terlapor: <b>${Object.keys(grouping).length}</b>`;
   statsTable.style.display=laporanArr.length>0?'table':'none';
   recentList.innerHTML='';
   laporanArr.slice(0,10).forEach(r=>{
     const d=document.createElement('div');
     d.style.padding='6px 0';
-    d.innerHTML=`<b>[${r.waktu}]</b> ${r.daerah}, ${r.kota} — <span class="small">${r.status}</span>${r.deskripsi?'- '+r.deskripsi:''}`;
+    const waktuStr=new Date(r.waktu).toLocaleTimeString();
+    d.innerHTML=`<b>[${waktuStr}]</b> ${r.daerah}, ${r.kota} — <span class="small">${r.status}</span>${r.deskripsi?'- '+r.deskripsi:''}`;
     recentList.appendChild(d);
   });
 });
 
-// Ringkasan laporan per daerah
+// Ringkasan per daerah
 function updateSummary(){
   const prov=provEl.value, kota=kotaEl.value, daerah=daerahEl.value;
   if(!prov||!kota||!daerah) return;
   onValue(ref(db,'laporan'), snapshot=>{
     const data = snapshot.val() || {};
-    const laporanArr = Object.values(data);
+    const now = Date.now();
+    const laporanArr = Object.values(data).filter(l=> now - l.waktu < 3600000 );
     const counts={Lancar:0,Ramai:0,Padat:0,Macet:0};
     laporanArr.forEach(l=>{ if(l.provinsi===prov && l.kota===kota && l.daerah===daerah) counts[l.status]++; });
     const total=counts.Lancar+counts.Ramai+counts.Padat+counts.Macet;
