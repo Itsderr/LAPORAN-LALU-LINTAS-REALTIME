@@ -18,8 +18,7 @@ body{
   background: var(--green); color:#fff; padding:12px 16px; position:relative; text-align:center;
 }
 .header .menu-btn{
-  position:absolute; left:12px; top:8px; font-size:22px; cursor:pointer;
-  transition: transform .25s;
+  position:absolute; left:12px; top:8px; font-size:22px; cursor:pointer; transition: transform .25s;
 }
 .header .menu-btn.rotate{ transform: rotate(90deg); }
 .header h1{ margin:0; font-size:20px; display:inline-block; vertical-align:middle; }
@@ -28,15 +27,10 @@ body{
   transition:left .25s ease; z-index:2000;
 }
 .sidebar.active{ left:0; }
-.sidebar a{
-  display:block; padding:12px 20px; color:#fff; text-decoration:none; font-size:15px;
-  transition: background .2s;
-}
+.sidebar a{ display:block; padding:12px 20px; color:#fff; text-decoration:none; font-size:15px; transition: background .2s; }
 .sidebar a:hover, .sidebar a.active{ background: rgba(255,255,255,0.15); }
 .main{ padding:24px; max-width:1000px; margin:24px auto; }
-.card{
-  background:#fff; border-radius:16px; padding:24px; box-shadow:0 6px 18px rgba(0,0,0,0.08); margin:12px auto; text-align:center;
-}
+.card{ background:#fff; border-radius:16px; padding:24px; box-shadow:0 6px 18px rgba(0,0,0,0.08); margin:12px auto; text-align:center; }
 .card h2, .card h3{ margin-top:0; margin-bottom:12px; color:#111; }
 select, textarea, input[type="text"], input[type="file"]{
   width:92%; max-width:560px; padding:10px; border-radius:10px; border:1px solid #d0d0d0; font-size:15px; margin-bottom:10px;
@@ -56,7 +50,9 @@ th{ background:#f7faf7; color:#222; }
 .small{ font-size:13px; color:#444; }
 @media(max-width:640px){ .card{ width:94%; padding:18px; } select,input,textarea{ width:100%; } .sidebar{ width:220px; } }
 #logoSmall{ display:block; margin:20px auto; max-width:300px; height:auto; }
-#chartContainer{ width:100%; max-width:600px; margin:20px auto; }
+#chartContainer{ display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; gap:20px; max-width:900px; margin:20px auto; }
+#chartBox{ flex:1; min-width:300px; }
+#chartInfo{ flex:1; min-width:200px; font-size:14px; background:#f7f7f7; padding:16px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); }
 </style>
 </head>
 <body>
@@ -75,52 +71,57 @@ th{ background:#f7faf7; color:#222; }
 </nav>
 
 <main class="main">
-  <section id="laporanSection" class="card">
-    <h2>Laporan Lalu Lintas</h2>
-    <label for="provinsi">Pilih Provinsi:</label>
-    <select id="provinsi"><option value="">-- Pilih Provinsi --</option><option value="Jawa Timur">Jawa Timur</option><option value="Jawa Barat">Jawa Barat</option><option value="DKI Jakarta">DKI Jakarta</option></select>
-    
-    <div id="kotaWrap" style="display:none;"><label for="kota">Pilih Kota/Kabupaten:</label><select id="kota"><option value="">-- Pilih Kota --</option></select></div>
-    <div id="daerahWrap" style="display:none;"><label for="daerah">Pilih Daerah/Kecamatan:</label><select id="daerah"><option value="">-- Pilih Daerah --</option></select></div>
-    
-    <div id="statusWrap" style="display:none;"><label for="status">Status Kondisi:</label><select id="status"><option value="">-- Pilih Kondisi --</option><option value="Lancar">Lancar</option><option value="Ramai">Ramai</option><option value="Padat">Padat</option><option value="Macet">Macet</option></select></div>
-    
-    <div id="descWrap" style="display:none;"><label for="deskripsi">Deskripsi (opsional):</label><textarea id="deskripsi" placeholder="Contoh: Lampu merah tidak berfungsi / antrean 500m"></textarea></div>
-    
-    <div id="fotoWrap" style="display:none;"><label for="foto">Tambahkan Foto (opsional):</label><input type="file" id="foto" accept="image/*"></div>
-    
-    <div id="lokasiWrap" style="display:none;"><button class="btn" id="getLocationBtn">📍 Dapatkan Lokasi</button><div id="lokasiInfo" class="small"></div></div>
-    
-    <div id="submitWrap" style="display:none;"><button class="btn" id="submitBtn">Kirim Laporan</button><div class="muted">Laporan akan masuk ke ringkasan dan statistik.</div></div>
-    <div id="summary" style="margin-top:18px;"></div>
-  </section>
 
-  <section id="statistikSection" class="stats-card" style="display:none;">
-    <h3>📊 Statistik Laporan (≤ 1 jam)</h3>
-    <canvas id="chart" style="max-width:600px;"></canvas>
-    <div id="statsSummary" class="small">Belum ada laporan.</div>
-  </section>
+<section id="laporanSection" class="card">
+  <h2>Laporan Lalu Lintas</h2>
+  <label for="provinsi">Pilih Provinsi:</label>
+  <select id="provinsi"><option value="">-- Pilih Provinsi --</option><option value="Jawa Timur">Jawa Timur</option><option value="Jawa Barat">Jawa Barat</option><option value="DKI Jakarta">DKI Jakarta</option></select>
 
-  <section id="amanSection" class="card" style="display:none;">
-    <h3>Cara Mengemudi dengan Aman</h3>
-    <ul style="text-align:left;">
-      <li>Gunakan helm/sabuk pengaman.</li>
-      <li>Patuhi rambu lalu lintas.</li>
-      <li>Jaga jarak aman antar kendaraan.</li>
-      <li>Hindari HP saat berkendara.</li>
-      <li>Istirahat jika lelah.</li>
-    </ul>
-  </section>
+  <div id="kotaWrap" style="display:none;"><label for="kota">Pilih Kota/Kabupaten:</label><select id="kota"><option value="">-- Pilih Kota --</option></select></div>
+  <div id="daerahWrap" style="display:none;"><label for="daerah">Pilih Daerah/Kecamatan:</label><select id="daerah"><option value="">-- Pilih Daerah --</option></select></div>
+  <div id="statusWrap" style="display:none;"><label for="status">Status Kondisi:</label><select id="status"><option value="">-- Pilih Kondisi --</option><option value="Lancar">Lancar</option><option value="Ramai">Ramai</option><option value="Padat">Padat</option><option value="Macet">Macet</option></select></div>
+  <div id="descWrap" style="display:none;"><label for="deskripsi">Deskripsi (opsional):</label><textarea id="deskripsi" placeholder="Contoh: Lampu merah tidak berfungsi / antrean 500m"></textarea></div>
+  <div id="fotoWrap" style="display:none;"><label for="foto">Tambahkan Foto (opsional):</label><input type="file" id="foto" accept="image/*"></div>
+  <div id="lokasiWrap" style="display:none;"><button class="btn" id="getLocationBtn">📍 Dapatkan Lokasi</button><div id="lokasiInfo" class="small"></div></div>
+  <div id="submitWrap" style="display:none;"><button class="btn" id="submitBtn">Kirim Laporan</button><div class="muted">Laporan akan masuk ke ringkasan dan statistik.</div></div>
 
-  <section id="loginSection" class="card" style="display:none;">
-    <h3>Login (Sementara)</h3>
-    <p class="small">Demo akun tunggal.</p>
-  </section>
+  <div id="summary" style="margin-top:18px;"></div>
+</section>
+
+<section id="statistikSection" class="stats-card" style="display:none;">
+  <h3>📊 Statistik Laporan (≤ 1 jam)</h3>
+  <div style="margin-bottom:12px;">
+    <label for="filterProv">Provinsi:</label>
+    <select id="filterProv"><option value="">-- Semua Provinsi --</option><option value="Jawa Timur">Jawa Timur</option><option value="Jawa Barat">Jawa Barat</option><option value="DKI Jakarta">DKI Jakarta</option></select>
+    <label for="filterKota">Kota:</label>
+    <select id="filterKota"><option value="">-- Semua Kota --</option></select>
+  </div>
+  <div id="chartContainer">
+    <div id="chartBox"><canvas id="chart"></canvas></div>
+    <div id="chartInfo">Belum ada laporan.</div>
+  </div>
+</section>
+
+<section id="amanSection" class="card" style="display:none;">
+  <h3>Cara Mengemudi dengan Aman</h3>
+  <ul style="text-align:left;">
+    <li>Gunakan helm/sabuk pengaman.</li>
+    <li>Patuhi rambu lalu lintas.</li>
+    <li>Jaga jarak aman antar kendaraan.</li>
+    <li>Hindari HP saat berkendara.</li>
+    <li>Istirahat jika lelah.</li>
+  </ul>
+</section>
+
+<section id="loginSection" class="card" style="display:none;">
+  <h3>Login (Sementara)</h3>
+  <p class="small">Demo akun tunggal.</p>
+</section>
+
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module">
-// Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
@@ -138,13 +139,10 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const storage = getStorage(app);
 
-// Sidebar toggle + animasi
+// Sidebar toggle
 const menuBtn = document.getElementById('menuBtn');
 const sidebar = document.getElementById('sidebar');
-menuBtn.addEventListener('click', ()=>{
-  sidebar.classList.toggle('active');
-  menuBtn.classList.toggle('rotate');
-});
+menuBtn.addEventListener('click', ()=>{ sidebar.classList.toggle('active'); menuBtn.classList.toggle('rotate'); });
 sidebar.querySelectorAll('a[data-target]').forEach(a=>{
   a.addEventListener('click', e=>{
     e.preventDefault();
@@ -152,14 +150,12 @@ sidebar.querySelectorAll('a[data-target]').forEach(a=>{
     document.querySelectorAll('main section').forEach(s=>s.style.display='none');
     document.getElementById(target).style.display='block';
     sidebar.classList.remove('active'); menuBtn.classList.remove('rotate');
-    
-    // highlight aktif
     sidebar.querySelectorAll('a').forEach(link=>link.classList.remove('active'));
     a.classList.add('active');
   });
 });
 
-// Wilayah
+// Wilayah Laporan
 const provEl = document.getElementById('provinsi');
 const kotaEl = document.getElementById('kota');
 const daerahEl = document.getElementById('daerah');
@@ -199,15 +195,12 @@ kotaEl.addEventListener('change', ()=>{
   daerahWrap.style.display=statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none';
   summaryDiv.innerHTML='';
   if(prov && kota && wilayah[prov][kota]){
-    wilayah[prov][kota].forEach(d=>{
-      const o=document.createElement('option'); o.value=d; o.textContent=d; daerahEl.appendChild(o);
-    });
+    wilayah[prov][kota].forEach(d=>{ const o=document.createElement('option'); o.value=d; o.textContent=d; daerahEl.appendChild(o); });
     daerahWrap.style.display='block';
   }
 });
 
-daerahEl.addEventListener('change', ()=>{
-  const d=daerahEl.value;
+daerahEl.addEventListener('change', ()=>{ const d=daerahEl.value;
   if(d){ statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='block'; updateSummary(); }
   else{ statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none'; summaryDiv.innerHTML=''; }
 });
@@ -259,16 +252,51 @@ submitBtn.addEventListener('click', async ()=>{
 const ctx = document.getElementById('chart').getContext('2d');
 let chart = new Chart(ctx, {type:'bar', data:{labels:['Lancar','Ramai','Padat','Macet'], datasets:[{label:'Jumlah Laporan',data:[0,0,0,0],backgroundColor:['#2b8a3e','#f08c00','#c67a00','#d92727']}]}, options:{responsive:true,plugins:{legend:{display:false}}}});
 
-onValue(ref(db,'laporan'), snapshot=>{
-  const data = snapshot.val() || {};
-  const now = Date.now();
-  const laporanArr = Object.values(data).filter(l=> now - l.waktu < 3600000 ).sort((a,b)=>b.waktu - a.waktu);
-  const counts={Lancar:0,Ramai:0,Padat:0,Macet:0};
-  laporanArr.forEach(l=>{ if(counts[l.status]!==undefined) counts[l.status]++; });
-  chart.data.datasets[0].data = [counts.Lancar, counts.Ramai, counts.Padat, counts.Macet];
-  chart.update();
-  document.getElementById('statsSummary').textContent=`Total laporan: ${laporanArr.length}`;
+const filterProv = document.getElementById('filterProv');
+const filterKota = document.getElementById('filterKota');
+
+filterProv.addEventListener('change', ()=>{
+  filterKota.innerHTML='<option value="">-- Semua Kota --</option>';
+  if(filterProv.value && wilayah[filterProv.value]){
+    Object.keys(wilayah[filterProv.value]).forEach(k=>{
+      const o=document.createElement('option'); o.value=k; o.textContent=k; filterKota.appendChild(o);
+    });
+  }
+  updateChart();
 });
+filterKota.addEventListener('change', updateChart);
+
+function updateChart(){
+  onValue(ref(db,'laporan'), snapshot=>{
+    const data = snapshot.val() || {};
+    const now = Date.now();
+    const laporanArr = Object.values(data).filter(l=> now - l.waktu < 3600000 );
+    const counts={Lancar:0,Ramai:0,Padat:0,Macet:0};
+    laporanArr.forEach(l=>{
+      if(filterProv.value && l.provinsi!==filterProv.value) return;
+      if(filterKota.value && l.kota!==filterKota.value) return;
+      if(counts[l.status]!==undefined) counts[l.status]++;
+    });
+    chart.data.datasets[0].data = [counts.Lancar, counts.Ramai, counts.Padat, counts.Macet];
+    chart.update();
+    const total=counts.Lancar+counts.Ramai+counts.Padat+counts.Macet;
+    let mayoritas='Belum ada laporan';
+    if(total>0){
+      const max=Math.max(...Object.values(counts));
+      const winners=Object.keys(counts).filter(k=>counts[k]===max && max>0);
+      mayoritas=winners.length===1?winners[0]:'Seimbang';
+    }
+    document.getElementById('chartInfo').innerHTML=`
+      <b>Total laporan:</b> ${total}<br>
+      <b>Lancar:</b> ${counts.Lancar}<br>
+      <b>Ramai:</b> ${counts.Ramai}<br>
+      <b>Padat:</b> ${counts.Padat}<br>
+      <b>Macet:</b> ${counts.Macet}<br>
+      <b>Mayoritas:</b> ${mayoritas}
+    `;
+  });
+}
+updateChart();
 
 // Ringkasan per daerah
 function updateSummary(){
@@ -283,8 +311,7 @@ function updateSummary(){
     const total=counts.Lancar+counts.Ramai+counts.Padat+counts.Macet;
     let mayoritas='Belum ada laporan';
     if(total>0){ const max=Math.max(...Object.values(counts)); const winners=Object.keys(counts).filter(k=>counts[k]===max && max>0); mayoritas=winners.length===1?winners[0]:'Seimbang'; }
-    summaryDiv.innerHTML=`
-    <div style="margin-top:16px; text-align:center;">
+    summaryDiv.innerHTML=`<div style="margin-top:16px; text-align:center;">
       <div style="display:inline-block; padding:10px 16px; background:#f7f7f7; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
         <div style="font-size:14px;color:#555">Ringkasan untuk <b>${daerah}, ${kota}</b></div>
         <div style="margin-top:8px; text-align:left;">
