@@ -46,6 +46,8 @@ th{ background:#f7faf7; color:#222; }
 .status-ramai{ color:#f08c00; font-weight:700; }
 .status-padat{ color:#c67a00; font-weight:700; }
 .status-macet{ color:#d92727; font-weight:700; }
+.status-gangguan{ color:#ff8c00; font-weight:700; }
+.status-kecelakaan{ color:#8b0000; font-weight:700; }
 .muted{ color:#666; font-size:13px; margin-top:8px; }
 .small{ font-size:13px; color:#444; }
 @media(max-width:640px){ .card{ width:94%; padding:18px; } select,input,textarea{ width:100%; } .sidebar{ width:220px; } }
@@ -79,6 +81,17 @@ th{ background:#f7faf7; color:#222; }
 
   <div id="kotaWrap" style="display:none;"><label for="kota">Pilih Kota/Kabupaten:</label><select id="kota"><option value="">-- Pilih Kota --</option></select></div>
   <div id="daerahWrap" style="display:none;"><label for="daerah">Pilih Daerah/Kecamatan:</label><select id="daerah"><option value="">-- Pilih Daerah --</option></select></div>
+  
+  <div id="statusWrap" style="display:none;">
+    <label for="status">Status Kondisi:</label>
+    <select id="status">
+      <option value="">-- Pilih Kondisi --</option>
+      <option value="Macet">Macet</option>
+      <option value="Gangguan Lalu Lintas">Gangguan Lalu Lintas</option>
+      <option value="Kecelakaan">Kecelakaan</option>
+    </select>
+  </div>
+
   <div id="descWrap" style="display:none;"><label for="deskripsi">Deskripsi (opsional):</label><textarea id="deskripsi" placeholder="Contoh: Lampu merah tidak berfungsi / antrean 500m"></textarea></div>
   <div id="fotoWrap" style="display:none;"><label for="foto">Tambahkan Foto (opsional):</label><input type="file" id="foto" accept="image/*"></div>
   <div id="lokasiWrap" style="display:none;"><button class="btn" id="getLocationBtn">📍 Dapatkan Lokasi</button><div id="lokasiInfo" class="small"></div></div>
@@ -121,6 +134,7 @@ th{ background:#f7faf7; color:#222; }
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module">
+// Firebase import & init (sama seperti sebelumnya)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
@@ -154,12 +168,13 @@ sidebar.querySelectorAll('a[data-target]').forEach(a=>{
   });
 });
 
-// Wilayah
+// Wilayah Laporan
 const provEl = document.getElementById('provinsi');
 const kotaEl = document.getElementById('kota');
 const daerahEl = document.getElementById('daerah');
 const kotaWrap = document.getElementById('kotaWrap');
 const daerahWrap = document.getElementById('daerahWrap');
+const statusWrap = document.getElementById('statusWrap');
 const descWrap = document.getElementById('descWrap');
 const submitWrap = document.getElementById('submitWrap');
 const fotoWrap = document.getElementById('fotoWrap');
@@ -168,7 +183,7 @@ const summaryDiv = document.getElementById('summary');
 const lokasiInfo = document.getElementById('lokasiInfo');
 
 const wilayah = {
-  "Jawa Timur": { "Surabaya":["Genteng","Wonokromo"], "Sidoarjo":["Krian","Waru"], "Banyuwangi":["Glagah","Rogojampi"] },
+  "Jawa Timur": { "Surabaya":["Genteng","Wonokromo"], "Sidoarjo":["Krian","Waru"], "Banyuwangi":["Kecamatan Glagah","Kecamatan Rogojampi"] },
   "Jawa Barat": { "Bandung":["Coblong","Sukajadi"], "Bekasi":["Bekasi Timur","Bekasi Selatan"] },
   "DKI Jakarta": { "Jakarta Pusat":["Gambir","Menteng"], "Jakarta Timur":["Duren Sawit","Cakung"] }
 };
@@ -177,7 +192,7 @@ provEl.addEventListener('change', ()=>{
   const prov = provEl.value;
   kotaEl.innerHTML='<option value="">-- Pilih Kota --</option>';
   daerahEl.innerHTML='<option value="">-- Pilih Daerah --</option>';
-  kotaWrap.style.display=daerahWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none';
+  kotaWrap.style.display=daerahWrap.style.display=statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none';
   summaryDiv.innerHTML='';
   if(prov && wilayah[prov]){
     Object.keys(wilayah[prov]).forEach(k=>{
@@ -190,7 +205,7 @@ provEl.addEventListener('change', ()=>{
 kotaEl.addEventListener('change', ()=>{
   const prov=provEl.value, kota=kotaEl.value;
   daerahEl.innerHTML='<option value="">-- Pilih Daerah --</option>';
-  daerahWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none';
+  daerahWrap.style.display=statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none';
   summaryDiv.innerHTML='';
   if(prov && kota && wilayah[prov][kota]){
     wilayah[prov][kota].forEach(d=>{ const o=document.createElement('option'); o.value=d; o.textContent=d; daerahEl.appendChild(o); });
@@ -199,8 +214,8 @@ kotaEl.addEventListener('change', ()=>{
 });
 
 daerahEl.addEventListener('change', ()=>{ const d=daerahEl.value;
-  if(d){ descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='block'; updateSummary(); }
-  else{ descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none'; summaryDiv.innerHTML=''; }
+  if(d){ statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='block'; updateSummary(); }
+  else{ statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none'; summaryDiv.innerHTML=''; }
 });
 
 // Lokasi GPS
@@ -214,13 +229,14 @@ document.getElementById('getLocationBtn').addEventListener('click', ()=>{
   }else{ lokasiInfo.textContent='Browser tidak mendukung GPS'; }
 });
 
-// Submit laporan (status Macet)
+// Submit laporan
+const statusEl = document.getElementById('status');
 const descEl = document.getElementById('deskripsi');
 const submitBtn = document.getElementById('submitBtn');
 const fotoEl = document.getElementById('foto');
 
 submitBtn.addEventListener('click', async ()=>{
-  if(!provEl.value || !kotaEl.value || !daerahEl.value){ alert('Lengkapi provinsi, kota & daerah'); return; }
+  if(!provEl.value || !kotaEl.value || !daerahEl.value || !statusEl.value){ alert('Lengkapi semua pilihan'); return; }
 
   let fotoURL = '';
   if(fotoEl.files[0]){
@@ -229,30 +245,32 @@ submitBtn.addEventListener('click', async ()=>{
       const storageRef = sRef(storage, `laporan_foto/${Date.now()}_${file.name}`);
       await uploadBytes(storageRef, file);
       fotoURL = await getDownloadURL(storageRef);
-    }catch(e){
-      console.warn("Upload gagal, lanjutkan tanpa foto");
-      fotoURL='';
-    }
+    }catch(e){ console.log('Upload gagal, tetap mengirim tanpa foto'); }
   }
 
   const laporan={
     provinsi:provEl.value,
     kota:kotaEl.value,
     daerah:daerahEl.value,
-    status:"Macet",
+    status:statusEl.value,
     deskripsi:descEl.value||'',
     foto: fotoURL,
     lokasi: currentLocation || {},
     waktu: Date.now()
   };
   push(ref(db,'laporan'), laporan);
-  descEl.value=''; fotoEl.value=''; currentLocation=null; lokasiInfo.textContent='';
+  statusEl.value=''; descEl.value=''; fotoEl.value=''; currentLocation=null; lokasiInfo.textContent='';
   alert('✅ Laporan berhasil dikirim!');
+  updateSummary();
 });
 
 // Statistik Chart.js
 const ctx = document.getElementById('chart').getContext('2d');
-let chart = new Chart(ctx, {type:'bar', data:{labels:['Macet'], datasets:[{label:'Jumlah Laporan',data:[0],backgroundColor:['#d92727']}]}, options:{responsive:true,plugins:{legend:{display:false}}}});
+let chart = new Chart(ctx, {
+  type:'bar', 
+  data:{labels:['Macet','Gangguan Lalu Lintas','Kecelakaan'], datasets:[{label:'Jumlah Laporan',data:[0,0,0],backgroundColor:['#d92727','#ff8c00','#8b0000']}]}, 
+  options:{responsive:true,plugins:{legend:{display:false}}}
+});
 
 const filterProv = document.getElementById('filterProv');
 const filterKota = document.getElementById('filterKota');
@@ -269,45 +287,60 @@ filterProv.addEventListener('change', ()=>{
 filterKota.addEventListener('change', updateChart);
 
 function updateChart(){
-  if(!filterProv.value || !filterKota.value){
-    chart.data.datasets[0].data=[0];
-    chart.update();
-    document.getElementById('chartInfo').textContent='Pilih provinsi dan kota untuk melihat statistik.';
-    return;
-  }
+  if(!filterProv.value || !filterKota.value){ document.getElementById('chartInfo').textContent='Pilih provinsi dan kota dulu.'; return; }
   onValue(ref(db,'laporan'), snapshot=>{
     const data = snapshot.val() || {};
     const now = Date.now();
-    const laporanArr = Object.values(data).filter(l=> now - l.waktu < 3600000 && l.provinsi===filterProv.value && l.kota===filterKota.value );
-    const count = laporanArr.length;
-    chart.data.datasets[0].data = [count];
+    const laporanArr = Object.values(data).filter(l=> now - l.waktu < 3600000 );
+    const counts={Macet:0,'Gangguan Lalu Lintas':0,Kecelakaan:0};
+    laporanArr.forEach(l=>{
+      if(l.provinsi!==filterProv.value || l.kota!==filterKota.value) return;
+      if(counts[l.status]!==undefined) counts[l.status]++;
+    });
+    chart.data.datasets[0].data = [counts.Macet, counts['Gangguan Lalu Lintas'], counts.Kecelakaan];
     chart.update();
-    let kesimpulan='Belum ada laporan';
-    let alasan='';
-    if(count>0){ kesimpulan='Macet'; alasan='Mayoritas laporan status Macet dalam 1 jam terakhir'; }
-    document.getElementById('chartInfo').innerHTML=`<b>Total laporan:</b> ${count}<br><b>Mayoritas:</b> ${kesimpulan}<br><b>Alasan:</b> ${alasan}`;
+    const total = Object.values(counts).reduce((a,b)=>a+b,0);
+    let mayoritas='Belum ada laporan', alasan='';
+    if(total>0){
+      const max = Math.max(...Object.values(counts));
+      const winners = Object.keys(counts).filter(k=>counts[k]===max && max>0);
+      mayoritas = winners.length===1 ? winners[0] : 'Seimbang';
+      alasan = winners.length===1 ? `Mayoritas laporan status ${mayoritas}` : 'Jumlah laporan seimbang';
+    }
+    document.getElementById('chartInfo').innerHTML=`
+      <b>Total laporan:</b> ${total}<br>
+      <b>Macet:</b> ${counts.Macet}<br>
+      <b>Gangguan Lalu Lintas:</b> ${counts['Gangguan Lalu Lintas']}<br>
+      <b>Kecelakaan:</b> ${counts.Kecelakaan}<br>
+      <b>Mayoritas:</b> ${mayoritas}<br>
+      <b>Alasan:</b> ${alasan}
+    `;
   });
 }
-updateChart();
 
-// Ringkasan per daerah
 function updateSummary(){
   const prov=provEl.value, kota=kotaEl.value, daerah=daerahEl.value;
   if(!prov||!kota||!daerah) return;
   onValue(ref(db,'laporan'), snapshot=>{
     const data = snapshot.val() || {};
     const now = Date.now();
-    const laporanArr = Object.values(data).filter(l=> now - l.waktu < 3600000 && l.provinsi===prov && l.kota===kota && l.daerah===daerah );
-    const count = laporanArr.length;
-    let kesimpulan='Belum ada laporan';
-    let alasan='';
-    if(count>0){ kesimpulan='Macet'; alasan='Mayoritas laporan status Macet'; }
+    const laporanArr = Object.values(data).filter(l=> now - l.waktu < 3600000 );
+    const counts={Macet:0,'Gangguan Lalu Lintas':0,Kecelakaan:0};
+    laporanArr.forEach(l=>{ if(l.provinsi===prov && l.kota===kota && l.daerah===daerah) counts[l.status]++; });
+    const total = Object.values(counts).reduce((a,b)=>a+b,0);
+    let mayoritas='Belum ada laporan', alasan='';
+    if(total>0){
+      const max = Math.max(...Object.values(counts));
+      const winners = Object.keys(counts).filter(k=>counts[k]===max && max>0);
+      mayoritas = winners.length===1 ? winners[0] : 'Seimbang';
+      alasan = winners.length===1 ? `Mayoritas laporan status ${mayoritas}` : 'Jumlah laporan seimbang';
+    }
     summaryDiv.innerHTML=`<div style="margin-top:16px; text-align:center;">
       <div style="display:inline-block; padding:10px 16px; background:#f7f7f7; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
         <div style="font-size:14px;color:#555">Ringkasan untuk <b>${daerah}, ${kota}</b></div>
         <div style="margin-top:8px; text-align:left;">
-          <div>Total laporan: <b>${count}</b></div>
-          <div>Status mayoritas: <b>${kesimpulan}</b></div>
+          <div>Total laporan: <b>${total}</b></div>
+          <div>Status mayoritas: <b>${mayoritas}</b></div>
           <div>Alasan: <b>${alasan}</b></div>
         </div>
       </div>
