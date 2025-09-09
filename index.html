@@ -42,6 +42,10 @@ textarea{ min-height:110px; resize:vertical; }
 table{ width:100%; border-collapse:collapse; margin-top:12px;}
 th,td{ padding:8px 10px; border:1px solid #e6e6e6; text-align:center; font-size:14px;}
 th{ background:#f7faf7; color:#222; }
+.status-lancar{ color:#2b8a3e; font-weight:700; }
+.status-ramai{ color:#f08c00; font-weight:700; }
+.status-padat{ color:#c67a00; font-weight:700; }
+.status-macet{ color:#d92727; font-weight:700; }
 .muted{ color:#666; font-size:13px; margin-top:8px; }
 .small{ font-size:13px; color:#444; }
 @media(max-width:640px){ .card{ width:94%; padding:18px; } select,input,textarea{ width:100%; } .sidebar{ width:220px; } }
@@ -75,7 +79,6 @@ th{ background:#f7faf7; color:#222; }
 
   <div id="kotaWrap" style="display:none;"><label for="kota">Pilih Kota/Kabupaten:</label><select id="kota"><option value="">-- Pilih Kota --</option></select></div>
   <div id="daerahWrap" style="display:none;"><label for="daerah">Pilih Daerah/Kecamatan:</label><select id="daerah"><option value="">-- Pilih Daerah --</option></select></div>
-  <div id="statusWrap" style="display:none;"><label for="status">Status Kondisi:</label><select id="status"><option value="Macet">Macet</option></select></div>
   <div id="descWrap" style="display:none;"><label for="deskripsi">Deskripsi (opsional):</label><textarea id="deskripsi" placeholder="Contoh: Lampu merah tidak berfungsi / antrean 500m"></textarea></div>
   <div id="fotoWrap" style="display:none;"><label for="foto">Tambahkan Foto (opsional):</label><input type="file" id="foto" accept="image/*"></div>
   <div id="lokasiWrap" style="display:none;"><button class="btn" id="getLocationBtn">📍 Dapatkan Lokasi</button><div id="lokasiInfo" class="small"></div></div>
@@ -86,9 +89,15 @@ th{ background:#f7faf7; color:#222; }
 
 <section id="statistikSection" class="stats-card" style="display:none;">
   <h3>📊 Statistik Laporan (≤ 1 jam)</h3>
+  <div style="margin-bottom:12px;">
+    <label for="filterProv">Provinsi:</label>
+    <select id="filterProv"><option value="">-- Pilih Provinsi --</option><option value="Jawa Timur">Jawa Timur</option><option value="Jawa Barat">Jawa Barat</option><option value="DKI Jakarta">DKI Jakarta</option></select>
+    <label for="filterKota">Kota:</label>
+    <select id="filterKota"><option value="">-- Pilih Kota --</option></select>
+  </div>
   <div id="chartContainer">
     <div id="chartBox"><canvas id="chart"></canvas></div>
-    <div id="chartInfo">Belum ada laporan.</div>
+    <div id="chartInfo">Pilih provinsi dan kota untuk melihat statistik.</div>
   </div>
 </section>
 
@@ -151,7 +160,6 @@ const kotaEl = document.getElementById('kota');
 const daerahEl = document.getElementById('daerah');
 const kotaWrap = document.getElementById('kotaWrap');
 const daerahWrap = document.getElementById('daerahWrap');
-const statusWrap = document.getElementById('statusWrap');
 const descWrap = document.getElementById('descWrap');
 const submitWrap = document.getElementById('submitWrap');
 const fotoWrap = document.getElementById('fotoWrap');
@@ -169,7 +177,7 @@ provEl.addEventListener('change', ()=>{
   const prov = provEl.value;
   kotaEl.innerHTML='<option value="">-- Pilih Kota --</option>';
   daerahEl.innerHTML='<option value="">-- Pilih Daerah --</option>';
-  kotaWrap.style.display=daerahWrap.style.display=statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none';
+  kotaWrap.style.display=daerahWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none';
   summaryDiv.innerHTML='';
   if(prov && wilayah[prov]){
     Object.keys(wilayah[prov]).forEach(k=>{
@@ -182,7 +190,7 @@ provEl.addEventListener('change', ()=>{
 kotaEl.addEventListener('change', ()=>{
   const prov=provEl.value, kota=kotaEl.value;
   daerahEl.innerHTML='<option value="">-- Pilih Daerah --</option>';
-  daerahWrap.style.display=statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none';
+  daerahWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none';
   summaryDiv.innerHTML='';
   if(prov && kota && wilayah[prov][kota]){
     wilayah[prov][kota].forEach(d=>{ const o=document.createElement('option'); o.value=d; o.textContent=d; daerahEl.appendChild(o); });
@@ -191,8 +199,8 @@ kotaEl.addEventListener('change', ()=>{
 });
 
 daerahEl.addEventListener('change', ()=>{ const d=daerahEl.value;
-  if(d){ statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='block'; updateSummary(); }
-  else{ statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none'; summaryDiv.innerHTML=''; }
+  if(d){ descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='block'; updateSummary(); }
+  else{ descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none'; summaryDiv.innerHTML=''; }
 });
 
 // Lokasi GPS
@@ -206,21 +214,25 @@ document.getElementById('getLocationBtn').addEventListener('click', ()=>{
   }else{ lokasiInfo.textContent='Browser tidak mendukung GPS'; }
 });
 
-// Submit laporan
-const statusEl = document.getElementById('status');
+// Submit laporan (status Macet)
 const descEl = document.getElementById('deskripsi');
 const submitBtn = document.getElementById('submitBtn');
 const fotoEl = document.getElementById('foto');
 
 submitBtn.addEventListener('click', async ()=>{
-  if(!provEl.value || !kotaEl.value || !daerahEl.value){ alert('Lengkapi semua pilihan'); return; }
+  if(!provEl.value || !kotaEl.value || !daerahEl.value){ alert('Lengkapi provinsi, kota & daerah'); return; }
 
   let fotoURL = '';
-  if(fotoEl.files.length > 0){
-    const file = fotoEl.files[0];
-    const storageRef = sRef(storage, `laporan_foto/${Date.now()}_${file.name}`);
-    await uploadBytes(storageRef, file);
-    fotoURL = await getDownloadURL(storageRef);
+  if(fotoEl.files[0]){
+    try{
+      const file = fotoEl.files[0];
+      const storageRef = sRef(storage, `laporan_foto/${Date.now()}_${file.name}`);
+      await uploadBytes(storageRef, file);
+      fotoURL = await getDownloadURL(storageRef);
+    }catch(e){
+      console.warn("Upload gagal, lanjutkan tanpa foto");
+      fotoURL='';
+    }
   }
 
   const laporan={
@@ -236,45 +248,44 @@ submitBtn.addEventListener('click', async ()=>{
   push(ref(db,'laporan'), laporan);
   descEl.value=''; fotoEl.value=''; currentLocation=null; lokasiInfo.textContent='';
   alert('✅ Laporan berhasil dikirim!');
-  updateChart();
-  updateSummary();
 });
 
 // Statistik Chart.js
 const ctx = document.getElementById('chart').getContext('2d');
-let chart = new Chart(ctx, {
-  type:'bar',
-  data:{labels:['Macet'], datasets:[{label:'Jumlah Laporan',data:[0], backgroundColor:['#d92727']}]},
-  options:{responsive:true,plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, precision:0}}}
+let chart = new Chart(ctx, {type:'bar', data:{labels:['Macet'], datasets:[{label:'Jumlah Laporan',data:[0],backgroundColor:['#d92727']}]}, options:{responsive:true,plugins:{legend:{display:false}}}});
+
+const filterProv = document.getElementById('filterProv');
+const filterKota = document.getElementById('filterKota');
+
+filterProv.addEventListener('change', ()=>{
+  filterKota.innerHTML='<option value="">-- Pilih Kota --</option>';
+  if(filterProv.value && wilayah[filterProv.value]){
+    Object.keys(wilayah[filterProv.value]).forEach(k=>{
+      const o=document.createElement('option'); o.value=k; o.textContent=k; filterKota.appendChild(o);
+    });
+  }
+  updateChart();
 });
+filterKota.addEventListener('change', updateChart);
 
 function updateChart(){
+  if(!filterProv.value || !filterKota.value){
+    chart.data.datasets[0].data=[0];
+    chart.update();
+    document.getElementById('chartInfo').textContent='Pilih provinsi dan kota untuk melihat statistik.';
+    return;
+  }
   onValue(ref(db,'laporan'), snapshot=>{
     const data = snapshot.val() || {};
     const now = Date.now();
-    let count = 0;
-    Object.values(data).forEach(l=>{
-      if(now - l.waktu > 3600000) return;
-      if(count == undefined) count = 0;
-      if(l.status === "Macet") count++;
-    });
-
+    const laporanArr = Object.values(data).filter(l=> now - l.waktu < 3600000 && l.provinsi===filterProv.value && l.kota===filterKota.value );
+    const count = laporanArr.length;
     chart.data.datasets[0].data = [count];
     chart.update();
-
-    // Kesimpulan & alasan
-    let kesimpulan = "Belum ada laporan";
-    let alasan = "-";
-    if(count > 0){
-      if(count > 5){ kesimpulan = "Macet parah"; alasan = "Volume kendaraan tinggi, menghambat arus lalu lintas."; }
-      else { kesimpulan = "Macet ringan"; alasan = "Arus masih bisa bergerak, volume kendaraan belum terlalu padat."; }
-    }
-
-    document.getElementById('chartInfo').innerHTML=`
-      <b>Total laporan macet:</b> ${count}<br>
-      <b>Kesimpulan:</b> ${kesimpulan}<br>
-      <b>Alasan:</b> ${alasan}
-    `;
+    let kesimpulan='Belum ada laporan';
+    let alasan='';
+    if(count>0){ kesimpulan='Macet'; alasan='Mayoritas laporan status Macet dalam 1 jam terakhir'; }
+    document.getElementById('chartInfo').innerHTML=`<b>Total laporan:</b> ${count}<br><b>Mayoritas:</b> ${kesimpulan}<br><b>Alasan:</b> ${alasan}`;
   });
 }
 updateChart();
@@ -286,21 +297,17 @@ function updateSummary(){
   onValue(ref(db,'laporan'), snapshot=>{
     const data = snapshot.val() || {};
     const now = Date.now();
-    let count = 0;
-    Object.values(data).forEach(l=>{
-      if(now - l.waktu > 3600000) return;
-      if(l.provinsi===prov && l.kota===kota && l.daerah===daerah && l.status==="Macet") count++;
-    });
-
-    let kesimpulan = count>5 ? "Macet parah" : count>0 ? "Macet ringan" : "Belum ada laporan";
-    let alasan = count>5 ? "Volume kendaraan tinggi, menghambat arus lalu lintas." : count>0 ? "Arus masih bisa bergerak, volume kendaraan belum terlalu padat." : "-";
-
+    const laporanArr = Object.values(data).filter(l=> now - l.waktu < 3600000 && l.provinsi===prov && l.kota===kota && l.daerah===daerah );
+    const count = laporanArr.length;
+    let kesimpulan='Belum ada laporan';
+    let alasan='';
+    if(count>0){ kesimpulan='Macet'; alasan='Mayoritas laporan status Macet'; }
     summaryDiv.innerHTML=`<div style="margin-top:16px; text-align:center;">
       <div style="display:inline-block; padding:10px 16px; background:#f7f7f7; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
         <div style="font-size:14px;color:#555">Ringkasan untuk <b>${daerah}, ${kota}</b></div>
         <div style="margin-top:8px; text-align:left;">
-          <div>Total laporan macet: <b>${count}</b></div>
-          <div>Kesimpulan: <b>${kesimpulan}</b></div>
+          <div>Total laporan: <b>${count}</b></div>
+          <div>Status mayoritas: <b>${kesimpulan}</b></div>
           <div>Alasan: <b>${alasan}</b></div>
         </div>
       </div>
