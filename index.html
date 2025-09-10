@@ -218,7 +218,6 @@ const lokasiInfo = document.getElementById('lokasiInfo');
 const fotoEl = document.getElementById('foto');
 const fotoPreview = document.getElementById('fotoPreview');
 
-// Perbarui bagian ini dengan nama jalan yang sudah ditentukan
 const wilayah = {
   "Jawa Timur": {
     "Surabaya": {
@@ -336,14 +335,16 @@ submitBtn.addEventListener('click', async ()=>{
   if(!canSend()){ alert('⏱ Tunggu 20 menit sebelum mengirim laporan lagi'); return; }
 
   let fotoURL = '';
-  if(fotoEl.files[0]){
+  if(fotoEl.files.length > 0){
     try{
       const file = fotoEl.files[0];
       const storageRef = sRef(storage, `laporan_foto/${Date.now()}_${file.name}`);
       await uploadBytes(storageRef, file);
       fotoURL = await getDownloadURL(storageRef);
     }catch(e){
-      alert('❌ Gagal upload foto, coba lagi'); return;
+      console.error("Kesalahan saat mengunggah foto:", e);
+      alert('❌ Gagal upload foto, coba lagi. Lihat konsol untuk detailnya.');
+      return;
     }
   }
 
