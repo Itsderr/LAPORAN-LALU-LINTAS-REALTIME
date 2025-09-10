@@ -19,7 +19,7 @@
           background-attachment: fixed;
           background-position: center;
           background-color: var(--page-bg);
-          overflow-x: hidden; /* Mencegah scroll horizontal yang tidak diinginkan */
+          overflow-x: hidden;
         }
         .header{
           background: var(--blue-dark);
@@ -33,40 +33,30 @@
           text-align:center;
         }
         .header h1{ margin:0; font-size:20px; display:inline-block; vertical-align:middle; }
+
+        /* Hapus tombol menu lama dari header di HP */
         .header .menu-btn {
-            display: none; /* Default disembunyikan di desktop */
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 1001; /* Pastikan di atas header */
+            display: none;
         }
 
         .sidebar {
             height: 100%;
-            width: 250px; /* Lebar default terbuka di desktop */
+            width: 250px;
             position: fixed;
             top: 0;
             left: 0;
             background: var(--panel-bg);
-            transition: width 0.3s ease, transform 0.3s ease; /* Transisi untuk mobile */
-            overflow-y: auto; /* Memungkinkan scroll jika konten sidebar panjang */
+            transition: width 0.3s ease, transform 0.3s ease;
+            overflow-y: auto;
             overflow-x: hidden;
             z-index: 2000;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.2); /* Bayangan untuk tampilan */
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
         }
-        /* Hapus efek hover di sidebar untuk desktop */
-        /* .sidebar:hover { width: 250px; } */
 
         .sidebar-header {
             background: var(--sidebar-header-bg);
             color: #fff;
-            padding: 12px 16px; /* Padding yang lebih seimbang */
+            padding: 12px 16px;
             font-size: 20px;
             font-weight: bold;
             text-align: center;
@@ -75,31 +65,18 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 48px; /* Tinggi minimum untuk simetris */
+            min-height: 48px;
         }
         .sidebar-header .emoji {
             font-size: 24px;
             margin-right: 10px;
         }
         .sidebar-header .text {
-            display: inline; /* Selalu tampil di desktop */
+            display: inline;
         }
-        /* Tombol close di dalam sidebar, disembunyikan di desktop */
         .sidebar-header .close-btn-inside {
-            display: none; /* Hanya muncul di mobile */
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: white;
-            font-size: 28px;
-            cursor: pointer;
-            padding: 0;
-            line-height: 1;
+            display: none;
         }
-
         .sidebar a {
             display: flex;
             align-items: center;
@@ -117,39 +94,39 @@
             text-align: center;
         }
         .sidebar a .link-text {
-            display: inline; /* Selalu tampil di desktop */
+            display: inline;
         }
         .sidebar a:hover, .sidebar a.active{ background: rgba(0,0,0,0.1); }
 
         .main{
             padding: 80px 24px 24px;
             max-width:1000px;
-            margin-left: 250px; /* Margin default di desktop */
+            margin-left: 250px;
             transition: margin-left 0.3s ease;
             margin-right: auto;
         }
 
-        /* FAB (Floating Action Button) untuk menutup sidebar di HP */
-        .fab-close {
+        /* FAB (Floating Action Button) untuk membuka sidebar di HP */
+        .fab-home {
             display: none; /* Default disembunyikan */
             position: fixed;
-            top: 70px; /* Posisi relatif terhadap bagian atas viewport */
+            bottom: 20px;
             right: 20px;
-            width: 45px;
-            height: 45px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             background: var(--blue-dark);
             color: white;
-            font-size: 28px;
+            font-size: 24px;
             text-align: center;
-            line-height: 45px;
+            line-height: 56px;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            z-index: 2001; /* Lebih tinggi dari sidebar */
+            z-index: 2001;
             border: none;
             transition: transform 0.3s ease, opacity 0.3s ease;
         }
-        .fab-close:hover {
+        .fab-home:hover {
             background: var(--blue);
         }
 
@@ -194,41 +171,28 @@
 
         /* MEDIA QUERIES UNTUK TAMPILAN HP */
         @media (max-width: 640px) {
-            .header .menu-btn {
-                display: block; /* Tombol menu di header muncul di HP */
-            }
             .sidebar {
-                width: 0; /* Tersembunyi secara default di HP */
-                transform: translateX(-100%); /* Geser ke kiri untuk menyembunyikan */
-                box-shadow: none; /* Hapus bayangan */
+                width: 0;
+                transform: translateX(-100%);
+                box-shadow: none;
             }
             .sidebar.open {
                 width: 250px;
-                transform: translateX(0); /* Munculkan sidebar */
-                box-shadow: 2px 0 5px rgba(0,0,0,0.2); /* Tampilkan bayangan saat terbuka */
+                transform: translateX(0);
+                box-shadow: 2px 0 5px rgba(0,0,0,0.2);
             }
-            /* Hapus efek hover di sidebar untuk mobile */
-            /* .sidebar:hover { width: 250px; } */
-
             .sidebar-header .text {
-                display: inline; /* Selalu tampilkan teks di header sidebar mobile */
-            }
-            .sidebar-header .close-btn-inside {
-                display: none; /* Tombol 'X' di header sidebar disembunyikan, diganti FAB */
+                display: inline;
             }
             .sidebar a .link-text {
-                display: inline; /* Selalu tampilkan teks link di sidebar mobile */
+                display: inline;
             }
             .main {
-                margin-left: 0; /* Tidak ada margin di mobile */
+                margin-left: 0;
             }
-            /* .sidebar.open ~ .main { margin-left: 0; } */ /* Tidak perlu karena sidebar overlay */
-
-            .fab-close {
-                display: none; /* Disembunyikan secara default */
-            }
-            .sidebar.open ~ .fab-close {
-                display: block; /* Munculkan FAB saat sidebar terbuka */
+            /* Tombol FAB Home muncul di HP */
+            .fab-home {
+                display: block;
             }
         }
     </style>
@@ -236,14 +200,13 @@
 <body>
 
 <header class="header">
-  <button class="menu-btn" id="menuBtn">☰</button>
   <h1>🚦 LaluLintasKu</h1>
 </header>
 
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-header">
     <span class="emoji">🚦</span><span class="text"> LaluLintasKu</span>
-    <button class="close-btn-inside" id="closeBtnInside">✖</button> 
+    <button class="close-btn-inside" id="closeBtnInside">✖</button>
   </div>
   <a href="#" data-target="statistikSection" class="active"><span class="emoji">📊</span><span class="link-text">Statistik</span></a>
   <a href="#" data-target="laporanSection"><span class="emoji">📋</span><span class="link-text">Laporan</span></a>
@@ -254,7 +217,7 @@
 
 <main class="main">
 
-<button class="fab-close" id="fabCloseBtn">✖</button>
+<button class="fab-home" id="fabHomeBtn">🏠</button>
 
 <section id="statistikSection" class="stats-card">
   <h3>📊 Statistik Laporan (≤ 1 jam)</h3>
@@ -351,22 +314,11 @@
     const storage = getStorage(app);
 
     const sidebar = document.getElementById('sidebar');
-    const menuBtn = document.getElementById('menuBtn');
-    const fabCloseBtn = document.getElementById('fabCloseBtn'); // FAB baru
-    const closeBtnInside = document.getElementById('closeBtnInside'); // Tombol 'X' di dalam header sidebar (disembunyikan di mobile)
+    const fabHomeBtn = document.getElementById('fabHomeBtn');
 
-    // Fungsi untuk membuka sidebar
-    menuBtn.addEventListener('click', () => {
-        sidebar.classList.add('open');
+    fabHomeBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
     });
-
-    // Fungsi untuk menutup sidebar (dari FAB atau tombol internal jika ditampilkan)
-    const closeSidebar = () => {
-        sidebar.classList.remove('open');
-    };
-    fabCloseBtn.addEventListener('click', closeSidebar);
-    closeBtnInside.addEventListener('click', closeSidebar); // Jika di masa depan ingin mengaktifkan tombol internal di desktop
-
 
     sidebar.querySelectorAll('a[data-target]').forEach(a=>{
       a.addEventListener('click', e=>{
@@ -376,9 +328,8 @@
         document.getElementById(target).style.display='block';
         sidebar.querySelectorAll('a').forEach(link=>link.classList.remove('active'));
         a.classList.add('active');
-        // Tutup sidebar setelah mengklik link HANYA di HP
         if (window.innerWidth <= 640) {
-            closeSidebar();
+            sidebar.classList.remove('open');
         }
       });
     });
@@ -391,7 +342,7 @@
     const daerahWrap = document.getElementById('daerahWrap');
     const jalanWrap = document.getElementById('jalanWrap');
     const statusWrap = document.getElementById('statusWrap');
-    const descEl = document.getElementById('deskripsi'); // Mengganti descWrap menjadi descEl
+    const descEl = document.getElementById('deskripsi');
     const submitWrap = document.getElementById('submitWrap');
     const fotoWrap = document.getElementById('fotoWrap');
     const lokasiWrap = document.getElementById('lokasiWrap');
@@ -409,6 +360,10 @@
         "Sidoarjo": {
           "Krian": ["Jalan Raya Krian", "Jalan Ahmad Yani", "Jalan Basuki Rahmat"],
           "Waru": ["Jalan Raya Waru", "Jalan Letjend Suprapto", "Jalan Bypass Juanda"]
+        },
+        "Banyuwangi": {
+          "Kecamatan Glagah": ["Jalan Raya Glagah", "Jalan Raya Licin", "Jalan Raya Rogojampi"],
+          "Kecamatan Rogojampi": ["Jalan Raya Rogojampi", "Jalan S Parman", "Jalan MH Thamrin"]
         }
       },
       "Jawa Barat": {
@@ -439,7 +394,7 @@
       daerahEl.innerHTML='<option value="">-- Pilih Daerah --</option>';
       jalanEl.innerHTML='<option value="">-- Pilih Nama Jalan --</option>';
       kotaWrap.style.display=daerahWrap.style.display=jalanWrap.style.display=statusWrap.style.display='none';
-      descEl.parentNode.style.display='none'; // Akses parentNode karena descEl bukan wrap
+      descEl.parentNode.style.display='none';
       submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none';
       summaryDiv.innerHTML='';
       if(prov && wilayah[prov]){
