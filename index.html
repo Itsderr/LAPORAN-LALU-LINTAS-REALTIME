@@ -10,12 +10,10 @@
           --green-dark:#005c15;
           --page-bg:#fff;
           --panel-bg: rgba(0,0,0,0.7);
+          --sidebar-header-bg: #2d2d2d;
         }
         body{
           margin:0; font-family: Inter, system-ui, Arial, sans-serif; background: var(--page-bg);
-          transition: background-color .5s;
-        }
-        body.background-active{
           background-image: url('background.png');
           background-size: cover;
           background-attachment: fixed;
@@ -30,11 +28,25 @@
         .header .menu-btn.rotate{ transform: rotate(90deg); }
         .header h1{ margin:0; font-size:20px; display:inline-block; vertical-align:middle; }
         .sidebar{
-          position:fixed; top:0; left:-250px; width:250px; height:100%; background:var(--panel-bg); padding-top:60px;
+          position:fixed; top:0; left:-250px; width:250px; height:100%; background:var(--panel-bg); 
           transition:left .25s ease; z-index:2000;
         }
         .sidebar.active{ left:0; }
-        .sidebar a{ display:block; padding:12px 20px; color:#fff; text-decoration:none; font-size:15px; transition: background .2s; }
+        /* CSS untuk judul baru di sidebar */
+        .sidebar-header {
+            background: var(--sidebar-header-bg);
+            color: #fff;
+            padding: 16px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .sidebar-header span.emoji {
+            font-size: 24px;
+            margin-right: 8px;
+        }
+        /* Penyesuaian padding untuk menampung judul baru */
+        .sidebar a { display:block; padding:12px 20px; color:#fff; text-decoration:none; font-size:15px; transition: background .2s; }
         .sidebar a:hover, .sidebar a.active{ background: rgba(255,255,255,0.15); }
         .main{ padding:24px; max-width:1000px; margin:24px auto; }
         .card{ background:#fff; border-radius:16px; padding:24px; box-shadow:0 6px 18px rgba(0,0,0,0.08); margin:12px auto; text-align:center; }
@@ -77,16 +89,6 @@
         .status-macet {
           color: #d92727;
         }
-        .toggle-container {
-          position: fixed;
-          top: 80px;
-          right: 20px;
-          z-index: 1000;
-        }
-        .toggle-container .btn {
-          padding: 8px 12px;
-          font-size: 14px;
-        }
     </style>
 </head>
 <body>
@@ -98,6 +100,9 @@
 <img src="logo.png" alt="Logo" id="logoSmall">
 
 <nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="emoji">🚦</span> LaluLintasKu
+  </div>
   <a href="#" data-target="statistikSection" class="active">📊 Statistik</a>
   <a href="#" data-target="laporanSection">📋 Laporan</a>
   <a href="#" data-target="amanSection">🚗 Cara Mengemudi Aman</a>
@@ -182,10 +187,6 @@
 
 </main>
 
-<div class="toggle-container">
-  <button id="bgToggleBtn" class="btn">Ganti Latar Belakang</button>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
@@ -219,20 +220,6 @@
         sidebar.querySelectorAll('a').forEach(link=>link.classList.remove('active'));
         a.classList.add('active');
       });
-    });
-
-    // Background toggle
-    const bgToggleBtn = document.getElementById('bgToggleBtn');
-    let isBackgroundActive = false;
-    bgToggleBtn.addEventListener('click', () => {
-        isBackgroundActive = !isBackgroundActive;
-        if (isBackgroundActive) {
-            document.body.classList.add('background-active');
-            bgToggleBtn.textContent = 'Hapus Latar Belakang';
-        } else {
-            document.body.classList.remove('background-active');
-            bgToggleBtn.textContent = 'Ganti Latar Belakang';
-        }
     });
 
     // Wilayah Laporan
@@ -491,7 +478,7 @@
         document.getElementById('chartInfo').innerHTML=`
           <b>Total laporan:</b> ${total}<br>
           <b>Macet:</b> ${counts['Macet']}<br>
-          <b>Gangguan Lalu Lintas:</b> ${counts['Gangguan Lalu Lintas']}<br>
+          <b>Gangguan Lalu Lintas:</b> ${counts['Gangguan Lalu Lintas']}
           <b>Kecelakaan:</b> ${counts['Kecelakaan']}<br>
           <b>Mayoritas:</b> ${mayoritas}<br>
           <b>Alasan:</b> ${alasan}
