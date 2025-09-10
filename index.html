@@ -6,11 +6,11 @@
     <title>LaluLintasKu — Statistik & Laporan</title>
     <style>
         :root{
-          --green:#007a1c;
-          --green-dark:#005c15;
+          --blue-dark:#0056b3; /* Warna biru gelap untuk header */
+          --blue:#004494; /* Warna biru untuk hover tombol */
           --page-bg:#fff;
-          --panel-bg: rgba(0,0,0,0.7);
-          --sidebar-header-bg: #2d2d2d;
+          --panel-bg: rgba(209, 236, 241, 0.9); /* Warna biru muda untuk sidebar */
+          --sidebar-header-bg: #0056b3; /* Warna biru gelap untuk header sidebar */
         }
         body{
           margin:0; font-family: Inter, system-ui, Arial, sans-serif; background: var(--page-bg);
@@ -20,34 +20,65 @@
           background-position: center;
         }
         .header{
-          background: var(--green); color:#fff; padding:12px 16px; position:relative; text-align:center;
+          background: var(--blue-dark); /* Header utama berwarna biru gelap */
+          color:#fff; padding:12px 16px; position:relative; text-align:center;
         }
-        .header .menu-btn{
-          position:absolute; left:12px; top:8px; font-size:22px; cursor:pointer; transition: transform .25s;
-        }
-        .header .menu-btn.rotate{ transform: rotate(90deg); }
         .header h1{ margin:0; font-size:20px; display:inline-block; vertical-align:middle; }
-        .sidebar{
-          position:fixed; top:0; left:-250px; width:250px; height:100%; background:var(--panel-bg); 
-          transition:left .25s ease; z-index:2000;
+        /* Tombol menu di header sudah tidak diperlukan dengan sidebar hover */
+        .header .menu-btn { display: none; } 
+
+        .sidebar {
+            height: 100%;
+            width: 60px; /* Lebar default saat tersembunyi */
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: var(--panel-bg);
+            transition: width 0.5s ease;
+            overflow: hidden;
+            z-index: 2000;
         }
-        .sidebar.active{ left:0; }
-        /* CSS untuk judul baru di sidebar */
+        .sidebar:hover {
+            width: 250px; /* Lebar saat kursor diarahkan */
+        }
         .sidebar-header {
-            background: var(--sidebar-header-bg);
+            background: var(--sidebar-header-bg); /* Header sidebar berwarna biru gelap */
             color: #fff;
             padding: 16px;
             font-size: 20px;
             font-weight: bold;
             text-align: center;
+            white-space: nowrap; /* Mencegah teks melipat */
+            transition: padding-left 0.5s;
         }
-        .sidebar-header span.emoji {
-            font-size: 24px;
-            margin-right: 8px;
+        .sidebar-header .text {
+            display: none; /* Sembunyikan teks nama saat sidebar tersembunyi */
+            opacity: 0;
+            transition: opacity 0.5s ease;
         }
-        /* Penyesuaian padding untuk menampung judul baru */
-        .sidebar a { display:block; padding:12px 20px; color:#fff; text-decoration:none; font-size:15px; transition: background .2s; }
-        .sidebar a:hover, .sidebar a.active{ background: rgba(255,255,255,0.15); }
+        .sidebar:hover .sidebar-header .text {
+            display: inline;
+            opacity: 1;
+        }
+        .sidebar a { 
+            display: block; 
+            padding: 12px 20px; 
+            color: #333; /* Warna teks agar terlihat di biru muda */
+            text-decoration: none; 
+            font-size: 15px; 
+            white-space: nowrap;
+            transition: background 0.2s, padding 0.5s;
+        }
+        .sidebar a .link-text {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .sidebar:hover a .link-text {
+            display: inline;
+            opacity: 1;
+        }
+        .sidebar a:hover, .sidebar a.active{ background: rgba(0,0,0,0.1); } /* Warna hover untuk link sidebar */
         .main{ padding:24px; max-width:1000px; margin:24px auto; }
         .card{ background:#fff; border-radius:16px; padding:24px; box-shadow:0 6px 18px rgba(0,0,0,0.08); margin:12px auto; text-align:center; }
         .card h2, .card h3{ margin-top:0; margin-bottom:12px; color:#111; }
@@ -55,8 +86,8 @@
           width:92%; max-width:560px; padding:10px; border-radius:10px; border:1px solid #d0d0d0; font-size:15px; margin-bottom:10px;
         }
         textarea{ min-height:110px; resize:vertical; }
-        .btn{ margin-top:16px; background:var(--green); color:white; border:none; padding:10px 18px; border-radius:8px; cursor:pointer; font-weight:600; }
-        .btn:hover{ background:var(--green-dark); }
+        .btn{ margin-top:16px; background:var(--blue-dark); color:white; border:none; padding:10px 18px; border-radius:8px; cursor:pointer; font-weight:600; }
+        .btn:hover{ background:var(--blue); }
         .stats-card{ max-width:900px; margin:18px auto; padding:18px; border-radius:12px; background:#fff; box-shadow:0 6px 18px rgba(0,0,0,0.06);}
         table{ width:100%; border-collapse:collapse; margin-top:12px;}
         th,td{ padding:8px 10px; border:1px solid #e6e6e6; text-align:center; font-size:14px;}
@@ -70,7 +101,7 @@
         .muted{ color:#666; font-size:13px; margin-top:8px; }
         .small{ font-size:13px; color:#444; }
         @media(max-width:640px){ .card{ width:94%; padding:18px; } select,input,textarea{ width:100%; } .sidebar{ width:220px; } }
-        #logoSmall{ display:block; margin:20px auto; max-width:300px; height:auto; }
+        #logoSmall{ display:none; } /* Pastikan logo utama disembunyikan */
         .filter-item {
           margin-bottom: 12px;
           text-align: left;
@@ -94,20 +125,18 @@
 <body>
 
 <header class="header">
-  <span class="menu-btn" id="menuBtn">☰</span>
   <h1>🚦 LaluLintasKu</h1>
 </header>
-<img src="logo.png" alt="Logo" id="logoSmall">
 
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <span class="emoji">🚦</span> LaluLintasKu
+    <span class="emoji">🚦</span><span class="text"> LaluLintasKu</span>
   </div>
-  <a href="#" data-target="statistikSection" class="active">📊 Statistik</a>
-  <a href="#" data-target="laporanSection">📋 Laporan</a>
-  <a href="#" data-target="amanSection">🚗 Cara Mengemudi Aman</a>
-  <a href="#" data-target="kameraSection">📸 Statistik sistem kamera</a>
-  <a href="#" data-target="loginSection">🔑 Login</a>
+  <a href="#" data-target="statistikSection" class="active">📊 <span class="link-text">Statistik</span></a>
+  <a href="#" data-target="laporanSection">📋 <span class="link-text">Laporan</span></a>
+  <a href="#" data-target="amanSection">🚗 <span class="link-text">Cara Mengemudi Aman</span></a>
+  <a href="#" data-target="kameraSection">📸 <span class="link-text">Statistik sistem kamera</span></a>
+  <a href="#" data-target="loginSection">🔑 <span class="link-text">Login</span></a>
 </nav>
 
 <main class="main">
@@ -206,17 +235,14 @@
     const db = getDatabase(app);
     const storage = getStorage(app);
 
-    // Sidebar toggle
-    const menuBtn = document.getElementById('menuBtn');
+    // Sidebar navigation
     const sidebar = document.getElementById('sidebar');
-    menuBtn.addEventListener('click', ()=>{ sidebar.classList.toggle('active'); menuBtn.classList.toggle('rotate'); });
     sidebar.querySelectorAll('a[data-target]').forEach(a=>{
       a.addEventListener('click', e=>{
         e.preventDefault();
         const target = a.dataset.target;
         document.querySelectorAll('main section').forEach(s=>s.style.display='none');
         document.getElementById(target).style.display='block';
-        sidebar.classList.remove('active'); menuBtn.classList.remove('rotate');
         sidebar.querySelectorAll('a').forEach(link=>link.classList.remove('active'));
         a.classList.add('active');
       });
@@ -478,7 +504,7 @@
         document.getElementById('chartInfo').innerHTML=`
           <b>Total laporan:</b> ${total}<br>
           <b>Macet:</b> ${counts['Macet']}<br>
-          <b>Gangguan Lalu Lintas:</b> ${counts['Gangguan Lalu Lintas']}
+          <b>Gangguan Lalu Lintas:</b> ${counts['Gangguan Lalu Lintas']}<br>
           <b>Kecelakaan:</b> ${counts['Kecelakaan']}<br>
           <b>Mayoritas:</b> ${mayoritas}<br>
           <b>Alasan:</b> ${alasan}
