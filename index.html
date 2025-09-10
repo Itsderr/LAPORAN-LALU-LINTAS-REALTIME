@@ -6,11 +6,11 @@
     <title>LaluLintasKu — Statistik & Laporan</title>
     <style>
         :root{
-          --blue-dark:#0056b3; /* Warna biru gelap untuk header */
-          --blue:#004494; /* Warna biru untuk hover tombol */
+          --blue-dark:#0056b3;
+          --blue:#004494;
           --page-bg:#fff;
-          --panel-bg: rgba(209, 236, 241, 0.9); /* Warna biru muda untuk sidebar */
-          --sidebar-header-bg: #0056b3; /* Warna biru gelap untuk header sidebar */
+          --panel-bg: rgba(209, 236, 241, 0.9);
+          --sidebar-header-bg: #0056b3;
         }
         body{
           margin:0; font-family: Inter, system-ui, Arial, sans-serif; background: var(--page-bg);
@@ -20,16 +20,22 @@
           background-position: center;
         }
         .header{
-          background: var(--blue-dark); /* Header utama berwarna biru gelap */
-          color:#fff; padding:12px 16px; position:relative; text-align:center;
+          background: var(--blue-dark);
+          color:#fff;
+          padding:12px 24px;
+          position:fixed;
+          top:0;
+          width:100%;
+          box-sizing:border-box;
+          z-index: 1000;
+          text-align:center;
         }
         .header h1{ margin:0; font-size:20px; display:inline-block; vertical-align:middle; }
-        /* Tombol menu di header sudah tidak diperlukan dengan sidebar hover */
-        .header .menu-btn { display: none; } 
+        .header .menu-btn { display: none; }
 
         .sidebar {
             height: 100%;
-            width: 60px; /* Lebar default saat tersembunyi */
+            width: 60px;
             position: fixed;
             top: 0;
             left: 0;
@@ -39,20 +45,20 @@
             z-index: 2000;
         }
         .sidebar:hover {
-            width: 250px; /* Lebar saat kursor diarahkan */
+            width: 250px;
         }
         .sidebar-header {
-            background: var(--sidebar-header-bg); /* Header sidebar berwarna biru gelap */
+            background: var(--sidebar-header-bg);
             color: #fff;
             padding: 16px;
             font-size: 20px;
             font-weight: bold;
             text-align: center;
-            white-space: nowrap; /* Mencegah teks melipat */
+            white-space: nowrap;
             transition: padding-left 0.5s;
         }
         .sidebar-header .text {
-            display: none; /* Sembunyikan teks nama saat sidebar tersembunyi */
+            display: none;
             opacity: 0;
             transition: opacity 0.5s ease;
         }
@@ -60,12 +66,12 @@
             display: inline;
             opacity: 1;
         }
-        .sidebar a { 
-            display: block; 
-            padding: 12px 20px; 
-            color: #333; /* Warna teks agar terlihat di biru muda */
-            text-decoration: none; 
-            font-size: 15px; 
+        .sidebar a {
+            display: block;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            font-size: 15px;
             white-space: nowrap;
             transition: background 0.2s, padding 0.5s;
         }
@@ -78,8 +84,17 @@
             display: inline;
             opacity: 1;
         }
-        .sidebar a:hover, .sidebar a.active{ background: rgba(0,0,0,0.1); } /* Warna hover untuk link sidebar */
-        .main{ padding:24px; max-width:1000px; margin:24px auto; }
+        .sidebar a:hover, .sidebar a.active{ background: rgba(0,0,0,0.1); }
+        .main{
+            padding: 80px 24px 24px;
+            max-width:1000px;
+            margin-left: 60px;
+            transition: margin-left 0.5s ease;
+            margin-right: auto;
+        }
+        .sidebar:hover ~ .main {
+            margin-left: 250px;
+        }
         .card{ background:#fff; border-radius:16px; padding:24px; box-shadow:0 6px 18px rgba(0,0,0,0.08); margin:12px auto; text-align:center; }
         .card h2, .card h3{ margin-top:0; margin-bottom:12px; color:#111; }
         select, textarea, input[type="text"], input[type="file"]{
@@ -101,7 +116,7 @@
         .muted{ color:#666; font-size:13px; margin-top:8px; }
         .small{ font-size:13px; color:#444; }
         @media(max-width:640px){ .card{ width:94%; padding:18px; } select,input,textarea{ width:100%; } .sidebar{ width:220px; } }
-        #logoSmall{ display:none; } /* Pastikan logo utama disembunyikan */
+        #logoSmall{ display:none; }
         .filter-item {
           margin-bottom: 12px;
           text-align: left;
@@ -235,7 +250,6 @@
     const db = getDatabase(app);
     const storage = getStorage(app);
 
-    // Sidebar navigation
     const sidebar = document.getElementById('sidebar');
     sidebar.querySelectorAll('a[data-target]').forEach(a=>{
       a.addEventListener('click', e=>{
@@ -248,7 +262,6 @@
       });
     });
 
-    // Wilayah Laporan
     const provEl = document.getElementById('provinsi');
     const kotaEl = document.getElementById('kota');
     const daerahEl = document.getElementById('daerah');
@@ -349,7 +362,6 @@
       }
     });
 
-    // Lokasi GPS
     let currentLocation = null;
     document.getElementById('getLocationBtn').addEventListener('click', ()=>{
       if(navigator.geolocation){
@@ -360,7 +372,6 @@
       }else{ lokasiInfo.textContent='Browser tidak mendukung GPS'; }
     });
 
-    // Upload preview
     fotoEl.addEventListener('change', ()=>{
       if(fotoEl.files[0]){
         const reader = new FileReader();
@@ -369,11 +380,9 @@
       } else { fotoPreview.src = ''; }
     });
 
-    // Timer 20 menit per device
     let lastSent = localStorage.getItem('lastSent') || 0;
     const canSend = ()=> Date.now() - lastSent >= 20*60*1000;
 
-    // Submit laporan
     const statusEl = document.getElementById('status');
     const descEl = document.getElementById('deskripsi');
     const submitBtn = document.getElementById('submitBtn');
@@ -404,7 +413,6 @@
         try {
           const file = fotoEl.files[0];
           const storageRef = sRef(storage, `laporan_foto/${Date.now()}_${file.name}`);
-
           const uploadTask = uploadBytesResumable(storageRef, file);
 
           await new Promise((resolve, reject) => {
@@ -449,7 +457,6 @@
       }
     });
 
-    // Statistik Chart.js
     const ctx = document.getElementById('chart').getContext('2d');
     let chart = new Chart(ctx, {type:'bar', data:{labels:['Macet','Gangguan Lalu Lintas','Kecelakaan'], datasets:[{label:'Jumlah Laporan',data:[0,0,0],backgroundColor:['#d92727','#f0a500','#ff0000']}]}, options:{responsive:true,plugins:{legend:{display:false}}}});
 
@@ -513,7 +520,6 @@
     }
     updateChart();
 
-    // Ringkasan per daerah
     function updateSummary(){
       const prov=provEl.value, kota=kotaEl.value, daerah=daerahEl.value;
       if(!prov||!kota||!daerah) return;
@@ -546,10 +552,8 @@
       });
     }
 
-    // Skrip baru untuk statistik sistem kamera
     const trafficStatusEl = document.getElementById('trafficStatus');
     const vehicleCountEl = document.getElementById('vehicleCount');
-
     const kameraRef = ref(db, 'traffic/status');
 
     onValue(kameraRef, (snapshot) => {
