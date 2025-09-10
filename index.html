@@ -33,7 +33,7 @@
           text-align:center;
         }
         .header h1 { 
-            display: none; /* Menyembunyikan judul di header */
+            display: none;
         }
         .header .menu-btn {
             position: absolute;
@@ -49,7 +49,7 @@
 
         .sidebar {
             height: 100%;
-            width: 60px; /* Ukuran default di desktop */
+            width: 60px;
             position: fixed;
             top: 0;
             left: 0;
@@ -80,10 +80,10 @@
             margin-right: 10px;
         }
         .sidebar-header .text {
-            display: none; /* Teks disembunyikan di desktop */
+            display: none;
         }
         .close-btn {
-            display: none; /* Default disembunyikan, hanya muncul di mobile saat sidebar terbuka */
+            display: none;
             position: absolute;
             right: 15px;
             top: 50%;
@@ -114,14 +114,14 @@
             text-align: center;
         }
         .sidebar a .link-text {
-            display: none; /* Teks disembunyikan di desktop */
+            display: none;
         }
         .sidebar a:hover, .sidebar a.active{ background: rgba(0,0,0,0.1); }
 
         .main{
             padding: 80px 24px 24px;
             max-width:1000px;
-            margin-left: 60px; /* Jarak untuk sidebar 60px di desktop */
+            margin-left: 60px;
             transition: margin-left 0.3s ease;
             margin-right: auto;
         }
@@ -167,26 +167,26 @@
         /* MEDIA QUERIES UNTUK TAMPILAN HP */
         @media (max-width: 640px) {
             .header .menu-btn {
-                display: block; /* Tombol menu di header muncul di HP */
+                display: block;
             }
             .sidebar {
                 width: 0;
-                transform: translateX(-100%); /* Sembunyikan sidebar di HP secara default */
+                transform: translateX(-100%);
                 box-shadow: none;
             }
             .sidebar.open {
-                width: 250px; /* Lebar sidebar saat dibuka di HP */
+                width: 250px;
                 transform: translateX(0);
                 box-shadow: 2px 0 5px rgba(0,0,0,0.2);
             }
             .sidebar-header .text, .sidebar a .link-text {
-                display: inline; /* Teks di sidebar muncul saat dibuka di HP */
+                display: inline;
             }
             .close-btn {
-                display: block; /* Tombol tutup muncul di HP saat sidebar terbuka */
+                display: block;
             }
             .main {
-                margin-left: 0; /* Konten utama mengambil seluruh lebar di HP */
+                margin-left: 0;
             }
         }
     </style>
@@ -195,11 +195,12 @@
 
 <header class="header">
   <button class="menu-btn" id="menuBtn">☰</button>
-  <h1></h1> </header>
+  <h1></h1>
+</header>
 
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <span class="emoji">🚦</span><span class="text"> LaluLintasKu</span>
+    <span class="emoji">🏠</span><span class="text"> LaluLintasKu</span>
     <button class="close-btn" id="closeBtn">✖</button>
   </div>
   <a href="#" data-target="statistikSection" class="active"><span class="emoji">📊</span><span class="link-text">Statistik</span></a>
@@ -587,9 +588,9 @@
         document.getElementById('chartInfo').innerHTML=`
           <b>Total laporan:</b> ${total}<br>
           <b>Macet:</b> ${counts['Macet']}<br>
-          <b>Gangguan Lalu Lintas:</b> ${counts['Gangguan Lalu Lintas']}<br>
-          <b>Kecelakaan:</b> ${counts['Kecelakaan']}<br>
-          <b>Mayoritas:</b> ${mayoritas}<br>
+          <b>Gangguan Lalu Lintas:</b> ${counts['Gangguan Lalu Lintas']}</b><br>
+          <b>Kecelakaan:</b> ${counts['Kecelakaan']}</b><br>
+          <b>Mayoritas:</b> ${mayoritas}</b><br>
           <b>Alasan:</b> ${alasan}
         `;
       });
