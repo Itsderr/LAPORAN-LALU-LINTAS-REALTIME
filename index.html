@@ -49,12 +49,12 @@
 
         .sidebar {
             height: 100%;
-            width: 60px;
+            width: 0;
             position: fixed;
             top: 0;
             left: 0;
             background: var(--panel-bg);
-            transition: transform 0.3s ease, width 0.3s ease;
+            transition: width 0.3s ease;
             overflow-y: auto;
             overflow-x: hidden;
             z-index: 2000;
@@ -80,10 +80,9 @@
             margin-right: 10px;
         }
         .sidebar-header .text {
-            display: none;
+            display: inline;
         }
         .close-btn {
-            display: none;
             position: absolute;
             right: 15px;
             top: 50%;
@@ -95,6 +94,7 @@
             cursor: pointer;
             padding: 0;
             line-height: 1;
+            display: block;
         }
         
         .sidebar a {
@@ -114,14 +114,14 @@
             text-align: center;
         }
         .sidebar a .link-text {
-            display: none;
+            display: inline;
         }
         .sidebar a:hover, .sidebar a.active{ background: rgba(0,0,0,0.1); }
 
         .main{
             padding: 80px 24px 24px;
             max-width:1000px;
-            margin-left: 60px;
+            margin-left: 0;
             transition: margin-left 0.3s ease;
             margin-right: auto;
         }
@@ -164,26 +164,53 @@
           color: #d92727;
         }
 
+        /* MEDIA QUERIES UNTUK TAMPILAN DESKTOP */
+        @media (min-width: 641px) {
+            .header .menu-btn {
+                display: none;
+            }
+            .close-btn {
+                display: none;
+            }
+            .sidebar {
+                width: 60px;
+            }
+            .sidebar:hover {
+                width: 250px;
+            }
+            .sidebar .link-text, .sidebar-header .text {
+                display: none;
+            }
+            .sidebar:hover .link-text, .sidebar:hover .sidebar-header .text {
+                display: inline;
+            }
+            .main {
+                margin-left: 60px;
+            }
+            .sidebar:hover + .main {
+                margin-left: 250px;
+            }
+        }
+
         /* MEDIA QUERIES UNTUK TAMPILAN HP */
         @media (max-width: 640px) {
             .header .menu-btn {
                 display: block;
             }
+            .close-btn {
+                display: block;
+            }
             .sidebar {
                 width: 0;
                 transform: translateX(-100%);
-                box-shadow: none;
             }
             .sidebar.open {
                 width: 250px;
                 transform: translateX(0);
                 box-shadow: 2px 0 5px rgba(0,0,0,0.2);
             }
-            .sidebar-header .text, .sidebar a .link-text {
+            .sidebar .link-text, .sidebar-header .text {
                 display: inline;
-            }
-            .close-btn {
-                display: block;
             }
             .main {
                 margin-left: 0;
@@ -210,7 +237,7 @@
   <a href="#" data-target="loginSection"><span class="emoji">🔑</span><span class="link-text">Login</span></a>
 </nav>
 
-<main class="main">
+<main class="main" id="mainContent">
 
 <section id="statistikSection" class="stats-card">
   <h3>📊 Statistik Laporan (≤ 1 jam)</h3>
@@ -307,11 +334,12 @@
     const storage = getStorage(app);
 
     const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
     const menuBtn = document.getElementById('menuBtn');
     const closeBtn = document.getElementById('closeBtn');
 
     menuBtn.addEventListener('click', () => {
-        sidebar.classList.add('open');
+        sidebar.classList.toggle('open');
     });
 
     closeBtn.addEventListener('click', () => {
