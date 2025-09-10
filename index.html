@@ -32,9 +32,8 @@
           z-index: 1000;
           text-align:center;
         }
-        .header h1{ margin:0; font-size:20px; display:inline-block; vertical-align:middle; }
+        /* Mengatur posisi tombol menu di desktop agar tidak mengganggu layout */
         .header .menu-btn {
-            display: none; /* Default disembunyikan untuk desktop */
             position: absolute;
             left: 20px;
             top: 50%;
@@ -44,6 +43,10 @@
             color: white;
             font-size: 24px;
             cursor: pointer;
+        }
+        /* Menyembunyikan judul di header */
+        .header h1 { 
+            display: none;
         }
 
         .sidebar {
@@ -194,8 +197,7 @@
 
 <header class="header">
   <button class="menu-btn" id="menuBtn">☰</button>
-  <h1>🚦 LaluLintasKu</h1>
-</header>
+  <h1></h1> </header>
 
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-header">
