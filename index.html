@@ -62,13 +62,21 @@
         .sidebar-header {
             background: var(--sidebar-header-bg);
             color: #fff;
-            padding: 16px;
+            /* Menggunakan padding-top dan padding-bottom yang lebih seimbang */
+            padding: 12px 16px; /* Disesuaikan untuk lebih simetris */
             font-size: 20px;
             font-weight: bold;
             text-align: center;
             white-space: nowrap;
             transition: padding-left 0.5s;
             position: relative;
+            display: flex; /* Menggunakan flexbox untuk perataan vertikal */
+            align-items: center; /* Perataan vertikal */
+            justify-content: center; /* Perataan horizontal */
+        }
+        .sidebar-header .emoji {
+            margin-right: 10px; /* Jarak antara emoji dan teks LaluLintasKu */
+            font-size: 24px; /* Ukuran emoji yang lebih besar agar terlihat jelas */
         }
         .sidebar-header .text {
             display: none;
@@ -88,8 +96,10 @@
             background: none;
             border: none;
             color: white;
-            font-size: 24px;
+            font-size: 28px; /* Ukuran tombol close yang sedikit lebih besar */
             cursor: pointer;
+            padding: 0; /* Menghapus padding default tombol */
+            line-height: 1; /* Memastikan ikon 'X' di tengah */
         }
         .sidebar a {
             display: flex; /* Menggunakan flexbox untuk perataan yang lebih baik */
@@ -104,6 +114,8 @@
         .sidebar a .emoji {
             font-size: 20px;
             margin-right: 20px; /* Menambahkan ruang antara ikon dan teks */
+            min-width: 20px; /* Memastikan ikon memiliki lebar minimum */
+            text-align: center;
         }
         .sidebar a .link-text {
             display: none;
@@ -177,8 +189,8 @@
             .sidebar.open {
                 width: 250px;
             }
-            .sidebar:hover {
-                width: 250px;
+            .sidebar:hover { /* Override hover di mobile */
+                width: 0;
             }
             .sidebar-header .text {
                 display: inline;
@@ -197,7 +209,7 @@
             .sidebar.open ~ .main {
                 margin-left: 0;
             }
-            .sidebar:hover ~ .main {
+            .sidebar:hover ~ .main { /* Override hover di mobile */
                 margin-left: 0;
             }
         }
@@ -215,11 +227,11 @@
     <span class="emoji">🚦</span><span class="text"> LaluLintasKu</span>
     <button class="close-btn" id="closeBtn">✖</button>
   </div>
-  <a href="#" data-target="statistikSection" class="active">📊<span class="link-text">Statistik</span></a>
-  <a href="#" data-target="laporanSection">📋<span class="link-text">Laporan</span></a>
-  <a href="#" data-target="amanSection">🚗<span class="link-text">Cara Mengemudi Aman</span></a>
-  <a href="#" data-target="kameraSection">📸<span class="link-text">Statistik sistem kamera</span></a>
-  <a href="#" data-target="loginSection">🔑<span class="link-text">Login</span></a>
+  <a href="#" data-target="statistikSection" class="active"><span class="emoji">📊</span><span class="link-text">Statistik</span></a>
+  <a href="#" data-target="laporanSection"><span class="emoji">📋</span><span class="link-text">Laporan</span></a>
+  <a href="#" data-target="amanSection"><span class="emoji">🚗</span><span class="link-text">Cara Mengemudi Aman</span></a>
+  <a href="#" data-target="kameraSection"><span class="emoji">📸</span><span class="link-text">Statistik sistem kamera</span></a>
+  <a href="#" data-target="loginSection"><span class="emoji">🔑</span><span class="link-text">Login</span></a>
 </nav>
 
 <main class="main">
@@ -352,7 +364,7 @@
     const daerahWrap = document.getElementById('daerahWrap');
     const jalanWrap = document.getElementById('jalanWrap');
     const statusWrap = document.getElementById('statusWrap');
-    const descWrap = document.getElementById('descWrap');
+    const descWrap = document.getElementById('deskripsi');
     const submitWrap = document.getElementById('submitWrap');
     const fotoWrap = document.getElementById('fotoWrap');
     const lokasiWrap = document.getElementById('lokasiWrap');
