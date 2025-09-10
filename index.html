@@ -52,8 +52,6 @@ th{ background:#f7faf7; color:#222; }
 .small{ font-size:13px; color:#444; }
 @media(max-width:640px){ .card{ width:94%; padding:18px; } select,input,textarea{ width:100%; } .sidebar{ width:220px; } }
 #logoSmall{ display:block; margin:20px auto; max-width:300px; height:auto; }
-
-/* CSS untuk merapikan dropdown pada halaman statistik */
 .filter-item {
   margin-bottom: 12px;
   text-align: left;
@@ -66,8 +64,6 @@ th{ background:#f7faf7; color:#222; }
 .filter-item select {
   width: 100%;
 }
-
-/* CSS untuk status kamera */
 .status-lancar {
   color: #2b8a3e;
 }
@@ -135,6 +131,7 @@ th{ background:#f7faf7; color:#222; }
 
   <div id="kotaWrap" style="display:none;"><label for="kota">Pilih Kota/Kabupaten:</label><select id="kota"><option value="">-- Pilih Kota --</option></select></div>
   <div id="daerahWrap" style="display:none;"><label for="daerah">Pilih Daerah/Kecamatan:</label><select id="daerah"><option value="">-- Pilih Daerah --</option></select></div>
+  <div id="jalanWrap" style="display:none;"><label for="jalan">Pilih Nama Jalan:</label><select id="jalan"><option value="">-- Pilih Nama Jalan --</option></select></div>
   <div id="statusWrap" style="display:none;"><label for="status">Status Kondisi:</label><select id="status"><option value="">-- Pilih Kondisi --</option><option value="Macet">Macet</option><option value="Gangguan Lalu Lintas">Gangguan Lalu Lintas</option><option value="Kecelakaan">Kecelakaan</option></select></div>
   <div id="descWrap" style="display:none;"><label for="deskripsi">Deskripsi (opsional):</label><textarea id="deskripsi" placeholder="Contoh: Lampu merah tidak berfungsi / antrean 500m"></textarea></div>
   <div id="fotoWrap" style="display:none;"><label for="foto">Tambahkan Foto (opsional):</label><input type="file" id="foto" accept="image/*"><img id="fotoPreview" src=""></div>
@@ -207,8 +204,10 @@ sidebar.querySelectorAll('a[data-target]').forEach(a=>{
 const provEl = document.getElementById('provinsi');
 const kotaEl = document.getElementById('kota');
 const daerahEl = document.getElementById('daerah');
+const jalanEl = document.getElementById('jalan');
 const kotaWrap = document.getElementById('kotaWrap');
 const daerahWrap = document.getElementById('daerahWrap');
+const jalanWrap = document.getElementById('jalanWrap');
 const statusWrap = document.getElementById('statusWrap');
 const descWrap = document.getElementById('descWrap');
 const submitWrap = document.getElementById('submitWrap');
@@ -219,17 +218,50 @@ const lokasiInfo = document.getElementById('lokasiInfo');
 const fotoEl = document.getElementById('foto');
 const fotoPreview = document.getElementById('fotoPreview');
 
+// Perbarui bagian ini dengan nama jalan yang sudah ditentukan
 const wilayah = {
-  "Jawa Timur": { "Surabaya":["Genteng","Wonokromo"], "Sidoarjo":["Krian","Waru"], "Banyuwangi":["Kecamatan Glagah","Kecamatan Rogojampi"] },
-  "Jawa Barat": { "Bandung":["Coblong","Sukajadi"], "Bekasi":["Bekasi Timur","Bekasi Selatan"] },
-  "DKI Jakarta": { "Jakarta Pusat":["Gambir","Menteng"], "Jakarta Timur":["Duren Sawit","Cakung"] }
+  "Jawa Timur": {
+    "Surabaya": {
+      "Genteng": ["Jalan Tunjungan", "Jalan Gubernur Suryo", "Jalan Embong Malang"],
+      "Wonokromo": ["Jalan Joyoboyo", "Jalan Ngagel", "Jalan Raya Darmo"]
+    },
+    "Sidoarjo": {
+      "Krian": ["Jalan Raya Krian", "Jalan Ahmad Yani", "Jalan Basuki Rahmat"],
+      "Waru": ["Jalan Raya Waru", "Jalan Letjend Suprapto", "Jalan Bypass Juanda"]
+    },
+    "Banyuwangi": {
+      "Kecamatan Glagah": ["Jalan Raya Glagah", "Jalan Raya Licin", "Jalan Raya Rogojampi"],
+      "Kecamatan Rogojampi": ["Jalan Raya Rogojampi", "Jalan S Parman", "Jalan MH Thamrin"]
+    }
+  },
+  "Jawa Barat": {
+    "Bandung": {
+      "Coblong": ["Jalan Dago", "Jalan Ciumbuleuit", "Jalan Dipati Ukur"],
+      "Sukajadi": ["Jalan Sukajadi", "Jalan Setiabudi", "Jalan Dr. Setiabudhi"]
+    },
+    "Bekasi": {
+      "Bekasi Timur": ["Jalan Pahlawan", "Jalan Cut Mutia", "Jalan Ir. H. Juanda"],
+      "Bekasi Selatan": ["Jalan Ahmad Yani", "Jalan KH Noer Ali", "Jalan Jend Sudirman"]
+    }
+  },
+  "DKI Jakarta": {
+    "Jakarta Pusat": {
+      "Gambir": ["Jalan Medan Merdeka", "Jalan Majapahit", "Jalan Veteran"],
+      "Menteng": ["Jalan Menteng Raya", "Jalan Teuku Umar", "Jalan Cikini Raya"]
+    },
+    "Jakarta Timur": {
+      "Duren Sawit": ["Jalan Pahlawan Revolusi", "Jalan Swadaya", "Jalan Dermaga"],
+      "Cakung": ["Jalan Raya Cakung", "Jalan Raya Bekasi", "Jalan I Gusti Ngurah Rai"]
+    }
+  }
 };
 
 provEl.addEventListener('change', ()=>{
   const prov = provEl.value;
   kotaEl.innerHTML='<option value="">-- Pilih Kota --</option>';
   daerahEl.innerHTML='<option value="">-- Pilih Daerah --</option>';
-  kotaWrap.style.display=daerahWrap.style.display=statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none';
+  jalanEl.innerHTML='<option value="">-- Pilih Nama Jalan --</option>';
+  kotaWrap.style.display=daerahWrap.style.display=jalanWrap.style.display=statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none';
   summaryDiv.innerHTML='';
   if(prov && wilayah[prov]){
     Object.keys(wilayah[prov]).forEach(k=>{
@@ -242,17 +274,32 @@ provEl.addEventListener('change', ()=>{
 kotaEl.addEventListener('change', ()=>{
   const prov=provEl.value, kota=kotaEl.value;
   daerahEl.innerHTML='<option value="">-- Pilih Daerah --</option>';
-  daerahWrap.style.display=statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none';
+  jalanEl.innerHTML='<option value="">-- Pilih Nama Jalan --</option>';
+  daerahWrap.style.display=jalanWrap.style.display=statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none';
   summaryDiv.innerHTML='';
   if(prov && kota && wilayah[prov][kota]){
-    wilayah[prov][kota].forEach(d=>{ const o=document.createElement('option'); o.value=d; o.textContent=d; daerahEl.appendChild(o); });
+    Object.keys(wilayah[prov][kota]).forEach(d=>{
+      const o=document.createElement('option'); o.value=d; o.textContent=d; daerahEl.appendChild(o);
+    });
     daerahWrap.style.display='block';
   }
 });
 
-daerahEl.addEventListener('change', ()=>{ const d=daerahEl.value;
-  if(d){ statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='block'; updateSummary(); }
-  else{ statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none'; summaryDiv.innerHTML=''; }
+daerahEl.addEventListener('change', ()=>{
+  const prov=provEl.value, kota=kotaEl.value, daerah=daerahEl.value;
+  jalanEl.innerHTML='<option value="">-- Pilih Nama Jalan --</option>';
+  if(daerah && wilayah[prov][kota][daerah]){
+    wilayah[prov][kota][daerah].forEach(j=>{
+      const o=document.createElement('option'); o.value=j; o.textContent=j; jalanEl.appendChild(o);
+    });
+    jalanWrap.style.display='block';
+    statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='block';
+    updateSummary();
+  } else {
+    jalanWrap.style.display='none';
+    statusWrap.style.display=descWrap.style.display=submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none';
+    summaryDiv.innerHTML='';
+  }
 });
 
 // Lokasi GPS
@@ -285,7 +332,7 @@ const descEl = document.getElementById('deskripsi');
 const submitBtn = document.getElementById('submitBtn');
 
 submitBtn.addEventListener('click', async ()=>{
-  if(!provEl.value || !kotaEl.value || !daerahEl.value || !statusEl.value){ alert('Lengkapi semua pilihan'); return; }
+  if(!provEl.value || !kotaEl.value || !daerahEl.value || !jalanEl.value || !statusEl.value){ alert('Lengkapi semua pilihan'); return; }
   if(!canSend()){ alert('⏱ Tunggu 20 menit sebelum mengirim laporan lagi'); return; }
 
   let fotoURL = '';
@@ -304,6 +351,7 @@ submitBtn.addEventListener('click', async ()=>{
     provinsi:provEl.value,
     kota:kotaEl.value,
     daerah:daerahEl.value,
+    jalan:jalanEl.value || '',
     status:statusEl.value,
     deskripsi:descEl.value||'',
     foto: fotoURL,
@@ -338,7 +386,7 @@ filterProv.addEventListener('change', ()=>{
 filterKota.addEventListener('change', ()=>{
   filterDaerah.innerHTML='<option value="">-- Pilih Daerah --</option>';
   if(filterProv.value && filterKota.value && wilayah[filterProv.value][filterKota.value]){
-    wilayah[filterProv.value][filterKota.value].forEach(d=>{
+    Object.keys(wilayah[filterProv.value][filterKota.value]).forEach(d=>{
       const o=document.createElement('option'); o.value=d; o.textContent=d; filterDaerah.appendChild(o);
     });
   }
