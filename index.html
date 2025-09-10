@@ -19,7 +19,6 @@
           background-attachment: fixed;
           background-position: center;
           background-color: var(--page-bg);
-          overflow-x: hidden;
         }
         .header{
           background: var(--blue-dark);
@@ -33,26 +32,33 @@
           text-align:center;
         }
         .header h1{ margin:0; font-size:20px; display:inline-block; vertical-align:middle; }
-
-        /* Hapus tombol menu lama dari header di HP */
         .header .menu-btn {
             display: none;
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
         }
 
         .sidebar {
             height: 100%;
-            width: 250px;
+            width: 60px;
             position: fixed;
             top: 0;
             left: 0;
             background: var(--panel-bg);
-            transition: width 0.3s ease, transform 0.3s ease;
-            overflow-y: auto;
-            overflow-x: hidden;
+            transition: width 0.5s ease;
+            overflow: hidden;
             z-index: 2000;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
         }
-
+        .sidebar:hover {
+            width: 250px;
+        }
         .sidebar-header {
             background: var(--sidebar-header-bg);
             color: #fff;
@@ -61,22 +67,41 @@
             font-weight: bold;
             text-align: center;
             white-space: nowrap;
+            transition: padding-left 0.5s;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 48px;
         }
         .sidebar-header .emoji {
-            font-size: 24px;
             margin-right: 10px;
+            font-size: 24px;
         }
         .sidebar-header .text {
-            display: inline;
-        }
-        .sidebar-header .close-btn-inside {
             display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
         }
+        .sidebar:hover .sidebar-header .text {
+            display: inline;
+            opacity: 1;
+        }
+        /* Tombol 'X' di dalam sidebar, hanya muncul di mobile */
+        .close-btn {
+            display: none;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+
         .sidebar a {
             display: flex;
             align-items: center;
@@ -94,42 +119,25 @@
             text-align: center;
         }
         .sidebar a .link-text {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .sidebar:hover a .link-text {
             display: inline;
+            opacity: 1;
         }
         .sidebar a:hover, .sidebar a.active{ background: rgba(0,0,0,0.1); }
-
         .main{
             padding: 80px 24px 24px;
             max-width:1000px;
-            margin-left: 250px;
-            transition: margin-left 0.3s ease;
+            margin-left: 60px;
+            transition: margin-left 0.5s ease;
             margin-right: auto;
         }
-
-        /* FAB (Floating Action Button) untuk membuka sidebar di HP */
-        .fab-home {
-            display: none; /* Default disembunyikan */
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: var(--blue-dark);
-            color: white;
-            font-size: 24px;
-            text-align: center;
-            line-height: 56px;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            z-index: 2001;
-            border: none;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+        .sidebar:hover ~ .main {
+            margin-left: 250px;
         }
-        .fab-home:hover {
-            background: var(--blue);
-        }
-
         .card{ background:#fff; border-radius:16px; padding:24px; box-shadow:0 6px 18px rgba(0,0,0,0.08); margin:12px auto; text-align:center; }
         .card h2, .card h3{ margin-top:0; margin-bottom:12px; color:#111; }
         select, textarea, input[type="text"], input[type="file"]{
@@ -171,28 +179,38 @@
 
         /* MEDIA QUERIES UNTUK TAMPILAN HP */
         @media (max-width: 640px) {
+            .header .menu-btn {
+                display: block;
+            }
             .sidebar {
                 width: 0;
-                transform: translateX(-100%);
-                box-shadow: none;
+                transition: width 0.3s ease;
             }
             .sidebar.open {
                 width: 250px;
-                transform: translateX(0);
-                box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            }
+            .sidebar:hover {
+                width: 0;
             }
             .sidebar-header .text {
                 display: inline;
+                opacity: 1;
+            }
+            .close-btn {
+                display: block;
             }
             .sidebar a .link-text {
                 display: inline;
+                opacity: 1;
             }
             .main {
                 margin-left: 0;
             }
-            /* Tombol FAB Home muncul di HP */
-            .fab-home {
-                display: block;
+            .sidebar.open ~ .main {
+                margin-left: 0;
+            }
+            .sidebar:hover ~ .main {
+                margin-left: 0;
             }
         }
     </style>
@@ -200,13 +218,14 @@
 <body>
 
 <header class="header">
+  <button class="menu-btn" id="menuBtn">☰</button>
   <h1>🚦 LaluLintasKu</h1>
 </header>
 
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-header">
     <span class="emoji">🚦</span><span class="text"> LaluLintasKu</span>
-    <button class="close-btn-inside" id="closeBtnInside">✖</button>
+    <button class="close-btn" id="closeBtn">✖</button>
   </div>
   <a href="#" data-target="statistikSection" class="active"><span class="emoji">📊</span><span class="link-text">Statistik</span></a>
   <a href="#" data-target="laporanSection"><span class="emoji">📋</span><span class="link-text">Laporan</span></a>
@@ -216,8 +235,6 @@
 </nav>
 
 <main class="main">
-
-<button class="fab-home" id="fabHomeBtn">🏠</button>
 
 <section id="statistikSection" class="stats-card">
   <h3>📊 Statistik Laporan (≤ 1 jam)</h3>
@@ -314,10 +331,15 @@
     const storage = getStorage(app);
 
     const sidebar = document.getElementById('sidebar');
-    const fabHomeBtn = document.getElementById('fabHomeBtn');
+    const menuBtn = document.getElementById('menuBtn');
+    const closeBtn = document.getElementById('closeBtn');
 
-    fabHomeBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('open');
+    menuBtn.addEventListener('click', () => {
+        sidebar.classList.add('open');
+    });
+
+    closeBtn.addEventListener('click', () => {
+        sidebar.classList.remove('open');
     });
 
     sidebar.querySelectorAll('a[data-target]').forEach(a=>{
