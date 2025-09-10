@@ -34,7 +34,7 @@
         }
         .header h1{ margin:0; font-size:20px; display:inline-block; vertical-align:middle; }
         .header .menu-btn {
-            display: none;
+            display: none; /* Default disembunyikan untuk desktop */
             position: absolute;
             left: 20px;
             top: 50%;
@@ -48,17 +48,18 @@
 
         .sidebar {
             height: 100%;
-            width: 60px; /* Ukuran tetap untuk desktop */
+            width: 60px; /* Ukuran default di desktop, hanya ikon */
             position: fixed;
             top: 0;
             left: 0;
             background: var(--panel-bg);
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, width 0.3s ease;
             overflow-y: auto;
             overflow-x: hidden;
             z-index: 2000;
             box-shadow: 2px 0 5px rgba(0,0,0,0.2);
         }
+        /* Sidebar di desktop (tidak ada hover, selalu 60px) */
         .sidebar-header {
             background: var(--sidebar-header-bg);
             color: #fff;
@@ -81,7 +82,7 @@
             display: none; /* Teks disembunyikan di desktop */
         }
         .close-btn {
-            display: none;
+            display: none; /* Default disembunyikan, hanya muncul di mobile saat sidebar terbuka */
             position: absolute;
             right: 15px;
             top: 50%;
@@ -119,7 +120,7 @@
         .main{
             padding: 80px 24px 24px;
             max-width:1000px;
-            margin-left: 60px; /* Jarak untuk sidebar 60px */
+            margin-left: 60px; /* Jarak untuk sidebar 60px di desktop */
             transition: margin-left 0.3s ease;
             margin-right: auto;
         }
@@ -165,26 +166,26 @@
         /* MEDIA QUERIES UNTUK TAMPILAN HP */
         @media (max-width: 640px) {
             .header .menu-btn {
-                display: block;
+                display: block; /* Tombol menu di header muncul di HP */
             }
             .sidebar {
                 width: 0;
-                transform: translateX(-100%);
+                transform: translateX(-100%); /* Sembunyikan sidebar di HP secara default */
                 box-shadow: none;
             }
             .sidebar.open {
-                width: 250px;
+                width: 250px; /* Lebar sidebar saat dibuka di HP */
                 transform: translateX(0);
                 box-shadow: 2px 0 5px rgba(0,0,0,0.2);
             }
             .sidebar-header .text, .sidebar a .link-text {
-                display: inline;
+                display: inline; /* Teks di sidebar muncul saat dibuka di HP */
             }
             .close-btn {
-                display: block;
+                display: block; /* Tombol tutup muncul di HP saat sidebar terbuka */
             }
             .main {
-                margin-left: 0;
+                margin-left: 0; /* Konten utama mengambil seluruh lebar di HP */
             }
         }
     </style>
@@ -198,7 +199,7 @@
 
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <span class="emoji">🚦</span><span class="text"> LaluLintasKu</span>
+    <span class="emoji">☰</span><span class="text"> LaluLintasKu</span>
     <button class="close-btn" id="closeBtn">✖</button>
   </div>
   <a href="#" data-target="statistikSection" class="active"><span class="emoji">📊</span><span class="link-text">Statistik</span></a>
