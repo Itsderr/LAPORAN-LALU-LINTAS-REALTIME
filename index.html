@@ -32,7 +32,9 @@
           z-index: 1000;
           text-align:center;
         }
-        /* Mengatur posisi tombol menu di desktop agar tidak mengganggu layout */
+        .header h1 { 
+            display: none; /* Menyembunyikan judul di header */
+        }
         .header .menu-btn {
             position: absolute;
             left: 20px;
@@ -43,10 +45,6 @@
             color: white;
             font-size: 24px;
             cursor: pointer;
-        }
-        /* Menyembunyikan judul di header */
-        .header h1 { 
-            display: none;
         }
 
         .sidebar {
@@ -62,7 +60,7 @@
             z-index: 2000;
             box-shadow: 2px 0 5px rgba(0,0,0,0.2);
         }
-        /* Sidebar di desktop (tidak ada hover, selalu 60px) */
+        
         .sidebar-header {
             background: var(--sidebar-header-bg);
             color: #fff;
