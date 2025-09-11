@@ -11,6 +11,7 @@
           --page-bg:#fff;
           --panel-bg: rgba(209, 236, 241, 0.9);
           --sidebar-header-bg: #0056b3;
+          --overlay-bg: rgba(0,0,0,0.6);
         }
         body{
           margin:0; font-family: Inter, system-ui, Arial, sans-serif;
@@ -164,6 +165,70 @@
           color: #d92727;
         }
 
+        /* FLOATING SUGGESTION BUTTON */
+        .suggestion-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--blue-dark);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+        }
+        .suggestion-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* MODAL (POP-UP) FOR SUGGESTION FORM */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--overlay-bg);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            position: relative;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+        }
+        .modal-content h3 {
+            margin-top: 0;
+        }
+        .modal-close-btn {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .modal-close-btn:hover, .modal-close-btn:focus {
+            color: #000;
+            text-decoration: none;
+        }
+
         /* MEDIA QUERIES UNTUK TAMPILAN DESKTOP */
         @media (min-width: 641px) {
             .header .menu-btn {
@@ -234,7 +299,6 @@
   <a href="#" data-target="laporanSection"><span class="emoji">📋</span><span class="link-text">Laporan</span></a>
   <a href="#" data-target="kameraSection"><span class="emoji">📸</span><span class="link-text">Statistik sistem kamera</span></a>
   <a href="#" data-target="loginSection"><span class="emoji">🔑</span><span class="link-text">Login</span></a>
-  <a href="#" data-target="saranSection"><span class="emoji">📝</span><span class="link-text">Kotak Saran</span></a>
 </nav>
 
 <main class="main" id="mainContent">
@@ -303,16 +367,23 @@
   <p class="small">Demo akun tunggal.</p>
 </section>
 
-<section id="saranSection" class="card" style="display:none;">
+</main>
+
+<button class="suggestion-btn" id="suggestionBtn">
+  📝
+</button>
+
+<div id="saranModal" class="modal">
+  <div class="modal-content">
+    <span class="modal-close-btn" id="saranCloseBtn">&times;</span>
     <h3>📝 Kotak Saran</h3>
-    <p class="muted">Berikan saran atau masukan Anda untuk perbaikan layanan.</p>
+    <p class="muted">Kritik dan saran Anda akan berguna bagi kami ke depannya.</p>
     <div style="margin-top:20px;">
         <textarea id="saranTextarea" placeholder="Masukkan saran atau masukan Anda di sini..." style="width:92%; max-width:560px;"></textarea>
     </div>
     <button class="btn" id="submitSaranBtn">Kirim Saran</button>
-</section>
-
-</main>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module">
@@ -491,8 +562,6 @@
 
     const statusEl = document.getElementById('status');
     const submitBtn = document.getElementById('submitBtn');
-    const saranTextarea = document.getElementById('saranTextarea');
-    const submitSaranBtn = document.getElementById('submitSaranBtn');
 
     submitBtn.addEventListener('click', async () => {
       if (!provEl.value || !kotaEl.value || !daerahEl.value || !jalanEl.value || !statusEl.value) {
@@ -564,6 +633,24 @@
       }
     });
 
+    const saranModal = document.getElementById('saranModal');
+    const suggestionBtn = document.getElementById('suggestionBtn');
+    const saranCloseBtn = document.getElementById('saranCloseBtn');
+    const saranTextarea = document.getElementById('saranTextarea');
+    const submitSaranBtn = document.getElementById('submitSaranBtn');
+
+    suggestionBtn.addEventListener('click', () => {
+        saranModal.style.display = 'flex';
+    });
+    saranCloseBtn.addEventListener('click', () => {
+        saranModal.style.display = 'none';
+    });
+    window.addEventListener('click', (event) => {
+        if (event.target == saranModal) {
+            saranModal.style.display = 'none';
+        }
+    });
+
     submitSaranBtn.addEventListener('click', async () => {
         const saran = saranTextarea.value;
         if (!saran) {
@@ -572,12 +659,12 @@
         }
 
         try {
-            const newSaranRef = push(ref(db, 'saran_pengguna'));
             await push(ref(db, 'saran_pengguna'), {
                 saran: saran,
                 waktu: Date.now()
             });
             saranTextarea.value = '';
+            saranModal.style.display = 'none';
             alert('✅ Saran Anda berhasil dikirim!');
         } catch (error) {
             console.error("Kesalahan saat mengirim saran:", error);
