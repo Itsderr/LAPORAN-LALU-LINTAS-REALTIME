@@ -232,9 +232,9 @@
   </div>
   <a href="#" data-target="statistikSection" class="active"><span class="emoji">📊</span><span class="link-text">Statistik</span></a>
   <a href="#" data-target="laporanSection"><span class="emoji">📋</span><span class="link-text">Laporan</span></a>
-  <a href="#" data-target="amanSection"><span class="emoji">🚗</span><span class="link-text">Cara Mengemudi Aman</span></a>
   <a href="#" data-target="kameraSection"><span class="emoji">📸</span><span class="link-text">Statistik sistem kamera</span></a>
   <a href="#" data-target="loginSection"><span class="emoji">🔑</span><span class="link-text">Login</span></a>
+  <a href="#" data-target="saranSection"><span class="emoji">📝</span><span class="link-text">Kotak Saran</span></a>
 </nav>
 
 <main class="main" id="mainContent">
@@ -289,15 +289,6 @@
   <div id="summary" style="margin-top:18px;"></div>
 </section>
 
-<section id="amanSection" class="card" style="display:none;">
-  <h3>Cara Mengemudi Aman</h3>
-  <ul style="text-align:left;">
-    <li>Roda 2: Gunakan helm, patuhi rambu, jaga jarak.</li>
-    <li>Roda 4: Pakai sabuk pengaman, jangan pakai HP saat mengemudi.</li>
-    <li>Truck: Periksa muatan, patuhi batas kecepatan, gunakan lampu tambahan.</li>
-  </ul>
-</section>
-
 <section id="kameraSection" class="card" style="display:none;">
   <h3>📸 Statistik sistem kamera</h3>
   <div id="statusKamera">
@@ -310,6 +301,15 @@
 <section id="loginSection" class="card" style="display:none;">
   <h3>Login (Sementara)</h3>
   <p class="small">Demo akun tunggal.</p>
+</section>
+
+<section id="saranSection" class="card" style="display:none;">
+    <h3>📝 Kotak Saran</h3>
+    <p class="muted">Berikan saran atau masukan Anda untuk perbaikan layanan.</p>
+    <div style="margin-top:20px;">
+        <textarea id="saranTextarea" placeholder="Masukkan saran atau masukan Anda di sini..." style="width:92%; max-width:560px;"></textarea>
+    </div>
+    <button class="btn" id="submitSaranBtn">Kirim Saran</button>
 </section>
 
 </main>
@@ -491,6 +491,8 @@
 
     const statusEl = document.getElementById('status');
     const submitBtn = document.getElementById('submitBtn');
+    const saranTextarea = document.getElementById('saranTextarea');
+    const submitSaranBtn = document.getElementById('submitSaranBtn');
 
     submitBtn.addEventListener('click', async () => {
       if (!provEl.value || !kotaEl.value || !daerahEl.value || !jalanEl.value || !statusEl.value) {
@@ -560,6 +562,27 @@
         console.error("Kesalahan saat mengirim laporan ke Realtime Database:", error);
         alert('❌ Gagal mengirim laporan. Coba lagi atau periksa koneksi internet Anda.');
       }
+    });
+
+    submitSaranBtn.addEventListener('click', async () => {
+        const saran = saranTextarea.value;
+        if (!saran) {
+            alert('Mohon isi saran Anda sebelum mengirim.');
+            return;
+        }
+
+        try {
+            const newSaranRef = push(ref(db, 'saran_pengguna'));
+            await push(ref(db, 'saran_pengguna'), {
+                saran: saran,
+                waktu: Date.now()
+            });
+            saranTextarea.value = '';
+            alert('✅ Saran Anda berhasil dikirim!');
+        } catch (error) {
+            console.error("Kesalahan saat mengirim saran:", error);
+            alert('❌ Gagal mengirim saran. Coba lagi atau periksa koneksi internet Anda.');
+        }
     });
 
     const ctx = document.getElementById('chart').getContext('2d');
