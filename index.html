@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>LaluLintasKu — Statistik & Laporan</title>
     
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIINf9xTf5/ASBqLhggu0k7/p0z6Y7qQyLg="
-    crossorigin=""/>
-    
     <style>
         :root{
             --blue-dark:#0056b3;
@@ -170,13 +166,7 @@
             color: #d92727;
         }
         
-        /* Gaya untuk peta */
-        #laporanMap {
-            height: 350px;
-            width: 100%;
-            border-radius: 10px;
-            margin-top: 15px;
-        }
+        /* GAYA UNTUK PETA SUDAH DIHAPUS KARENA TIDAK DIPERLUKAN */
 
         /* FLOATING SUGGESTION BUTTON */
         .suggestion-btn {
@@ -363,8 +353,7 @@
     <div id="fotoWrap" style="display:none;"><label for="foto">Tambahkan Foto (opsional):</label><input type="file" id="foto" accept="image/*"><img id="fotoPreview" src="" style="max-width:100%;height:auto;margin-top:10px;display:none;"></div>
     
     <div id="lokasiWrap" style="display:none;">
-        <label>Lokasi Akurat</label>
-        <div id="laporanMap"></div>
+        <label>Koordinat Lokasi</label>
         <button class="btn" id="getLocationBtn" style="margin-top:10px;">📍 Dapatkan Lokasi Otomatis</button>
         <p id="lokasiInfo" class="small"></p>
         <input type="hidden" id="latInput">
@@ -407,10 +396,6 @@
     </div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-integrity="sha256-20n6g6v4sXQJ3o9D4K82R2gXoPzS9w7m6gW2Q3T7qLg="
-crossorigin=""></script>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
@@ -434,7 +419,6 @@ crossorigin=""></script>
     const menuBtn = document.getElementById('menuBtn');
     const closeBtn = document.getElementById('closeBtn');
 
-    // Memperbaiki bug sidebar
     menuBtn.addEventListener('click', () => {
         sidebar.classList.add('open');
     });
@@ -442,21 +426,6 @@ crossorigin=""></script>
     closeBtn.addEventListener('click', () => {
         sidebar.classList.remove('open');
     });
-
-    // Peta untuk laporan
-    let laporanMap = null;
-    let laporanMarker = null;
-
-    // Fungsi untuk inisialisasi peta laporan
-    function initLaporanMap() {
-        if (laporanMap === null) {
-            laporanMap = L.map('laporanMap').setView([-6.2, 106.8], 13);
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '© OpenStreetMap'
-            }).addTo(laporanMap);
-        }
-    }
     
     // Perbaikan bug navigasi
     sidebar.querySelectorAll('a[data-target]').forEach(a=>{
@@ -469,12 +438,6 @@ crossorigin=""></script>
             a.classList.add('active');
             if (window.innerWidth <= 640) {
                 sidebar.classList.remove('open');
-            }
-            
-            // Inisialisasi peta saat section laporan ditampilkan
-            if (target === 'laporanSection') {
-                initLaporanMap();
-                setTimeout(() => { laporanMap.invalidateSize(); }, 300);
             }
         });
     });
@@ -635,14 +598,8 @@ crossorigin=""></script>
                 const lat = pos.coords.latitude;
                 const lng = pos.coords.longitude;
                 lokasiInfo.textContent = `Lokasi didapatkan: Lat ${lat.toFixed(5)}, Lng ${lng.toFixed(5)}`;
-                latInput.value = lat;
-                lngInput.value = lng;
-                
-                if (laporanMarker) {
-                    laporanMap.removeLayer(laporanMarker);
-                }
-                laporanMap.setView([lat, lng], 16);
-                laporanMarker = L.marker([lat, lng]).addTo(laporanMap);
+                latInput.value = lat; // Simpan lat/lng di input hidden
+                lngInput.value = lng; // Simpan lat/lng di input hidden
             }, (error)=>{
                 lokasiInfo.textContent='Gagal mendapatkan lokasi. Pastikan GPS aktif. Error: ' + error.message;
             });
@@ -689,8 +646,8 @@ crossorigin=""></script>
             status: statusEl.value,
             deskripsi: descEl.value || '',
             foto: '',
-            waktu: Date.now(),
-            lokasi: { lat: latInput.value, lng: lngInput.value }
+            waktu: Date.now()
+            // Koordinat TIDAK DISIMPAN ke Firebase sesuai permintaan
         };
 
         if (fotoEl.files.length > 0) {
@@ -734,11 +691,8 @@ crossorigin=""></script>
             fotoPreview.src = '';
             fotoPreview.style.display = 'none';
             lokasiInfo.textContent = '';
-            latInput.value = '';
-            lngInput.value = '';
-            if (laporanMarker) {
-                laporanMap.removeLayer(laporanMarker);
-            }
+            latInput.value = ''; // Kosongkan input koordinat setelah dikirim
+            lngInput.value = ''; // Kosongkan input koordinat setelah dikirim
 
             alert('✅ Laporan berhasil dikirim!');
         } catch (error) {
