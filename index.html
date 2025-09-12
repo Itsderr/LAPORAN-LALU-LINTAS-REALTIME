@@ -4,34 +4,39 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>LaluLintasKu — Statistik & Laporan</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIINf9xTf5/ASBqLhggu0k7/p0z6Y7qQyLg="
+    crossorigin=""/>
+    
     <style>
         :root{
-          --blue-dark:#0056b3;
-          --blue:#004494;
-          --page-bg:#fff;
-          --panel-bg: rgba(209, 236, 241, 0.9);
-          --sidebar-header-bg: #0056b3;
-          --overlay-bg: rgba(0,0,0,0.6);
+            --blue-dark:#0056b3;
+            --blue:#004494;
+            --page-bg:#fff;
+            --panel-bg: rgba(209, 236, 241, 0.9);
+            --sidebar-header-bg: #0056b3;
+            --overlay-bg: rgba(0,0,0,0.6);
         }
         body{
-          margin:0; font-family: Inter, system-ui, Arial, sans-serif;
-          background-image: url('background.png');
-          background-size: cover;
-          background-attachment: fixed;
-          background-position: center;
-          background-color: var(--page-bg);
-          overflow-x: hidden;
+            margin:0; font-family: Inter, system-ui, Arial, sans-serif;
+            background-image: url('background.png');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-color: var(--page-bg);
+            overflow-x: hidden;
         }
         .header{
-          background: var(--blue-dark);
-          color:#fff;
-          padding:12px 24px;
-          position:fixed;
-          top:0;
-          width:100%;
-          box-sizing:border-box;
-          z-index: 1000;
-          text-align:center;
+            background: var(--blue-dark);
+            color:#fff;
+            padding:12px 24px;
+            position:fixed;
+            top:0;
+            width:100%;
+            box-sizing:border-box;
+            z-index: 1000;
+            text-align:center;
         }
         .header h1 { 
             display: none;
@@ -129,7 +134,7 @@
         .card{ background:#fff; border-radius:16px; padding:24px; box-shadow:0 6px 18px rgba(0,0,0,0.08); margin:12px auto; text-align:center; }
         .card h2, .card h3{ margin-top:0; margin-bottom:12px; color:#111; }
         select, textarea, input[type="text"], input[type="file"]{
-          width:92%; max-width:560px; padding:10px; border-radius:10px; border:1px solid #d0d0d0; font-size:15px; margin-bottom:10px;
+            width:92%; max-width:560px; padding:10px; border-radius:10px; border:1px solid #d0d0d0; font-size:15px; margin-bottom:10px;
         }
         textarea{ min-height:110px; resize:vertical; }
         .btn{ margin-top:16px; background:var(--blue-dark); color:white; border:none; padding:10px 18px; border-radius:8px; cursor:pointer; font-weight:600; }
@@ -147,22 +152,30 @@
         .muted{ color:#666; font-size:13px; margin-top:8px; }
         .small{ font-size:13px; color:#444; }
         .filter-item {
-          margin-bottom: 12px;
-          text-align: left;
+            margin-bottom: 12px;
+            text-align: left;
         }
         .filter-item label {
-          display: block;
-          margin-bottom: 4px;
-          font-weight: 600;
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 600;
         }
         .filter-item select {
-          width: 100%;
+            width: 100%;
         }
         .status-lancar {
-          color: #2b8a3e;
+            color: #2b8a3e;
         }
         .status-macet {
-          color: #d92727;
+            color: #d92727;
+        }
+        
+        /* Gaya untuk peta */
+        #laporanMap, #statsMap {
+            height: 350px;
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 15px;
         }
 
         /* FLOATING SUGGESTION BUTTON */
@@ -286,104 +299,118 @@
 <body>
 
 <header class="header">
-  <button class="menu-btn" id="menuBtn">☰</button>
-  <h1></h1>
+    <button class="menu-btn" id="menuBtn">☰</button>
+    <h1></h1>
 </header>
 
 <nav class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <span class="emoji">🏠</span><span class="text"> LaluLintasKu</span>
-    <button class="close-btn" id="closeBtn">✖</button>
-  </div>
-  <a href="#" data-target="statistikSection" class="active"><span class="emoji">📊</span><span class="link-text">Statistik</span></a>
-  <a href="#" data-target="laporanSection"><span class="emoji">📋</span><span class="link-text">Laporan</span></a>
-  <a href="#" data-target="kameraSection"><span class="emoji">📸</span><span class="link-text">Statistik sistem kamera</span></a>
-  <a href="#" data-target="loginSection"><span class="emoji">🔑</span><span class="link-text">Login</span></a>
+    <div class="sidebar-header">
+        <span class="emoji">🏠</span><span class="text"> LaluLintasKu</span>
+        <button class="close-btn" id="closeBtn">✖</button>
+    </div>
+    <a href="#" data-target="statistikSection" class="active"><span class="emoji">📊</span><span class="link-text">Statistik</span></a>
+    <a href="#" data-target="laporanSection"><span class="emoji">📋</span><span class="link-text">Laporan</span></a>
+    <a href="#" data-target="kameraSection"><span class="emoji">📸</span><span class="link-text">Statistik sistem kamera</span></a>
+    <a href="#" data-target="loginSection"><span class="emoji">🔑</span><span class="link-text">Login</span></a>
 </nav>
 
 <main class="main" id="mainContent">
 
 <section id="statistikSection" class="stats-card">
-  <h3>📊 Statistik Laporan (≤ 1 jam)</h3>
-  <div style="margin-bottom:12px;">
-    <div class="filter-item">
-      <label for="filterProv">Provinsi:</label>
-      <select id="filterProv">
-        <option value="">-- Pilih Provinsi --</option>
-        <option value="Jawa Timur">Jawa Timur</option>
-        <option value="Jawa Barat">Jawa Barat</option>
-        <option value="DKI Jakarta">DKI Jakarta</option>
-      </select>
+    <h3>📊 Statistik Laporan (≤ 1 jam)</h3>
+    <div style="margin-bottom:12px;">
+        <div class="filter-item">
+            <label for="filterProv">Provinsi:</label>
+            <select id="filterProv">
+                <option value="">-- Pilih Provinsi --</option>
+                <option value="Jawa Timur">Jawa Timur</option>
+                <option value="Jawa Barat">Jawa Barat</option>
+                <option value="DKI Jakarta">DKI Jakarta</option>
+            </select>
+        </div>
+        
+        <div class="filter-item">
+            <label for="filterKota">Kota:</label>
+            <select id="filterKota">
+                <option value="">-- Pilih Kota --</option>
+            </select>
+        </div>
+        
+        <div class="filter-item">
+            <label for="filterDaerah">Daerah:</label>
+            <select id="filterDaerah">
+                <option value="">-- Pilih Daerah --</option>
+            </select>
+        </div>
+        <div id="statsMap"></div>
     </div>
-    
-    <div class="filter-item">
-      <label for="filterKota">Kota:</label>
-      <select id="filterKota">
-        <option value="">-- Pilih Kota --</option>
-      </select>
-    </div>
-    
-    <div class="filter-item">
-      <label for="filterDaerah">Daerah:</label>
-      <select id="filterDaerah">
-        <option value="">-- Pilih Daerah --</option>
-      </select>
-    </div>
-  </div>
 
-  <div id="chartContainer">
-    <div id="chartBox"><canvas id="chart"></canvas></div>
-    <div id="chartInfo">Belum ada laporan.</div>
-  </div>
+    <div id="chartContainer">
+        <div id="chartBox"><canvas id="chart"></canvas></div>
+        <div id="chartInfo">Belum ada laporan.</div>
+    </div>
 </section>
 
 <section id="laporanSection" class="card" style="display:none;">
-  <h2>Laporan Lalu Lintas</h2>
-  <label for="provinsi">Pilih Provinsi:</label>
-  <select id="provinsi"><option value="">-- Pilih Provinsi --</option><option value="Jawa Timur">Jawa Timur</option><option value="Jawa Barat">Jawa Barat</option><option value="DKI Jakarta">DKI Jakarta</option></select>
+    <h2>Laporan Lalu Lintas</h2>
+    <label for="provinsi">Pilih Provinsi:</label>
+    <select id="provinsi"><option value="">-- Pilih Provinsi --</option><option value="Jawa Timur">Jawa Timur</option><option value="Jawa Barat">Jawa Barat</option><option value="DKI Jakarta">DKI Jakarta</option></select>
 
-  <div id="kotaWrap" style="display:none;"><label for="kota">Pilih Kota/Kabupaten:</label><select id="kota"><option value="">-- Pilih Kota --</option></select></div>
-  <div id="daerahWrap" style="display:none;"><label for="daerah">Pilih Daerah/Kecamatan:</label><select id="daerah"><option value="">-- Pilih Daerah --</option></select></div>
-  <div id="jalanWrap" style="display:none;"><label for="jalan">Pilih Nama Jalan:</label><select id="jalan"><option value="">-- Pilih Nama Jalan --</option></select></div>
-  <div id="statusWrap" style="display:none;"><label for="status">Status Kondisi:</label><select id="status"><option value="">-- Pilih Kondisi --</option><option value="Macet">Macet</option><option value="Gangguan Lalu Lintas">Gangguan Lalu Lintas</option><option value="Kecelakaan">Kecelakaan</option></select></div>
-  <div id="descWrap" style="display:none;"><label for="deskripsi">Deskripsi (opsional):</label><textarea id="deskripsi" placeholder="Contoh: Lampu merah tidak berfungsi / antrean 500m"></textarea></div>
-  <div id="fotoWrap" style="display:none;"><label for="foto">Tambahkan Foto (opsional):</label><input type="file" id="foto" accept="image/*"><img id="fotoPreview" src=""></div>
-  <div id="lokasiWrap" style="display:none;"><button class="btn" id="getLocationBtn">📍 Dapatkan Lokasi</button><div id="lokasiInfo" class="small"></div></div>
-  <div id="submitWrap" style="display:none;"><button class="btn" id="submitBtn">Kirim Laporan</button><div class="muted">Laporan akan masuk ke ringkasan dan statistik. Batas maksimal 1 laporan per 20 menit per device.</div></div>
-  <div id="summary" style="margin-top:18px;"></div>
+    <div id="kotaWrap" style="display:none;"><label for="kota">Pilih Kota/Kabupaten:</label><select id="kota"><option value="">-- Pilih Kota --</option></select></div>
+    <div id="daerahWrap" style="display:none;"><label for="daerah">Pilih Daerah/Kecamatan:</label><select id="daerah"><option value="">-- Pilih Daerah --</option></select></div>
+    <div id="jalanWrap" style="display:none;"><label for="jalan">Pilih Nama Jalan:</label><select id="jalan"><option value="">-- Pilih Nama Jalan --</option></select></div>
+    <div id="statusWrap" style="display:none;"><label for="status">Status Kondisi:</label><select id="status"><option value="">-- Pilih Kondisi --</option><option value="Macet">Macet</option><option value="Gangguan Lalu Lintas">Gangguan Lalu Lintas</option><option value="Kecelakaan">Kecelakaan</option></select></div>
+    <div id="descWrap" style="display:none;"><label for="deskripsi">Deskripsi (opsional):</label><textarea id="deskripsi" placeholder="Contoh: Lampu merah tidak berfungsi / antrean 500m"></textarea></div>
+    <div id="fotoWrap" style="display:none;"><label for="foto">Tambahkan Foto (opsional):</label><input type="file" id="foto" accept="image/*"><img id="fotoPreview" src="" style="max-width:100%;height:auto;margin-top:10px;display:none;"></div>
+    
+    <div id="lokasiWrap" style="display:none;">
+        <label>Lokasi Akurat</label>
+        <div id="laporanMap"></div>
+        <button class="btn" id="getLocationBtn" style="margin-top:10px;">📍 Dapatkan Lokasi Otomatis</button>
+        <p id="lokasiInfo" class="small"></p>
+        <input type="hidden" id="latInput">
+        <input type="hidden" id="lngInput">
+    </div>
+
+    <div id="submitWrap" style="display:none;"><button class="btn" id="submitBtn">Kirim Laporan</button><div class="muted">Laporan akan masuk ke ringkasan dan statistik. Batas maksimal 1 laporan per 20 menit per device.</div></div>
+    <div id="summary" style="margin-top:18px;"></div>
 </section>
 
 <section id="kameraSection" class="card" style="display:none;">
-  <h3>📸 Statistik sistem kamera</h3>
-  <div id="statusKamera">
-    <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">Status:</p>
-    <span id="trafficStatus" class="status-lancar">...</span>
-    <p class="muted">Jumlah Kendaraan: <span id="vehicleCount">...</span></p>
-  </div>
+    <h3>📸 Statistik sistem kamera</h3>
+    <div id="statusKamera">
+        <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 8px;">Status:</p>
+        <span id="trafficStatus" class="status-lancar">...</span>
+        <p class="muted">Jumlah Kendaraan: <span id="vehicleCount">...</span></p>
+    </div>
 </section>
 
 <section id="loginSection" class="card" style="display:none;">
-  <h3>Login (Sementara)</h3>
-  <p class="small">Demo akun tunggal.</p>
+    <h3>Login (Sementara)</h3>
+    <p class="small">Demo akun tunggal.</p>
 </section>
 
 </main>
 
 <button class="suggestion-btn" id="suggestionBtn">
-  📝
+    📝
 </button>
 
 <div id="saranModal" class="modal">
-  <div class="modal-content">
-    <span class="modal-close-btn" id="saranCloseBtn">&times;</span>
-    <h3>📝 Kotak Saran</h3>
-    <p class="muted">Kritik dan saran Anda akan berguna bagi kami ke depannya.</p>
-    <div style="margin-top:20px;">
-        <textarea id="saranTextarea" placeholder="Masukkan saran atau masukan Anda di sini..." style="width:92%; max-width:560px;"></textarea>
+    <div class="modal-content">
+        <span class="modal-close-btn" id="saranCloseBtn">&times;</span>
+        <h3>📝 Kotak Saran</h3>
+        <p class="muted">Kritik dan saran Anda akan berguna bagi kami ke depannya.</p>
+        <div style="margin-top:20px;">
+            <textarea id="saranTextarea" placeholder="Masukkan saran atau masukan Anda di sini..." style="width:92%; max-width:560px;"></textarea>
+        </div>
+        <button class="btn" id="submitSaranBtn">Kirim Saran</button>
     </div>
-    <button class="btn" id="submitSaranBtn">Kirim Saran</button>
-  </div>
 </div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+integrity="sha256-20n6g6v4sXQJ3o9D4K82R2gXoPzS9w7m6gW2Q3T7qLg="
+crossorigin=""></script>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module">
@@ -417,6 +444,37 @@
         sidebar.classList.remove('open');
     });
 
+    // Peta untuk laporan
+    let laporanMap = null;
+    let laporanMarker = null;
+
+    // Peta untuk statistik
+    let statsMap = null;
+    let statsMarkers = L.layerGroup();
+    
+    // Fungsi untuk inisialisasi peta laporan
+    function initLaporanMap() {
+        if (laporanMap === null) {
+            laporanMap = L.map('laporanMap').setView([-6.2, 106.8], 13);
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap'
+            }).addTo(laporanMap);
+        }
+    }
+
+    // Fungsi untuk inisialisasi peta statistik
+    function initStatsMap() {
+        if (statsMap === null) {
+            statsMap = L.map('statsMap').setView([-6.2, 106.8], 10);
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap'
+            }).addTo(statsMap);
+            statsMarkers.addTo(statsMap);
+        }
+    }
+
     sidebar.querySelectorAll('a[data-target]').forEach(a=>{
       a.addEventListener('click', e=>{
         e.preventDefault();
@@ -427,6 +485,17 @@
         a.classList.add('active');
         if (window.innerWidth <= 640) {
             sidebar.classList.remove('open');
+        }
+        
+        // Inisialisasi peta saat sectionnya ditampilkan
+        if (target === 'laporanSection') {
+            initLaporanMap();
+            setTimeout(() => { laporanMap.invalidateSize(); }, 300);
+        }
+        if (target === 'statistikSection') {
+            initStatsMap();
+            setTimeout(() => { statsMap.invalidateSize(); }, 300);
+            updateChart(); // Memanggil update chart dan peta statistik
         }
       });
     });
@@ -447,6 +516,8 @@
     const lokasiInfo = document.getElementById('lokasiInfo');
     const fotoEl = document.getElementById('foto');
     const fotoPreview = document.getElementById('fotoPreview');
+    const latInput = document.getElementById('latInput');
+    const lngInput = document.getElementById('lngInput');
 
     const wilayah = {
       "Jawa Timur": {
@@ -538,23 +609,43 @@
         summaryDiv.innerHTML='';
       }
     });
-
-    let currentLocation = null;
+    
+    // Dapatkan lokasi dari GPS browser
     document.getElementById('getLocationBtn').addEventListener('click', ()=>{
       if(navigator.geolocation){
         navigator.geolocation.getCurrentPosition(pos=>{
-          currentLocation = {lat: pos.coords.latitude, lng: pos.coords.longitude};
-          lokasiInfo.textContent = `Latitude: ${currentLocation.lat.toFixed(5)}, Longitude: ${currentLocation.lng.toFixed(5)}`;
-        }, ()=>{ lokasiInfo.textContent='Gagal mendapatkan lokasi'; });
-      }else{ lokasiInfo.textContent='Browser tidak mendukung GPS'; }
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          lokasiInfo.textContent = `Lokasi didapatkan: Lat ${lat.toFixed(5)}, Lng ${lng.toFixed(5)}`;
+          latInput.value = lat;
+          lngInput.value = lng;
+          
+          // Pindahkan marker ke lokasi baru dan zoom peta
+          if (laporanMarker) {
+            laporanMap.removeLayer(laporanMarker);
+          }
+          laporanMap.setView([lat, lng], 16);
+          laporanMarker = L.marker([lat, lng]).addTo(laporanMap);
+        }, ()=>{
+          lokasiInfo.textContent='Gagal mendapatkan lokasi. Pastikan GPS aktif.';
+        });
+      }else{
+        lokasiInfo.textContent='Browser tidak mendukung Geolocation API.';
+      }
     });
 
     fotoEl.addEventListener('change', ()=>{
       if(fotoEl.files[0]){
         const reader = new FileReader();
-        reader.onload = e=>{ fotoPreview.src = e.target.result; };
+        reader.onload = e=>{
+          fotoPreview.src = e.target.result;
+          fotoPreview.style.display = 'block';
+        };
         reader.readAsDataURL(fotoEl.files[0]);
-      } else { fotoPreview.src = ''; }
+      } else {
+        fotoPreview.src = '';
+        fotoPreview.style.display = 'none';
+      }
     });
 
     let lastSent = localStorage.getItem('lastSent') || 0;
@@ -581,8 +672,9 @@
         status: statusEl.value,
         deskripsi: descEl.value || '',
         foto: '',
-        lokasi: currentLocation || {},
-        waktu: Date.now()
+        waktu: Date.now(),
+        // Ambil data koordinat dari input hidden
+        lokasi: { lat: latInput.value, lng: lngInput.value }
       };
 
       if (fotoEl.files.length > 0) {
@@ -624,8 +716,14 @@
         descEl.value = '';
         fotoEl.value = '';
         fotoPreview.src = '';
-        currentLocation = null;
+        fotoPreview.style.display = 'none';
         lokasiInfo.textContent = '';
+        latInput.value = '';
+        lngInput.value = '';
+        if (laporanMarker) {
+            laporanMap.removeLayer(laporanMarker);
+        }
+
         alert('✅ Laporan berhasil dikirim!');
       } catch (error) {
         console.error("Kesalahan saat mengirim laporan ke Realtime Database:", error);
@@ -687,7 +785,7 @@
           const o=document.createElement('option'); o.value=k; o.textContent=k; filterKota.appendChild(o);
         });
       }
-      updateChart();
+      updateChartAndMap();
     });
     filterKota.addEventListener('change', ()=>{
       filterDaerah.innerHTML='<option value="">-- Pilih Daerah --</option>';
@@ -696,24 +794,56 @@
           const o=document.createElement('option'); o.value=d; o.textContent=d; filterDaerah.appendChild(o);
         });
       }
-      updateChart();
+      updateChartAndMap();
     });
-    filterDaerah.addEventListener('change', updateChart);
+    filterDaerah.addEventListener('change', updateChartAndMap);
 
-    function updateChart(){
-      if(!filterProv.value || !filterKota.value || !filterDaerah.value) { document.getElementById('chartInfo').innerText='Pilih Provinsi, Kota, dan Daerah terlebih dahulu'; return; }
-
+    function updateChartAndMap(){
+      const filterProvValue = filterProv.value;
+      const filterKotaValue = filterKota.value;
+      const filterDaerahValue = filterDaerah.value;
+      
       onValue(ref(db,'laporan'), snapshot=>{
         const data = snapshot.val() || {};
         const now = Date.now();
         const laporanArr = Object.values(data).filter(l=> now - l.waktu < 3600000 );
         const counts={'Macet':0,'Gangguan Lalu Lintas':0,'Kecelakaan':0};
+        
+        statsMarkers.clearLayers();
+        let validReports = [];
+
         laporanArr.forEach(l=>{
-          if(l.provinsi!==filterProv.value || l.kota!==filterKota.value || l.daerah!==filterDaerah.value) return;
-          if(counts[l.status]!==undefined) counts[l.status]++;
+            const matchesFilter = 
+                (filterProvValue === "" || l.provinsi === filterProvValue) &&
+                (filterKotaValue === "" || l.kota === filterKotaValue) &&
+                (filterDaerahValue === "" || l.daerah === filterDaerahValue);
+
+            if(matchesFilter){
+                validReports.push(l);
+                if(counts[l.status] !== undefined) counts[l.status]++;
+                
+                // Tambahkan marker ke peta statistik jika memiliki koordinat
+                if (l.lokasi && l.lokasi.lat && l.lokasi.lng) {
+                    const marker = L.marker([l.lokasi.lat, l.lokasi.lng]);
+                    marker.bindPopup(`<b>${l.status}</b><br>${l.jalan || l.daerah}, ${l.kota}`).openPopup();
+                    statsMarkers.addLayer(marker);
+                }
+            }
         });
+        
+        // Atur view peta statistik ke lokasi laporan yang difilter
+        if (validReports.length > 0) {
+            const group = new L.featureGroup(statsMarkers.getLayers());
+            statsMap.fitBounds(group.getBounds());
+        } else {
+            // Jika tidak ada laporan, set view ke default
+            statsMap.setView([-6.2, 106.8], 10);
+        }
+
+        // Update chart
         chart.data.datasets[0].data = [counts['Macet'], counts['Gangguan Lalu Lintas'], counts['Kecelakaan']];
         chart.update();
+        
         const total=Object.values(counts).reduce((a,b)=>a+b,0);
         let mayoritas='Belum ada laporan';
         let alasan='';
@@ -733,7 +863,7 @@
         `;
       });
     }
-    updateChart();
+    updateChartAndMap();
 
     function updateSummary(){
       const prov=provEl.value, kota=kotaEl.value, daerah=daerahEl.value;
