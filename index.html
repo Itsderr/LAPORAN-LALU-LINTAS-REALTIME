@@ -455,7 +455,8 @@ crossorigin=""></script>
     // Fungsi untuk inisialisasi peta laporan
     function initLaporanMap() {
         if (laporanMap === null) {
-            laporanMap = L.map('laporanMap').setView([-6.2, 106.8], 13);
+            // Set posisi awal peta, misalnya di tengah Indonesia atau Jakarta
+            laporanMap = L.map('laporanMap').setView([-6.2, 106.8], 13); 
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '© OpenStreetMap'
@@ -466,12 +467,12 @@ crossorigin=""></script>
     // Fungsi untuk inisialisasi peta statistik
     function initStatsMap() {
         if (statsMap === null) {
-            statsMap = L.map('statsMap').setView([-6.2, 106.8], 10);
+            statsMap = L.map('statsMap').setView([-6.2, 106.8], 10); // Koordinat awal untuk Indonesia/Jakarta
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '© OpenStreetMap'
             }).addTo(statsMap);
-            statsMarkers.addTo(statsMap);
+            statsMarkers.addTo(statsMap); // Tambahkan layer group untuk marker statistik
         }
     }
 
@@ -490,12 +491,14 @@ crossorigin=""></script>
         // Inisialisasi peta saat sectionnya ditampilkan
         if (target === 'laporanSection') {
             initLaporanMap();
-            setTimeout(() => { laporanMap.invalidateSize(); }, 300);
+            // Penting untuk invalidateSize setelah peta terlihat agar ukurannya benar
+            setTimeout(() => { if (laporanMap) laporanMap.invalidateSize(); }, 300); 
         }
         if (target === 'statistikSection') {
             initStatsMap();
-            setTimeout(() => { statsMap.invalidateSize(); }, 300);
-            updateChart(); // Memanggil update chart dan peta statistik
+            // Penting untuk invalidateSize setelah peta terlihat agar ukurannya benar
+            setTimeout(() => { if (statsMap) statsMap.invalidateSize(); }, 300);
+            updateChartAndMap(); // Memanggil update chart dan peta statistik
         }
       });
     });
@@ -624,10 +627,12 @@ crossorigin=""></script>
           if (laporanMarker) {
             laporanMap.removeLayer(laporanMarker);
           }
-          laporanMap.setView([lat, lng], 16);
-          laporanMarker = L.marker([lat, lng]).addTo(laporanMap);
-        }, ()=>{
-          lokasiInfo.textContent='Gagal mendapatkan lokasi. Pastikan GPS aktif.';
+          laporanMap.setView([lat, lng], 16); // Zoom ke lokasi
+          laporanMarker = L.marker([lat, lng]).addTo(laporanMap); // Tambahkan marker baru
+          laporanMarker.bindPopup("Lokasi Anda").openPopup(); // Tambahkan popup ke marker
+        }, (error)=>{
+          lokasiInfo.textContent='Gagal mendapatkan lokasi. Pastikan GPS aktif dan izin diberikan.';
+          console.error("Geolocation error:", error);
         });
       }else{
         lokasiInfo.textContent='Browser tidak mendukung Geolocation API.';
@@ -649,7 +654,7 @@ crossorigin=""></script>
     });
 
     let lastSent = localStorage.getItem('lastSent') || 0;
-    const canSend = ()=> Date.now() - lastSent >= 20*60*1000;
+    const canSend = ()=> Date.now() - lastSent >= 20*60*1000; // 20 menit
 
     const statusEl = document.getElementById('status');
     const submitBtn = document.getElementById('submitBtn');
@@ -660,7 +665,8 @@ crossorigin=""></script>
         return;
       }
       if (!canSend()) {
-        alert('⏱ Tunggu 20 menit sebelum mengirim laporan lagi.');
+        const remainingTime = Math.ceil((20*60*1000 - (Date.now() - lastSent)) / 1000);
+        alert(`⏱ Tunggu ${remainingTime} detik lagi sebelum mengirim laporan.`);
         return;
       }
 
@@ -677,6 +683,23 @@ crossorigin=""></script>
         lokasi: { lat: latInput.value, lng: lngInput.value }
       };
 
+      // Pastikan ada koordinat yang diambil sebelum mengunggah foto atau mengirim
+      if (!laporan.lokasi.lat || !laporan.lokasi.lng) {
+          alert('Mohon dapatkan lokasi Anda terlebih dahulu.');
+          return;
+      }
+
+      // Bersihkan dulu marker yang ada jika ada
+      if (laporanMarker) {
+          laporanMap.removeLayer(laporanMarker);
+      }
+      // Tambahkan marker baru di lokasi yang dilaporkan
+      laporanMarker = L.marker([laporan.lokasi.lat, laporan.lokasi.lng]).addTo(laporanMap);
+      laporanMarker.bindPopup(`Lokasi Laporan: ${laporan.jalan || laporan.daerah}`).openPopup();
+      // Center map to the report location
+      laporanMap.setView([laporan.lokasi.lat, laporan.lokasi.lng], 16);
+
+
       if (fotoEl.files.length > 0) {
         try {
           const file = fotoEl.files[0];
@@ -688,6 +711,7 @@ crossorigin=""></script>
               (snapshot) => {
                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 console.log('Unggah foto sedang berjalan: ' + progress.toFixed(0) + '%');
+                // Anda bisa menampilkan progress bar di sini jika diinginkan
               },
               (error) => {
                 reject(error);
@@ -720,9 +744,21 @@ crossorigin=""></script>
         lokasiInfo.textContent = '';
         latInput.value = '';
         lngInput.value = '';
+        // Hapus marker setelah berhasil dikirim agar form siap untuk laporan berikutnya
         if (laporanMarker) {
             laporanMap.removeLayer(laporanMarker);
         }
+        
+        // Reset dropdown setelah pengiriman berhasil
+        provEl.value = '';
+        kotaEl.innerHTML='<option value="">-- Pilih Kota --</option>';
+        daerahEl.innerHTML='<option value="">-- Pilih Daerah --</option>';
+        jalanEl.innerHTML='<option value="">-- Pilih Nama Jalan --</option>';
+        kotaWrap.style.display=daerahWrap.style.display=jalanWrap.style.display=statusWrap.style.display='none';
+        descEl.parentNode.style.display='none';
+        submitWrap.style.display=fotoWrap.style.display=lokasiWrap.style.display='none';
+        summaryDiv.innerHTML='';
+
 
         alert('✅ Laporan berhasil dikirim!');
       } catch (error) {
@@ -806,37 +842,40 @@ crossorigin=""></script>
       onValue(ref(db,'laporan'), snapshot=>{
         const data = snapshot.val() || {};
         const now = Date.now();
-        const laporanArr = Object.values(data).filter(l=> now - l.waktu < 3600000 );
+        const laporanArr = Object.values(data).filter(l=> now - l.waktu < 3600000 ); // Laporan < 1 jam
         const counts={'Macet':0,'Gangguan Lalu Lintas':0,'Kecelakaan':0};
         
-        statsMarkers.clearLayers();
+        statsMarkers.clearLayers(); // Hapus marker lama sebelum menambahkan yang baru
         let validReports = [];
 
         laporanArr.forEach(l=>{
+            // Periksa apakah laporan sesuai dengan filter yang dipilih
             const matchesFilter = 
                 (filterProvValue === "" || l.provinsi === filterProvValue) &&
                 (filterKotaValue === "" || l.kota === filterKotaValue) &&
                 (filterDaerahValue === "" || l.daerah === filterDaerahValue);
 
             if(matchesFilter){
-                validReports.push(l);
+                validReports.push(l); // Tambahkan ke list laporan yang valid
                 if(counts[l.status] !== undefined) counts[l.status]++;
                 
                 // Tambahkan marker ke peta statistik jika memiliki koordinat
                 if (l.lokasi && l.lokasi.lat && l.lokasi.lng) {
                     const marker = L.marker([l.lokasi.lat, l.lokasi.lng]);
-                    marker.bindPopup(`<b>${l.status}</b><br>${l.jalan || l.daerah}, ${l.kota}`).openPopup();
-                    statsMarkers.addLayer(marker);
+                    // Format popup agar lebih informatif
+                    marker.bindPopup(`<b>${l.status}</b><br>${l.jalan || l.daerah}, ${l.kota}<br>Dilaporkan: ${new Date(l.waktu).toLocaleString('id-ID')}`).openPopup();
+                    statsMarkers.addLayer(marker); // Tambahkan marker ke layer group
                 }
             }
         });
         
-        // Atur view peta statistik ke lokasi laporan yang difilter
+        // Atur view peta statistik agar mencakup semua marker yang ditampilkan
         if (validReports.length > 0) {
+            // Gunakan featureGroup untuk mendapatkan batas dari semua marker
             const group = new L.featureGroup(statsMarkers.getLayers());
             statsMap.fitBounds(group.getBounds());
         } else {
-            // Jika tidak ada laporan, set view ke default
+            // Jika tidak ada laporan yang cocok dengan filter, set view ke default
             statsMap.setView([-6.2, 106.8], 10);
         }
 
@@ -845,8 +884,7 @@ crossorigin=""></script>
         chart.update();
         
         const total=Object.values(counts).reduce((a,b)=>a+b,0);
-        let mayoritas='Belum ada laporan';
-        let alasan='';
+        let mayoritas='Belum ada laporan', alasan='';
         if(total>0){
           const max=Math.max(...Object.values(counts));
           const winners=Object.keys(counts).filter(k=>counts[k]===max && max>0);
@@ -863,17 +901,25 @@ crossorigin=""></script>
         `;
       });
     }
+    // Panggil fungsi saat halaman pertama kali dimuat
     updateChartAndMap();
 
     function updateSummary(){
       const prov=provEl.value, kota=kotaEl.value, daerah=daerahEl.value;
-      if(!prov||!kota||!daerah) return;
+      if(!prov||!kota||!daerah) return; // Pastikan filter sudah terisi
       onValue(ref(db,'laporan'), snapshot=>{
         const data = snapshot.val() || {};
         const now = Date.now();
-        const laporanArr = Object.values(data).filter(l=> now - l.waktu < 3600000 );
+        const laporanArr = Object.values(data).filter(l=> now - l.waktu < 3600000 ); // Laporan < 1 jam
         const counts={'Macet':0,'Gangguan Lalu Lintas':0,'Kecelakaan':0};
-        laporanArr.forEach(l=>{ if(l.provinsi===prov && l.kota===kota && l.daerah===daerah) counts[l.status]++; });
+        laporanArr.forEach(l=>{
+          // Hitung laporan hanya untuk area yang dipilih
+          if(l.provinsi===prov && l.kota===kota && l.daerah===daerah) {
+              if (counts[l.status] !== undefined) {
+                 counts[l.status]++;
+              }
+          }
+        });
         const total=Object.values(counts).reduce((a,b)=>a+b,0);
         let mayoritas='Belum ada laporan', alasan='';
         if(total>0){
