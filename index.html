@@ -19,6 +19,10 @@
             background-color: var(--page-bg);
             color: var(--text-color);
             line-height: 1.6;
+            background-image: url('background.png'); /* Menambahkan background image */
+            background-size: cover; /* Memastikan gambar menutupi seluruh area */
+            background-attachment: fixed; /* Agar background tetap saat scroll */
+            background-position: center center; /* Memposisikan gambar di tengah */
         }
         .header{
             background: var(--panel-bg);
@@ -307,7 +311,7 @@
 </main>
 
 <footer class="footer">
-    <button class="btn" onclick="document.getElementById('loginSection').style.display = 'block'; document.getElementById('statistikSection').style.display='none'; document.getElementById('laporanSection').style.display='none'; document.getElementById('kameraSection').style.display='none';">Login</button>
+    <button class="btn" id="footerLoginBtn">Login</button>
 </footer>
 
 <button class="suggestion-btn" id="suggestionBtn">
@@ -365,6 +369,19 @@
             e.target.classList.add('active');
         });
     });
+
+    // Handle Login button in footer
+    document.getElementById('footerLoginBtn').addEventListener('click', () => {
+        sections.forEach(section => {
+            section.style.display = 'none';
+        });
+        document.getElementById('loginSection').style.display = 'block';
+        navLinks.forEach(navLink => {
+            navLink.classList.remove('active');
+        });
+        // Optionally, add a class to the footer login button if you want to highlight it
+    });
+
 
     document.getElementById(defaultSectionId).style.display = 'block';
 
