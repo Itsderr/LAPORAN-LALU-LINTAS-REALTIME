@@ -203,6 +203,11 @@
             color: #000;
             text-decoration: none;
         }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+        }
 
         /* Media Queries for Mobile */
         @media (max-width: 600px) {
@@ -230,7 +235,6 @@
     <a href="#" data-target="statistikSection" class="active">Statistik</a>
     <a href="#" data-target="laporanSection">Laporan</a>
     <a href="#" data-target="kameraSection">Sistem Kamera</a>
-    <a href="#" data-target="loginSection">Login</a>
   </nav>
 </header>
 
@@ -301,6 +305,10 @@
 </section>
 
 </main>
+
+<footer class="footer">
+    <button class="btn" onclick="document.getElementById('loginSection').style.display = 'block'; document.getElementById('statistikSection').style.display='none'; document.getElementById('laporanSection').style.display='none'; document.getElementById('kameraSection').style.display='none';">Login</button>
+</footer>
 
 <button class="suggestion-btn" id="suggestionBtn">
   📝
