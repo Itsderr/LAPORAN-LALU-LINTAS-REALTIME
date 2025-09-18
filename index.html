@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -334,7 +335,8 @@
   <div style="margin-top:20px;">
       <h4>📹 Live Kamera</h4>
       <div style="text-align: center;">
-          <img src="https://5ccebafb547f.ngrok-free.app/video_feed" alt="Live Camera Feed" style="max-width: 100%; border-radius: 8px;">
+          <img src="http://localhost:5000/video_feed" alt="Live Camera Feed" style="max-width: 100%; border-radius: 8px;">
+          <p class="muted">Pastikan skrip Python untuk kamera sudah berjalan.</p>
           <button class="btn btn-danger" id="stopCameraButton" style="margin-top:10px;">Matikan Kamera</button>
       </div>
   </div>
@@ -360,7 +362,7 @@
   <div class="admin-report-container">
       <h4>Laporan Menunggu Persetujuan</h4>
       <div id="pendingReportsContainer">
-          <p>Memuat laporan pending...</p>
+          <p>Memuat laporan...</p>
       </div>
   </div>
 
@@ -814,8 +816,7 @@
     }
 
     document.getElementById('stopCameraButton').addEventListener('click', () => {
-        const ngrokUrl = document.querySelector('#kameraSection img').src.replace('/video_feed', '/stop_feed');
-        fetch(ngrokUrl)
+        fetch('http://localhost:5000/stop_feed')
             .then(response => response.json())
             .then(data => {
                 alert(data.status);
