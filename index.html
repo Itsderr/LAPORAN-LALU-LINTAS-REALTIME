@@ -19,10 +19,10 @@
             background-color: var(--page-bg);
             color: var(--text-color);
             line-height: 1.6;
-            background-image: url('background.png'); /* Menambahkan background image */
-            background-size: cover; /* Memastikan gambar menutupi seluruh area */
-            background-attachment: fixed; /* Agar background tetap saat scroll */
-            background-position: center center; /* Memposisikan gambar di tengah */
+            background-image: url('background.png');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center center;
         }
         .header{
             background: var(--panel-bg);
@@ -74,7 +74,7 @@
             color: var(--blue-dark);
             font-weight: 600;
         }
-        select, textarea, input[type="text"], input[type="file"]{
+        select, textarea, input[type="text"], input[type="file"], input[type="password"]{
             width: 100%;
             max-width: 500px;
             padding: 12px;
@@ -108,6 +108,8 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
+            overflow-x: auto;
+            display: block;
         }
         th,td{
             padding: 12px 15px;
@@ -142,8 +144,6 @@
         .status-macet {
           color: #d92727;
         }
-
-        /* FLOATING SUGGESTION BUTTON */
         .suggestion-btn {
             position: fixed;
             bottom: 25px;
@@ -167,8 +167,6 @@
             transform: scale(1.1);
             background: var(--blue);
         }
-
-        /* MODAL (POP-UP) FOR SUGGESTION FORM */
         .modal {
             display: none;
             position: fixed;
@@ -212,7 +210,32 @@
             margin-top: 40px;
             padding: 20px;
         }
-
+        .admin-report-container {
+            text-align: left;
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+        .admin-report-container h4 {
+            margin-top: 0;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .admin-report-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
+        .admin-report-item:last-child {
+            border-bottom: none;
+        }
+        .admin-report-photo {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
         /* Media Queries for Mobile */
         @media (max-width: 600px) {
             .header{
@@ -304,14 +327,30 @@
 </section>
 
 <section id="loginSection" class="card" style="display:none;">
-  <h3>Login (Sementara)</h3>
-  <p class="small">Demo akun tunggal.</p>
+  <h3>Login Admin</h3>
+  <form id="loginForm">
+    <label for="username">Username:</label>
+    <input type="text" id="username" placeholder="Masukkan username">
+    <label for="password">Password:</label>
+    <input type="password" id="password" placeholder="Masukkan password">
+    <button type="submit" class="btn">Login</button>
+  </form>
+</section>
+
+<section id="adminSection" class="stats-card" style="display:none;">
+  <h3 style="display:flex; justify-content: space-between; align-items: center;">
+      <span>Laporan Admin</span>
+      <button class="btn" id="logoutBtn">Logout</button>
+  </h3>
+  <div id="reportsContainer">
+    <p>Memuat laporan...</p>
+  </div>
 </section>
 
 </main>
 
 <footer class="footer">
-    <button class="btn" id="footerLoginBtn">Login</button>
+    <button class="btn" id="footerLoginBtn">Login Admin</button>
 </footer>
 
 <button class="suggestion-btn" id="suggestionBtn">
@@ -370,7 +409,6 @@
         });
     });
 
-    // Handle Login button in footer
     document.getElementById('footerLoginBtn').addEventListener('click', () => {
         sections.forEach(section => {
             section.style.display = 'none';
@@ -379,9 +417,7 @@
         navLinks.forEach(navLink => {
             navLink.classList.remove('active');
         });
-        // Optionally, add a class to the footer login button if you want to highlight it
     });
-
 
     document.getElementById(defaultSectionId).style.display = 'block';
 
@@ -750,6 +786,75 @@
         kameraStatusEl.textContent = "Gagal memuat data. Periksa konsol.";
         vehicleCountEl.textContent = "Gagal";
     }
+
+    // --- Admin Login & Report Viewer ---
+    const loginForm = document.getElementById('loginForm');
+    const reportsContainer = document.getElementById('reportsContainer');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    const ADMIN_USERNAME = "admin";
+    const ADMIN_PASSWORD = "admin123";
+
+    function showAdminSection() {
+        sections.forEach(section => {
+            section.style.display = 'none';
+        });
+        document.getElementById('adminSection').style.display = 'block';
+        loadReports();
+    }
+
+    function loadReports() {
+        reportsContainer.innerHTML = '<p>Memuat laporan...</p>';
+        const reportsRef = ref(db, 'laporan');
+        onValue(reportsRef, (snapshot) => {
+            const reports = snapshot.val();
+            if (reports) {
+                const sortedReports = Object.values(reports).sort((a, b) => b.waktu - a.waktu);
+                let reportHtml = '';
+                sortedReports.forEach(report => {
+                    const date = new Date(report.waktu).toLocaleString();
+                    const photoHtml = report.foto ? `<img src="${report.foto}" alt="Foto Laporan" class="admin-report-photo">` : '';
+                    reportHtml += `
+                        <div class="admin-report-item">
+                            <h4>Laporan dari ${report.daerah}, ${report.kota}</h4>
+                            <p><b>Waktu:</b> ${date}</p>
+                            <p><b>Jalan:</b> ${report.jalan}</p>
+                            <p><b>Status:</b> <span class="status-${report.status.toLowerCase().replace(/\s/g, '-')}">${report.status.toUpperCase()}</span></p>
+                            <p><b>Deskripsi:</b> ${report.deskripsi || '-'}</p>
+                            ${photoHtml}
+                        </div>
+                    `;
+                });
+                reportsContainer.innerHTML = reportHtml;
+            } else {
+                reportsContainer.innerHTML = '<p>Belum ada laporan yang tersedia.</p>';
+            }
+        });
+    }
+
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+            showAdminSection();
+            document.getElementById('loginSection').style.display = 'none';
+        } else {
+            alert('Username atau password salah!');
+        }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+        sections.forEach(section => {
+            section.style.display = 'none';
+        });
+        document.getElementById(defaultSectionId).style.display = 'block';
+        navLinks.forEach(navLink => {
+            navLink.classList.remove('active');
+        });
+        document.querySelector(`[data-target="${defaultSectionId}"]`).classList.add('active');
+    });
+
 </script>
 </body>
 </html>
