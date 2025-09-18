@@ -325,11 +325,19 @@
 </section>
 
 <section id="kameraSection" class="card" style="display:none;">
-  <h3>📸 Statistik sistem kamera</h3>
+  <h3>📸 Statistik Sistem Kamera</h3>
   <div id="kameraStatusContainer">
     <p>Status:</p>
     <div id="kameraStatus" style="font-size: 1.5rem; font-weight: bold;">Memuat data...</div>
     <p class="muted">Jumlah Kendaraan: <span id="vehicleCount">Memuat...</span></p>
+  </div>
+  <div style="margin-top:20px;">
+      <h4>📹 Live Kamera</h4>
+      <div style="text-align: center;">
+          <img src="http://localhost:5000/video_feed" alt="Live Camera Feed" style="max-width: 100%; border-radius: 8px;">
+          <p class="muted">Pastikan skrip Python untuk kamera sudah berjalan.</p>
+          <button class="btn btn-danger" id="stopCameraButton" style="margin-top:10px;">Matikan Kamera</button>
+      </div>
   </div>
 </section>
 
@@ -805,6 +813,19 @@
         kameraStatusEl.textContent = "Gagal memuat data. Periksa konsol.";
         vehicleCountEl.textContent = "Gagal";
     }
+
+    document.getElementById('stopCameraButton').addEventListener('click', () => {
+        fetch('http://localhost:5000/stop_feed')
+            .then(response => response.json())
+            .then(data => {
+                alert(data.status);
+                document.getElementById('stopCameraButton').disabled = true;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Gagal mematikan kamera. Pastikan server Python berjalan.');
+            });
+    });
 
     // --- Admin Login & Report Viewer ---
     const loginForm = document.getElementById('loginForm');
