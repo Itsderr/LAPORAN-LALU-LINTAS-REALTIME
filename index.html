@@ -96,6 +96,10 @@
             transition: background 0.2s ease;
         }
         .btn:hover{ background: var(--blue); }
+        .btn-success { background-color: #28a745; }
+        .btn-success:hover { background-color: #218838; }
+        .btn-danger { background-color: #dc3545; }
+        .btn-danger:hover { background-color: #c82333; }
         .stats-card{
             max-width: 900px;
             margin: 20px auto;
@@ -236,6 +240,9 @@
             border-radius: 8px;
             margin-top: 10px;
         }
+        .action-buttons button {
+            margin-right: 8px;
+        }
         /* Media Queries for Mobile */
         @media (max-width: 600px) {
             .header{
@@ -342,8 +349,19 @@
       <span>Laporan Admin</span>
       <button class="btn" id="logoutBtn">Logout</button>
   </h3>
-  <div id="reportsContainer">
-    <p>Memuat laporan...</p>
+  
+  <div class="admin-report-container">
+      <h4>Laporan Menunggu Persetujuan</h4>
+      <div id="pendingReportsContainer">
+          <p>Memuat laporan...</p>
+      </div>
+  </div>
+
+  <div class="admin-report-container" style="margin-top:20px;">
+      <h4>Laporan Sudah Disetujui</h4>
+      <div id="confirmedReportsContainer">
+          <p>Memuat laporan...</p>
+      </div>
   </div>
 </section>
 
@@ -372,7 +390,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue, get, set } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+    import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
     import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
 
     const firebaseConfig = {
@@ -572,7 +590,8 @@
         deskripsi: descEl.value || '',
         foto: '',
         lokasi: currentLocation || {},
-        waktu: Date.now()
+        waktu: Date.now(),
+        konfirmasi: 'pending' // Default status is pending
       };
 
       if (fotoEl.files.length > 0) {
@@ -616,7 +635,7 @@
         fotoPreview.src = '';
         currentLocation = null;
         lokasiInfo.textContent = '';
-        alert('✅ Laporan berhasil dikirim!');
+        alert('✅ Laporan berhasil dikirim! Menunggu konfirmasi admin.');
       } catch (error) {
         console.error("Kesalahan saat mengirim laporan ke Realtime Database:", error);
         alert('❌ Gagal mengirim laporan. Coba lagi atau periksa koneksi internet Anda.');
@@ -696,7 +715,7 @@
       onValue(ref(db,'laporan'), snapshot=>{
         const data = snapshot.val() || {};
         const now = Date.now();
-        const laporanArr = Object.values(data).filter(l=> now - l.waktu < 3600000 );
+        const laporanArr = Object.values(data).filter(l => (l.konfirmasi === 'confirmed' || !l.konfirmasi) && (now - l.waktu < 3600000) );
         const counts={'Macet':0,'Gangguan Lalu Lintas':0,'Kecelakaan':0};
         laporanArr.forEach(l=>{
           if(l.provinsi!==filterProv.value || l.kota!==filterKota.value || l.daerah!==filterDaerah.value) return;
@@ -731,7 +750,7 @@
       onValue(ref(db,'laporan'), snapshot=>{
         const data = snapshot.val() || {};
         const now = Date.now();
-        const laporanArr = Object.values(data).filter(l=> now - l.waktu < 3600000 );
+        const laporanArr = Object.values(data).filter(l => (l.konfirmasi === 'confirmed' || !l.konfirmasi) && (now - l.waktu < 3600000) );
         const counts={'Macet':0,'Gangguan Lalu Lintas':0,'Kecelakaan':0};
         laporanArr.forEach(l=>{ if(l.provinsi===prov && l.kota===kota && l.daerah===daerah) counts[l.status]++; });
         const total=Object.values(counts).reduce((a,b)=>a+b,0);
@@ -789,7 +808,8 @@
 
     // --- Admin Login & Report Viewer ---
     const loginForm = document.getElementById('loginForm');
-    const reportsContainer = document.getElementById('reportsContainer');
+    const pendingReportsContainer = document.getElementById('pendingReportsContainer');
+    const confirmedReportsContainer = document.getElementById('confirmedReportsContainer');
     const logoutBtn = document.getElementById('logoutBtn');
 
     const ADMIN_USERNAME = "admin";
@@ -804,33 +824,84 @@
     }
 
     function loadReports() {
-        reportsContainer.innerHTML = '<p>Memuat laporan...</p>';
+        pendingReportsContainer.innerHTML = '<p>Memuat laporan pending...</p>';
+        confirmedReportsContainer.innerHTML = '<p>Memuat laporan yang sudah disetujui...</p>';
         const reportsRef = ref(db, 'laporan');
         onValue(reportsRef, (snapshot) => {
-            const reports = snapshot.val();
-            if (reports) {
-                const sortedReports = Object.values(reports).sort((a, b) => b.waktu - a.waktu);
-                let reportHtml = '';
-                sortedReports.forEach(report => {
-                    const date = new Date(report.waktu).toLocaleString();
-                    const photoHtml = report.foto ? `<img src="${report.foto}" alt="Foto Laporan" class="admin-report-photo">` : '';
-                    reportHtml += `
-                        <div class="admin-report-item">
-                            <h4>Laporan dari ${report.daerah}, ${report.kota}</h4>
-                            <p><b>Waktu:</b> ${date}</p>
-                            <p><b>Jalan:</b> ${report.jalan}</p>
-                            <p><b>Status:</b> <span class="status-${report.status.toLowerCase().replace(/\s/g, '-')}">${report.status.toUpperCase()}</span></p>
-                            <p><b>Deskripsi:</b> ${report.deskripsi || '-'}</p>
-                            ${photoHtml}
-                        </div>
-                    `;
-                });
-                reportsContainer.innerHTML = reportHtml;
-            } else {
-                reportsContainer.innerHTML = '<p>Belum ada laporan yang tersedia.</p>';
+            const reports = snapshot.val() || {};
+            const pendingReports = [];
+            const confirmedReports = [];
+
+            for (const key in reports) {
+                if (reports[key].konfirmasi === 'pending') {
+                    pendingReports.push({ id: key, ...reports[key] });
+                } else {
+                    confirmedReports.push({ id: key, ...reports[key] });
+                }
             }
+            
+            pendingReports.sort((a, b) => b.waktu - a.waktu);
+            confirmedReports.sort((a, b) => b.waktu - a.waktu);
+
+            renderReports(pendingReports, pendingReportsContainer, 'pending');
+            renderReports(confirmedReports, confirmedReportsContainer, 'confirmed');
         });
     }
+
+    function renderReports(reports, container, type) {
+        if (reports.length === 0) {
+            container.innerHTML = `<p>Tidak ada laporan ${type === 'pending' ? 'yang menunggu persetujuan' : 'yang sudah disetujui'}.</p>`;
+            return;
+        }
+        
+        let reportHtml = '';
+        reports.forEach(report => {
+            const date = new Date(report.waktu).toLocaleString();
+            const photoHtml = report.foto ? `<img src="${report.foto}" alt="Foto Laporan" class="admin-report-photo">` : '';
+            const statusClass = `status-${report.status.toLowerCase().replace(/\s/g, '-')}`;
+
+            reportHtml += `
+                <div class="admin-report-item">
+                    <p><b>Waktu:</b> ${date}</p>
+                    <p><b>Lokasi:</b> ${report.jalan}, ${report.daerah}, ${report.kota}, ${report.provinsi}</p>
+                    <p><b>Status:</b> <span class="${statusClass}">${report.status.toUpperCase()}</span></p>
+                    <p><b>Deskripsi:</b> ${report.deskripsi || '-'}</p>
+                    ${photoHtml}
+                    <div class="action-buttons" style="margin-top:10px;">
+                        ${type === 'pending' ? `<button class="btn btn-success" onclick="approveReport('${report.id}')">Setuju</button>` : ''}
+                        <button class="btn btn-danger" onclick="deleteReport('${report.id}')">Hapus</button>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = reportHtml;
+    }
+
+    window.approveReport = async (reportId) => {
+        if (confirm('Yakin ingin menyetujui laporan ini?')) {
+            const updates = {};
+            updates['/laporan/' + reportId + '/konfirmasi'] = 'confirmed';
+            try {
+                await update(ref(db), updates);
+                alert('Laporan berhasil disetujui!');
+            } catch (error) {
+                console.error("Kesalahan saat menyetujui laporan:", error);
+                alert('Gagal menyetujui laporan.');
+            }
+        }
+    };
+
+    window.deleteReport = async (reportId) => {
+        if (confirm('Yakin ingin menghapus laporan ini?')) {
+            try {
+                await remove(ref(db, 'laporan/' + reportId));
+                alert('Laporan berhasil dihapus!');
+            } catch (error) {
+                console.error("Kesalahan saat menghapus laporan:", error);
+                alert('Gagal menghapus laporan.');
+            }
+        }
+    };
 
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
